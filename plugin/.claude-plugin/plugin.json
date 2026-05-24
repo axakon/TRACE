@@ -1,0 +1,8 @@
+{
+  "name": "playbook",
+  "version": "0.5.2",
+  "description": "Consultancy playbook for AI-assisted development. Automates durable-context setup, CLAUDE.md authoring, starter-doc scaffolding, spec-driven workflows, architecture decision records, and context distillation.",
+  "author": {
+    "name": "Axakon"
+  }
+}
