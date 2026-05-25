@@ -15,13 +15,16 @@ The deliverable is a Git repository. A team clones it, follows the Quick Start, 
 
 Brownfield is the default path; greenfield is handled as called-out variations within each phase.
 
-## Three deliverable categories
+## Repo layout — deliverable vs. workshop
 
-- **The playbook itself** (`docs/playbook/`) — the prose. Scannable, imperative, opinionated.
-- **The reference layer** (`docs/reference/`) — the long-form rationale. Each playbook step links back to the reference section that justifies it.
-- **The awesome-list and onboarding skills** — adjacent v1 deliverables, separately scoped.
+The repo is split in two:
 
-The v2 accelerator skills (skills that walk Claude through implementing the playbook itself) will live in this same repo when authored.
+- **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugin/` (the Claude Code plugin), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
+- **`docs/`** — the workshop. TRACE applying its own conventions on itself. Working notes, reference rationale, ADRs, and the architecture overview you are reading now. The READMEs inside `docs/` are generic — describing the convention an adopter is following — so they double as templates.
+
+The reference layer (`docs/reference/`) holds the rationale behind every playbook step; each `deliverable/playbook/<phase>.md` links back to the reference doc(s) and ADR(s) that justify it.
+
+The v2 accelerator skills (skills that walk Claude through implementing the playbook itself) will live in `deliverable/plugin/` when authored.
 
 ## The self-feeding loop
 
@@ -32,9 +35,9 @@ work on TRACE (with Claude)
     ↓ friction / decision observed
 captured as a working note in docs/working-notes/, distilled into an ADR
     ↓ periodic synthesis pass
-promoted into docs/reference/ (rationale) and docs/playbook/ (imperative steps)
+promoted into docs/reference/ (rationale) and deliverable/playbook/ (imperative steps)
     ↓
-shipped to adopting teams via the repo + onboarding skills
+shipped to adopting teams via the deliverable/ folder
     ↓
 their feedback returns as new working notes — loop continues
 ```
@@ -44,7 +47,7 @@ The lifecycle is visible on disk:
 1. **`docs/working-notes/`** — research substrate. The `Status:` header signals stage (`Research note` → `Stabilizing` → `Promoted`).
 2. **`docs/adr/`** — structured decision capture. The friction log. Decisions only; raw observations stay in working notes.
 3. **`docs/reference/`** — rationale extracted from a stabilized note. The note is frozen, not deleted.
-4. **`docs/playbook/`** — imperative how-to extracted from `reference/`. Each section links back to its reference doc(s) and ADR(s).
+4. **`deliverable/playbook/`** — imperative how-to extracted from `reference/`. Each section links back to its reference doc(s) and ADR(s).
 
 ## Conventions that override defaults
 

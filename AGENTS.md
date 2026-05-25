@@ -6,6 +6,14 @@ A playbook for AI-first software development. This repo is the workspace where t
 
 TRACE is a writing project, not a code project. The "build" is markdown synthesis. Every framework-level decision made while working here becomes empirical input for the playbook itself — the project is its own first dogfood example. See `@docs/architecture/overview.md` for the loop.
 
+## How to install
+If you are an AI agent that's been pointed towards this repository, you should start off at the `@deliverable/README.md` file.
+
+The repo is organized in two halves:
+
+- **`deliverable/`** — what adopters consume (the playbook, the plugin, the awesome-list, examples). Each folder inside is a deliverable in its own right.
+- **`docs/`** — TRACE applying its own conventions to itself (working notes, reference, ADRs, architecture). The READMEs inside `docs/` describe **conventions**, not TRACE-specific facts, so adopters can copy the structure into their own repos verbatim.
+
 ## Stack (writing tooling only)
 
 - Markdown, GitHub-flavored. Mermaid for diagrams, inline in the doc that uses them.
@@ -16,7 +24,7 @@ TRACE is a writing project, not a code project. The "build" is markdown synthesi
 - **Working notes** live in `docs/working-notes/` and use a `Status:` header (`Research note` / `Stabilizing` / `Promoted`), plus `Resolved` and `Open questions` sections.
 - **Decisions** about the framework are recorded as ADRs in `docs/adr/` using the lightweight Nygard template (Context / Decision / Consequences). Don't make a framework-level decision in conversation without writing it up.
 - **Promotion lifecycle:** working note → reference doc → playbook section. A note is promoted only when its opinions stop moving. The original note stays as historical substrate, frozen.
-- **Playbook layout** is flat numbered files: `docs/playbook/01-assess.md`, `02-document.md`, `03-equip.md`, `04-operate.md`. Do not create a phase file until that phase has real, synthesized content.
+- **Playbook layout** is flat numbered files: `deliverable/playbook/01-assess.md`, `02-document.md`, `03-equip.md`, `04-operate.md`. Do not create a phase file until that phase has real, synthesized content.
 
 ## Guardrails
 
@@ -27,22 +35,14 @@ TRACE is a writing project, not a code project. The "build" is markdown synthesi
 
 ## When to read what
 
+Each folder has its own `README.md` that describes what belongs there. Before writing into a folder, read its README. The map below is just the entry points:
+
 - What TRACE is, the four-phase playbook hypothesis, the self-feeding loop:
   → `@docs/architecture/overview.md`
-- Framework-level decisions and their rationale:
-  → `@docs/adr/README.md`
-- Research substrate (notes still moving, with open questions):
-  → `@docs/working-notes/`
-- Long-form rationale promoted from working notes:
-  → `@docs/reference/`
-- The deliverable prose (imperative how-to, by phase):
-  → `@docs/playbook/`
-- Onboarding skills authored for adopting teams (v1 deliverable):
-  → `@onboarding/`
-- Curated external skills, MCP servers, and rules:
-  → `@awesome-list/`
-- Example projects applying the framework:
-  → `@examples/`
+- The funnel of written knowledge (working-notes → reference, plus adr/ and architecture/):
+  → `@docs/README.md`
+- The deliverables shipped to adopters (playbook prose, plugin, awesome-list, examples):
+  → `@deliverable/playbook/`, `@deliverable/plugin/`, `@deliverable/awesome-list/`, `@deliverable/examples/`
 
 ## When making non-trivial edits
 
