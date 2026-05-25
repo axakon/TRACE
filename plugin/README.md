@@ -9,7 +9,7 @@ The plugin contains six skills, three plugin-level hooks, and an optional bundle
 Register the marketplace, then install the plugin from it:
 
 ```
-/plugin marketplace add SlinkyBMajor/ai-playbook
+/plugin marketplace add axakon/TRACE
 /plugin install playbook@ai-playbook
 ```
 
@@ -48,7 +48,7 @@ To have a repository offer the playbook to everyone who opens it, commit both th
 {
   "extraKnownMarketplaces": {
     "ai-playbook": {
-      "source": { "source": "github", "repo": "SlinkyBMajor/ai-playbook" }
+      "source": { "source": "github", "repo": "axakon/TRACE" }
     }
   },
   "enabledPlugins": { "playbook@ai-playbook": true }
