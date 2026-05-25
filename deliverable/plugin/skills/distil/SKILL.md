@@ -1,6 +1,6 @@
 ---
 name: distil
-description: Evaluate recent changes and propose updates to the project's permanent context (CLAUDE.md or the scope's docs folder) when something durable was learned
+description: Evaluate recent changes and propose updates to the project's permanent context (AGENTS.md or the scope's docs folder) when something durable was learned
 disable-model-invocation: true
 allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(node *) Glob Read Edit Write
 ---
@@ -21,20 +21,20 @@ Then read the diff only for files worth evaluating, one or a few at a time: `git
 
 ## Phase 2: Evaluate against criteria
 
-Apply [distillation-criteria.md](../../shared/distillation-criteria.md) to what you read. Judge criteria 1–4 (new convention, security boundary, durable design choice, non-obvious gotcha) from the diff alone. Hold each qualifying observation as a separate candidate — they may route to different files. Criterion 5 (a correction to existing context) is confirmed in Phase 3, when you read the affected scope's `CLAUDE.md`.
+Apply [distillation-criteria.md](../../shared/distillation-criteria.md) to what you read. Judge criteria 1–4 (new convention, security boundary, durable design choice, non-obvious gotcha) from the diff alone. Hold each qualifying observation as a separate candidate — they may route to different files. Criterion 5 (a correction to existing context) is confirmed in Phase 3, when you read the affected scope's `AGENTS.md`.
 
 If the diff yields no candidates and nothing in it plausibly invalidates existing context, say so, clear the sentinel (Phase 6), and stop — skip the rest. Most runs distil nothing; don't invent reasons to write.
 
 ## Phase 3: Map scope and read only the relevant existing context
 
-A project may be a single repo or a super-repo of sub-repos that each carry their own `CLAUDE.md` and durable-context folder. Route each candidate to the *most-local* scope whose contents it describes — otherwise sub-repo knowledge lands at the super-repo level, where someone working inside the sub-repo never sees it.
+A project may be a single repo or a super-repo of sub-repos that each carry their own `AGENTS.md` and durable-context folder. Route each candidate to the *most-local* scope whose contents it describes — otherwise sub-repo knowledge lands at the super-repo level, where someone working inside the sub-repo never sees it.
 
-For each candidate, find its **nearest-ancestor scope** — the closest ancestor directory (from the changed file upward) containing a `CLAUDE.md`; the repo root counts, intermediate directories with their own `CLAUDE.md` count first. Resolve that scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md); if it isn't playbook-marked yet, you'll mark it on first write (Phase 5).
+For each candidate, find its **nearest-ancestor scope** — the closest ancestor directory (from the changed file upward) containing an `AGENTS.md`; the repo root counts, intermediate directories with their own `AGENTS.md` count first. (An existing `CLAUDE.md` without a sibling `AGENTS.md` does *not* count — per this plugin's convention only AGENTS.md is canonical.) Resolve that scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md); if it isn't playbook-marked yet, you'll mark it on first write (Phase 5).
 
 Read existing context **proportionally** — enough to avoid duplicates and contradictions, not the whole library:
 
-- The affected scope's root `CLAUDE.md` (small; also your correction check for criterion 5).
-- In the durable-context folder, the per-folder `CLAUDE.md` and the *filenames* in `<docs-folder>/system/`, `<docs-folder>/architecture/` (if present), and at the `<docs-folder>/` root (legacy location for descriptive files). Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
+- The affected scope's root `AGENTS.md` (small; also your correction check for criterion 5).
+- In the durable-context folder, the per-folder `AGENTS.md` marker and the *filenames* in `<docs-folder>/system/`, `<docs-folder>/architecture/` (if present), and at the `<docs-folder>/` root (legacy location for descriptive files). Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
 - Any existing ADR under `<docs-folder>/adr/` touching a candidate's area, so you don't restate its rationale.
 
 `<docs-folder>/adr/` is never a distillation target. Historical folders (`reference/`, `working-notes/`) are also never targets — distil writes living knowledge, not rationale or research. `<docs-folder>/architecture/` *is* a valid target for prescriptive candidates (operational rules), but only when the project has the folder set up; descriptive candidates always route to `system/`.
@@ -43,7 +43,7 @@ Read existing context **proportionally** — enough to avoid duplicates and cont
 
 For each candidate observation, pick a destination using two questions in this order:
 
-**1. Which scope owns this knowledge?** Default to the nearest-ancestor scope of the changed paths the candidate describes. Promote to a higher scope (a parent repo's `CLAUDE.md` or durable-context folder) only when the candidate is genuinely cross-cutting — it describes a convention multiple sub-repos must follow, names a relationship between sub-repos, or constrains how they integrate. When unsure, propose the local target; the developer can override. Over-correction toward the super-repo is harder to undo.
+**1. Which scope owns this knowledge?** Default to the nearest-ancestor scope of the changed paths the candidate describes. Promote to a higher scope (a parent repo's `AGENTS.md` or durable-context folder) only when the candidate is genuinely cross-cutting — it describes a convention multiple sub-repos must follow, names a relationship between sub-repos, or constrains how they integrate. When unsure, propose the local target; the developer can override. Over-correction toward the super-repo is harder to undo.
 
 **2. Inside that scope, which file?**
 
@@ -54,7 +54,7 @@ First decide **what kind of knowledge** the candidate is:
 
 Then pick the file:
 
-- **Update the scope's `CLAUDE.md`** if the candidate corrects or extends something already there (most often: the Gotchas section or an outdated Stack/Commands entry).
+- **Update the scope's `AGENTS.md`** if the candidate corrects or extends something already there (most often: the Gotchas section or an outdated Stack/Commands entry).
 - **Update an existing context file** if the scope's durable-context folder already has a file covering the affected area — at its existing path, whether that's `<docs-folder>/system/<topic>.md`, `<docs-folder>/architecture/<topic>.md`, or `<docs-folder>/<topic>.md` (legacy). Do not migrate the file's location as part of the update.
 - **Create a new descriptive file** at `<docs-folder>/system/<topic>.md` if no existing file fits and the candidate is substantial enough to warrant its own file.
 - **Create a new prescriptive file** at `<docs-folder>/architecture/<topic>.md` only if the candidate is clearly a MUST/operational rule, `<docs-folder>/architecture/` already exists, and no existing architecture file covers the area. Use RFC 2119 voice (MUST / MUST NOT / SHOULD) and cite the source (an ADR, a contract, an incident) for each rule.
@@ -76,7 +76,7 @@ Work through the candidates one at a time — present, get one approval, write, 
 
 2. **Ask once** with `AskUserQuestion`: **Confirm & write** / **Change location** / **Edit content** / **Skip**. Nothing is written until the developer confirms.
 
-3. **On confirm:** if the target durable-context folder isn't playbook-marked yet (missing, or no `CLAUDE.md`), write the marker `<scope>/<docs-folder>/CLAUDE.md` first, from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs) — and if that folder already holds hand-written docs, tell the developer it lands alongside them. Then write the candidate's addition.
+3. **On confirm:** if the target durable-context folder isn't playbook-marked yet (missing, or no `AGENTS.md` with the playbook heading), write the marker first: `<scope>/<docs-folder>/AGENTS.md` from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs), plus a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the one-line forwarder `See @AGENTS.md for more information.`. If the folder already holds hand-written docs, tell the developer the marker pair lands alongside them. Then write the candidate's addition.
 
 ## Phase 6: Clear the distillation-pending sentinel
 
@@ -89,4 +89,4 @@ Skip only if the developer aborted mid-flow; then the pending state still applie
 ## Notes
 
 - If the developer invokes this skill mid-session and there's no diff yet (work hasn't been done), say so and stop.
-- If the developer invokes this skill on a project with no `CLAUDE.md` at the root, say so and recommend running `/playbook:claude-md-setup` first. In a super-repo with sub-repos that have their own `CLAUDE.md` files, a missing super-repo `CLAUDE.md` is fine — the recommendation only applies when there's no `CLAUDE.md` anywhere in the changed scopes.
+- If the developer invokes this skill on a project with no `AGENTS.md` at the root, say so and recommend running `/playbook:agents-md-setup` first. (An existing `CLAUDE.md` without an `AGENTS.md` does not count — only AGENTS.md is canonical.) In a super-repo with sub-repos that have their own `AGENTS.md` files, a missing super-repo `AGENTS.md` is fine — the recommendation only applies when there's no `AGENTS.md` anywhere in the changed scopes.

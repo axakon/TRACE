@@ -1,6 +1,8 @@
-# CLAUDE.md (template for a scope's durable-context folder)
+# AGENTS.md (template for a scope's durable-context folder)
 
-This template is written verbatim into `<scope>/<docs-folder>/CLAUDE.md` the first time the distil skill writes a file into that folder. The default `<docs-folder>` is `docs/` at the scope root; future versions of the playbook will let the developer pick a different folder per scope, and this template applies wherever the folder ends up.
+This template is written verbatim into `<scope>/<docs-folder>/AGENTS.md` the first time the distil, init, or scaffold-docs skill writes a file into that folder. Those skills also write a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the single line `See @AGENTS.md for more information.` — the forwarder ensures Claude Code's native CLAUDE.md discovery still finds the marker, while AGENTS.md holds the actual content.
+
+The default `<docs-folder>` is `docs/` at the scope root; future versions of the playbook will let the developer pick a different folder per scope, and this template applies wherever the folder ends up.
 
 ---
 
@@ -38,7 +40,7 @@ New files always land under `system/` or `architecture/`. Files that already liv
 ## What `/playbook:distil` does not write here
 
 - Implementation details that the code itself documents.
-- Information already in the root `CLAUDE.md` (this folder supplements it, does not duplicate it).
+- Information already in the root `AGENTS.md` (this folder supplements it, does not duplicate it).
 - Decision rationale and alternatives considered — those go in an immutable ADR under `adr/`, written by `/playbook:adr`. `system/` files record the *resulting convention*; `architecture/` files record the *resulting rule*; ADRs record *why it was chosen*.
 - Long-form rationale — that's `reference/` (if the project uses it).
 - Aspirational or speculative content — only describe current state.

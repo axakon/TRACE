@@ -78,16 +78,14 @@ Only proceed once all three hold.
 
 ### Done when
 
-- `<cwd>/AGENTS.md` exists with real content describing the project, produced by the plugin's `/playbook:claude-md-setup` skill.
-- `<cwd>/CLAUDE.md` exists as a one-line forwarder: `See @AGENTS.md for more information.`
+- `<cwd>/AGENTS.md` exists with real content describing the project, produced by the plugin's `/playbook:agents-md-setup` skill.
+- `<cwd>/CLAUDE.md` exists as a one-line forwarder: `See @AGENTS.md for more information.` (also produced by the skill.)
 - The user knows the next optional skill (`/playbook:scaffold-docs`) and the agent has stopped.
 
 ### Agent instructions
 
-1. **Tell the user to run `/playbook:claude-md-setup`.** Wait for them to do it. The skill is an interactive interview that produces a `CLAUDE.md` at the project root. The agent cannot invoke it — it is a user-issued slash command, and it expects a fresh skill-loaded context. Do not try to substitute for it.
-2. **After the user confirms `/playbook:claude-md-setup` finished**, the project root now has `CLAUDE.md`. Convert it to TRACE's canonical pattern:
-   - Rename `<cwd>/CLAUDE.md` to `<cwd>/AGENTS.md` (use `mv`, not Read + Write — preserves the content exactly and the file's git status).
-   - Write a new `<cwd>/CLAUDE.md` containing exactly one line: `See @AGENTS.md for more information.` This matches the forwarder pattern that TRACE itself uses (see `deliverable/playbook/reference-doc-structure/docs/CLAUDE.md`).
+1. **Tell the user to run `/playbook:agents-md-setup`.** Wait for them to do it. The skill is an interactive interview that produces a canonical `AGENTS.md` at the project root, plus a one-line `CLAUDE.md` forwarder so Claude Code's native discovery still finds it. The agent cannot invoke it — it is a user-issued slash command, and it expects a fresh skill-loaded context. Do not try to substitute for it.
+2. **After the user confirms `/playbook:agents-md-setup` finished**, verify both files exist at the project root: `AGENTS.md` (full content from the interview) and `CLAUDE.md` (one line: `See @AGENTS.md for more information.`). If something is off — e.g., the skill produced a `CLAUDE.md` with content instead of a forwarder — flag it to the user rather than silently patching; that's a plugin bug worth surfacing.
 3. **Suggest `/playbook:scaffold-docs` as optional.** Tell the user: if their project already has code, this skill scans for signals (a migrations folder, an auth library, an HTTP framework, …) and proposes a short list of starter system-state docs to create under `docs/system/`. It's a one-time bootstrap — not necessary, but useful on a project that has code but little documentation.
 4. **Stop.** Do not invent further steps. The remaining plugin skills (`/playbook:spec-workflow`, `/playbook:adr`, `/playbook:distil`) come into play during ongoing work, not at setup.
 5. Tell the user setup is complete and summarize what's been created:
@@ -99,6 +97,6 @@ Only proceed once all three hold.
 
 ## When something goes wrong
 
-If a step's "Done when" cannot be satisfied — collision in step 1, plugin won't reload in step 2, `claude-md-setup` not available in step 3 — **stop and report to the user**. Do not fabricate state, do not skip ahead, do not retry blindly. The user can resolve and resume.
+If a step's "Done when" cannot be satisfied — collision in step 1, plugin won't reload in step 2, `agents-md-setup` not available in step 3 — **stop and report to the user**. Do not fabricate state, do not skip ahead, do not retry blindly. The user can resolve and resume.
 
 If you are an agent and you reach a question this walkthrough does not answer, ask the user rather than guessing. The walkthrough is deliberately narrow; if something is missing, that's worth surfacing.

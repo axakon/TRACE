@@ -1,6 +1,6 @@
 ---
 name: scaffold-docs
-description: Suggest and scaffold starter docs for a project's durable-context folder, tailored to what the repo actually contains. Recommended once on a project that has code but little or no documentation, after /playbook:init and /playbook:claude-md-setup.
+description: Suggest and scaffold starter docs for a project's durable-context folder, tailored to what the repo actually contains. Recommended once on a project that has code but little or no documentation, after /playbook:init and /playbook:agents-md-setup.
 disable-model-invocation: true
 allowed-tools: Glob Read Write AskUserQuestion
 ---
@@ -43,7 +43,7 @@ For each chosen topic, take a quick look to gather only what the repo confirms (
 
 Apply [authoring-rules.md](../../shared/authoring-rules.md): state confirmed facts as facts; put everything uncertain under the prompts. No speculation.
 
-If the docs folder isn't playbook-marked yet, write its marker `CLAUDE.md` first, from [context-folder-template.md](../distil/context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs). If the folder already holds hand-written docs, say so before writing. The `system/` subfolder is created on first write by the Write tool — no separate marker is needed there.
+If the docs folder isn't playbook-marked yet, write the marker pair first: `<docs-folder>/AGENTS.md` from [context-folder-template.md](../distil/context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs), plus a sibling `<docs-folder>/CLAUDE.md` containing the one-line forwarder `See @AGENTS.md for more information.`. If the folder already holds hand-written docs, say so before writing. The `system/` subfolder is created on first write by the Write tool — no separate marker is needed there.
 
 Show the developer the scaffolded files.
 

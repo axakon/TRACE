@@ -1,0 +1,13 @@
+{
+  "name": "ai-playbook",
+  "owner": {
+    "name": "byBrick Tech"
+  },
+  "plugins": [
+    {
+      "name": "playbook",
+      "source": "./deliverable/plugin",
+      "description": "Consultancy playbook for AI-assisted development. Automates durable-context setup, AGENTS.md authoring, starter-doc scaffolding, spec-driven workflows, architecture decision records, and context distillation."
+    }
+  ]
+}

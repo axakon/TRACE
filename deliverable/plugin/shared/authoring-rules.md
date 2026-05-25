@@ -1,6 +1,6 @@
 # Authoring rules
 
-These rules apply to all written output produced under the playbook — CLAUDE.md files, context files, ADRs, and distillation entries.
+These rules apply to all written output produced under the playbook — AGENTS.md files, context files, ADRs, and distillation entries.
 
 ## Tone and format
 

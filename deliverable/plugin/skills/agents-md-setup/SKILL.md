@@ -1,25 +1,27 @@
 ---
-name: claude-md-setup
-description: Set up or review the project's CLAUDE.md through an interactive interview with the developer
-when_to_use: When a developer opens a project without a CLAUDE.md, asks about project setup or conventions, or wants to update an existing CLAUDE.md
+name: agents-md-setup
+description: Set up or review the project's AGENTS.md through an interactive interview with the developer
+when_to_use: When a developer opens a project without an AGENTS.md, asks about project setup or conventions, or wants to update an existing AGENTS.md
 allowed-tools: Glob Read Edit Write AskUserQuestion
 ---
 
-You are helping a developer set up or update their project's CLAUDE.md file. This file gives Claude persistent context about the project — what it is, how it's built, where things live, how to run it, and what's non-obvious.
+You are helping a developer set up or update their project's `AGENTS.md` file. This file gives an agent persistent context about the project — what it is, how it's built, where things live, how to run it, and what's non-obvious.
+
+The convention: **`AGENTS.md` is canonical** (full content lives here, readable by every coding agent that follows the AGENTS.md standard). A sibling **`CLAUDE.md` is a one-line forwarder** containing `See @AGENTS.md for more information.`, so Claude Code's native discovery still finds the file. This skill writes both.
 
 Before you write anything, read these supporting files:
-- [claude-md-rules.md](./claude-md-rules.md) — quality rules your draft must satisfy
+- [agents-md-rules.md](./agents-md-rules.md) — quality rules your draft must satisfy
 - [authoring-rules.md](../../shared/authoring-rules.md) — cross-cutting writing standards
-- [example-output.md](./example-output.md) — a concrete example of a well-formed CLAUDE.md
+- [example-output.md](./example-output.md) — a concrete example of a well-formed AGENTS.md
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — how to find the scope's durable-context folder for the directory index
 
-Determine whether `CLAUDE.md` already exists at the repo root (Glob pattern `CLAUDE.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch**.
+Determine whether `AGENTS.md` already exists at the repo root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per this plugin's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
 
 ## Interview mechanics (both paths)
 
 These rules govern every question you ask, in either path.
 
-1. **Probe what exists, never what might be added.** Anchor every question in something observable in the repo or in the developer's lived experience. Don't invite the developer to brainstorm tooling, scripts, or processes that aren't already in place — if it isn't there, it doesn't belong in CLAUDE.md or in your question.
+1. **Probe what exists, never what might be added.** Anchor every question in something observable in the repo or in the developer's lived experience. Don't invite the developer to brainstorm tooling, scripts, or processes that aren't already in place — if it isn't there, it doesn't belong in AGENTS.md or in your question.
 
 2. **One clear turn boundary per section.** Propose the section, ask what's wrong or missing, then hand the turn over and wait — never chain into the next section.
    - Close each section with the literal line: *Reply `ok` to keep it, tell me what to change, or say "skip" to omit it.*
@@ -46,7 +48,7 @@ _<one-sentence purpose, italics, copied from this skill>_
 ## Self-review (both paths)
 
 Before presenting any draft:
-1. Re-check every rule in [claude-md-rules.md](./claude-md-rules.md) and [authoring-rules.md](../../shared/authoring-rules.md).
+1. Re-check every rule in [agents-md-rules.md](./agents-md-rules.md) and [authoring-rules.md](../../shared/authoring-rules.md).
 2. Remove any section that's empty or only filler.
 3. Verify total length is under 150 lines and no section exceeds 40 lines.
 
@@ -54,7 +56,7 @@ Fix any violations before showing the draft.
 
 ---
 
-## Create from scratch (when CLAUDE.md does not exist)
+## Create from scratch (when AGENTS.md does not exist)
 
 ### Phase 1: Silent reconnaissance
 
@@ -122,15 +124,23 @@ Show the complete assembled draft (all sections in order). Call `AskUserQuestion
 
 ### Phase 5: Write to disk
 
-Write the approved content to `CLAUDE.md` at the repo root.
+Write the approved content to `AGENTS.md` at the repo root. Then write a one-line `CLAUDE.md` at the repo root containing exactly:
+
+```
+See @AGENTS.md for more information.
+```
+
+The forwarder ensures Claude Code's native CLAUDE.md discovery still finds the project context. If a `CLAUDE.md` already exists at the root, overwrite it — per this plugin's convention only AGENTS.md is canonical, so the old CLAUDE.md content (if any) is treated as not-yet-set-up state.
 
 ---
 
-## Review and update (when CLAUDE.md already exists)
+## Review and update (when AGENTS.md already exists)
 
 ### Phase 1: Read the existing file
 
-Read the current `CLAUDE.md` and assess it against [claude-md-rules.md](./claude-md-rules.md): does it follow the five-section structure, is anything outdated against the repo (dependency changes, new directories, removed scripts), is anything violating the quality rules (too long, padded, decorative)?
+Read the current `AGENTS.md` and assess it against [agents-md-rules.md](./agents-md-rules.md): does it follow the five-section structure, is anything outdated against the repo (dependency changes, new directories, removed scripts), is anything violating the quality rules (too long, padded, decorative)?
+
+Also check whether a sibling `CLAUDE.md` forwarder exists at the root. If it doesn't, note it — Phase 5 will create one alongside the updated AGENTS.md.
 
 ### Phase 2: Walk through each section
 
@@ -142,7 +152,7 @@ Go section by section with the developer, applying the interview mechanics above
 
 If a section that should exist is missing (e.g. no Gotchas but the developer has some when prompted), propose adding it using the create-flow template. If a section doesn't belong (e.g. "Future plans"), point it out and offer to remove it — handle both in that section's conversational confirm.
 
-For the directory index specifically, check whether the scope's durable-context folder is listed. Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If it's missing, propose adding it with the standard description (from create-flow Section 3); default to adding it. A CLAUDE.md written before the playbook landed should be brought up to date this way.
+For the directory index specifically, check whether the scope's durable-context folder is listed. Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If it's missing, propose adding it with the standard description (from create-flow Section 3); default to adding it. An AGENTS.md written before the playbook landed should be brought up to date this way.
 
 ### Phase 3: Self-review
 
@@ -154,4 +164,4 @@ Show what changed — a before/after diff or a clean updated version, whichever 
 
 ### Phase 5: Apply changes
 
-Write the approved updates to `CLAUDE.md`.
+Write the approved updates to `AGENTS.md`. If the root `CLAUDE.md` forwarder was missing in Phase 1, write it now (one line: `See @AGENTS.md for more information.`).

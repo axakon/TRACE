@@ -1,10 +1,18 @@
-# Example: well-formed CLAUDE.md
+# Example: well-formed AGENTS.md
 
 This is a fictional example showing the target quality and structure. Use it as a reference, not a template to copy.
 
+The skill writes two files at the repo root: `AGENTS.md` (canonical, shown below) and a one-line `CLAUDE.md` forwarder:
+
+```
+See @AGENTS.md for more information.
+```
+
+The forwarder ensures Claude Code's native CLAUDE.md discovery picks up the project context. Other agents read `AGENTS.md` directly.
+
 ---
 
-# CLAUDE.md
+# AGENTS.md
 
 ## What is this
 

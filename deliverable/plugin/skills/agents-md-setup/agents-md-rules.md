@@ -1,10 +1,10 @@
-# CLAUDE.md quality rules
+# AGENTS.md quality rules
 
-Use these rules to evaluate a CLAUDE.md file before presenting it to the developer. If the draft violates any rule, fix it before showing it.
+Use these rules to evaluate an `AGENTS.md` file before presenting it to the developer. If the draft violates any rule, fix it before showing it.
 
 ## Structure
 
-A CLAUDE.md has exactly five sections, in this order:
+An `AGENTS.md` has exactly five sections, in this order:
 
 1. **What is this** — one short paragraph. What the repo does, who it's for. No history, no roadmap.
 2. **Stack** — the key pieces only: framework, language/runtime, styling approach, data layer, package manager. Not the icon library. Not dev tooling unless it affects how the agent should work (e.g. a monorepo tool).
@@ -21,6 +21,6 @@ A CLAUDE.md has exactly five sections, in this order:
 
 - Empty sections. If there are no gotchas yet, omit the section entirely rather than writing "None yet."
 - Information the agent can infer from standard project files without help.
-- Duplicated README content. The agent can read the README; CLAUDE.md adds what the README doesn't cover.
+- Duplicated README content. The agent can read the README; `AGENTS.md` adds what the README doesn't cover.
 - Aspirational content ("we plan to migrate to..."). Only describe current state.
 - Version numbers for dependencies. These change constantly; the agent reads package.json / lock files.

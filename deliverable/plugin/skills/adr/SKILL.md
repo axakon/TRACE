@@ -49,5 +49,5 @@ If this ADR supersedes an earlier one:
 ## Notes
 
 - ADRs become immutable **once shipped** (committed, pushed, or already relied on by other work). The skill writes ADRs at end-of-work, so they're effectively shipped on write — do not rewrite the body afterwards. Course corrections are a *new* ADR that supersedes the old one.
-- This skill does not mark the docs folder as the durable-context folder and does not touch the directory index — those are `init`/`distil`/`claude-md-setup` concerns. ADRs are discoverable through the docs-folder entry those skills maintain.
+- This skill does not mark the docs folder as the durable-context folder and does not touch the directory index — those are `init`/`distil`/`agents-md-setup` concerns. ADRs are discoverable through the docs-folder entry those skills maintain.
 - One ADR per decision. If the work settled several distinct decisions, record them as separate ADRs.

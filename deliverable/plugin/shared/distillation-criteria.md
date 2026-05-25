@@ -1,6 +1,6 @@
 # Distillation criteria
 
-Use this checklist to decide whether a change has produced anything worth capturing in the project's permanent context (CLAUDE.md or the scope's durable-context folder, typically `docs/`).
+Use this checklist to decide whether a change has produced anything worth capturing in the project's permanent context (AGENTS.md or the scope's durable-context folder, typically `docs/`).
 
 A change is worth distilling if it introduces or modifies any of the following:
 
@@ -12,7 +12,7 @@ A change is worth distilling if it introduces or modifies any of the following:
 
 4. **A non-obvious gotcha.** Something that would surprise a developer who didn't make the change. Configuration values that look arbitrary but aren't, implicit ordering requirements, version-specific quirks, integration points that fail silently.
 
-5. **A correction to existing context.** If the change makes anything in CLAUDE.md or the context files outdated or wrong, the context needs updating regardless of whether the change itself is "interesting."
+5. **A correction to existing context.** If the change makes anything in AGENTS.md or the context files outdated or wrong, the context needs updating regardless of whether the change itself is "interesting."
 
 A change is **not** worth distilling if:
 
