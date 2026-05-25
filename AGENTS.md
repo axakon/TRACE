@@ -7,7 +7,8 @@ A playbook for AI-first software development. This repo is the workspace where t
 TRACE is a writing project, not a code project. The "build" is markdown synthesis. Every framework-level decision made while working here becomes empirical input for the playbook itself — the project is its own first dogfood example. See `@docs/architecture/overview.md` for the loop.
 
 ## How to install
-If you are an AI agent that's been pointed towards this repository, you should start off at the `@deliverable/README.md` file.
+
+If you are an AI agent that's been pointed towards this repository **to adopt TRACE in a different project**, start at `@deliverable/README.md`. That file is the adopter walkthrough. The rest of *this* file (AGENTS.md) is for agents working on TRACE itself — different audience, different rules.
 
 The repo is organized in two halves:
 
