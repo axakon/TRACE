@@ -2,6 +2,19 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.6.0] - 2026-05-25
+
+### Changed
+- **Three-category docs layout adopted: descriptive / prescriptive / historical.**
+  - **Descriptive** (`<docs-folder>/system/`) — what the codebase IS. `scaffold-docs` and `distil` write topic files (`security.md`, `database.md`, `api-conventions.md`, …) here instead of the docs-folder root.
+  - **Prescriptive** (`<docs-folder>/architecture/`) — what the system MUST do. Operational rules in RFC 2119 voice. `distil` will route a candidate here only when it is clearly a MUST/operational rule and the project has the folder set up; descriptive candidates always go to `system/`.
+  - **Historical** (`<docs-folder>/adr/`, plus `reference/` and `working-notes/` if the project keeps them) — decisions and rationale. Append-only or immutable. Never a distillation target.
+- **No forced migration.** Existing topic files at the docs-folder root stay where they are; only new writes go to `system/` or `architecture/`. `distil` updates files at their existing path. Listings of "what already exists" now consider `<docs-folder>/system/`, `<docs-folder>/architecture/`, and the docs-folder root, so duplicates aren't suggested.
+- **Context-folder template updated** to describe the three-category layout, including how to consult `system/` (descriptive) and `architecture/` (prescriptive) for binding context.
+- **ADR rule softened from "always immutable" to "immutable once shipped."** An ADR still being drafted locally (uncommitted, no one acting on it) can be edited freely; the rule kicks in at ship time. The `/playbook:adr` skill writes at end-of-work, so in that flow ADRs are shipped on write and effectively immutable, but the wording in `adr/SKILL.md` and `adr-template.md` now reflects the underlying rule rather than asserting blanket immutability.
+
+See TRACE [ADR 0001](https://github.com/axakon/TRACE/blob/main/docs/adr/0001-three-categories-of-project-docs.md) for the full rationale.
+
 ## [0.5.2] - 2026-05-24
 
 ### Changed

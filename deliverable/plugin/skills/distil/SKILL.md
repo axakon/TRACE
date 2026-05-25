@@ -34,10 +34,10 @@ For each candidate, find its **nearest-ancestor scope** — the closest ancestor
 Read existing context **proportionally** — enough to avoid duplicates and contradictions, not the whole library:
 
 - The affected scope's root `CLAUDE.md` (small; also your correction check for criterion 5).
-- In the durable-context folder, the per-folder `CLAUDE.md` and the *filenames*. Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
-- Any existing ADR under `adr/` touching a candidate's area, so you don't restate its rationale.
+- In the durable-context folder, the per-folder `CLAUDE.md` and the *filenames* in `<docs-folder>/system/`, `<docs-folder>/architecture/` (if present), and at the `<docs-folder>/` root (legacy location for descriptive files). Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
+- Any existing ADR under `<docs-folder>/adr/` touching a candidate's area, so you don't restate its rationale.
 
-`<docs-folder>/adr/` is never a distillation target.
+`<docs-folder>/adr/` is never a distillation target. Historical folders (`reference/`, `working-notes/`) are also never targets — distil writes living knowledge, not rationale or research. `<docs-folder>/architecture/` *is* a valid target for prescriptive candidates (operational rules), but only when the project has the folder set up; descriptive candidates always route to `system/`.
 
 ## Phase 4: Decide on a target for each candidate
 
@@ -47,12 +47,20 @@ For each candidate observation, pick a destination using two questions in this o
 
 **2. Inside that scope, which file?**
 
+First decide **what kind of knowledge** the candidate is:
+
+- **Descriptive** — facts about what the codebase *is* now ("we use Postgres 16," "auth handler at `src/auth.ts`"). Routes to `system/`.
+- **Prescriptive** — a rule the system *must* follow ("MUST refresh the token every 5 minutes," "endpoint X MUST be retried"). Routes to `architecture/<area>.md`. Use only if the candidate is unambiguously a MUST/operational rule and `<docs-folder>/architecture/` exists in the project. If unclear, default to descriptive and let the developer redirect.
+
+Then pick the file:
+
 - **Update the scope's `CLAUDE.md`** if the candidate corrects or extends something already there (most often: the Gotchas section or an outdated Stack/Commands entry).
-- **Update an existing context file** if the scope's durable-context folder already has a file covering the affected area.
-- **Create a new context file** if no existing file fits and the candidate is substantial enough to warrant its own file.
+- **Update an existing context file** if the scope's durable-context folder already has a file covering the affected area — at its existing path, whether that's `<docs-folder>/system/<topic>.md`, `<docs-folder>/architecture/<topic>.md`, or `<docs-folder>/<topic>.md` (legacy). Do not migrate the file's location as part of the update.
+- **Create a new descriptive file** at `<docs-folder>/system/<topic>.md` if no existing file fits and the candidate is substantial enough to warrant its own file.
+- **Create a new prescriptive file** at `<docs-folder>/architecture/<topic>.md` only if the candidate is clearly a MUST/operational rule, `<docs-folder>/architecture/` already exists, and no existing architecture file covers the area. Use RFC 2119 voice (MUST / MUST NOT / SHOULD) and cite the source (an ADR, a contract, an incident) for each rule.
 - **Add a section to an adjacent context file** if the candidate is small but related to an existing file's scope.
 
-Naming guidance for new context files: scope each to a meaningful concept — `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment (`that-blue-button.md` is wrong). Not so broad they become a dump (`misc.md` is wrong). Use the project's own vocabulary, not the example list.
+Naming guidance for new context files: scope each to a meaningful concept — `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment (`that-blue-button.md` is wrong). Not so broad they become a dump (`misc.md` is wrong). Use the project's own vocabulary, not the example list. Pair filenames across `system/` and `architecture/` for the same area (e.g. `system/api.md` describing the client + `architecture/api.md` constraining it).
 
 **Don't duplicate an ADR's rationale.** Distilled context records the *resulting convention* ("rate limits go through `RateLimiter`"); an ADR records the *decision and why* ("we chose token-bucket over fixed-window because…"). If a candidate is really a design decision and an ADR covers it, distil only the convention and point at the ADR rather than restating the reasoning. If the decision is significant but no ADR exists, suggest `/playbook:adr` instead of capturing the rationale here.
 

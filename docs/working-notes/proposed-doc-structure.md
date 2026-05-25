@@ -1,8 +1,7 @@
 # Working Note: Proposed Documentation Structure (v0)
 
-> **Status:** Research note, not the deliverable.
+> **Status:** Promoted — substance lifted into [ADR 0001](../adr/0001-three-categories-of-project-docs.md) and the reference-doc-structure deliverable on 2026-05-25. This note is now historical substrate; the three-category framing (descriptive / prescriptive / historical) replaces the structure proposed below. Kept frozen for the reasoning trail.
 > Synthesized from the discourse scan (HumanLayer, Augment, AI Hero, Mitchell Hashimoto, OpenAI Harness Engineering, Matthew Groff, arc42, Stack Overflow, Thoughtworks).
-> Captured for discussion. Expected to evolve as we form opinions.
 
 ## Purpose
 

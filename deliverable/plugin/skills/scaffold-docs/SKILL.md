@@ -13,7 +13,7 @@ Before doing anything, read:
 
 ## Phase 1: Resolve the docs folder and see what exists
 
-Resolve the scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). List the `.md` files already there — never suggest a topic an existing file already covers.
+Resolve the scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). Scaffolded topic files land in `<docs-folder>/system/` (living docs about the codebase, separated from process docs in sibling folders like `adr/` and `reference/`). List the `.md` files already in `<docs-folder>/system/` *and* at the `<docs-folder>/` root (legacy location) — never suggest a topic an existing file already covers.
 
 ## Phase 2: Detect signals (shallow scan)
 
@@ -36,14 +36,14 @@ Present the tailored shortlist. For each: the signal that prompted it, the propo
 
 ## Phase 4: Scaffold each chosen topic
 
-For each chosen topic, take a quick look to gather only what the repo confirms (the DB engine from dependencies, the migrations path, the auth library, etc.), then write `<docs-folder>/<topic>.md`:
+For each chosen topic, take a quick look to gather only what the repo confirms (the DB engine from dependencies, the migrations path, the auth library, etc.), then write `<docs-folder>/system/<topic>.md`:
 
 - A short heading, then a sentence or two of the confirmed facts.
 - A `## Still to document` list of 2–4 prompts, phrased as questions, for what you couldn't infer.
 
 Apply [authoring-rules.md](../../shared/authoring-rules.md): state confirmed facts as facts; put everything uncertain under the prompts. No speculation.
 
-If the docs folder isn't playbook-marked yet, write its marker `CLAUDE.md` first, from [context-folder-template.md](../distil/context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs). If the folder already holds hand-written docs, say so before writing.
+If the docs folder isn't playbook-marked yet, write its marker `CLAUDE.md` first, from [context-folder-template.md](../distil/context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs). If the folder already holds hand-written docs, say so before writing. The `system/` subfolder is created on first write by the Write tool — no separate marker is needed there.
 
 Show the developer the scaffolded files.
 

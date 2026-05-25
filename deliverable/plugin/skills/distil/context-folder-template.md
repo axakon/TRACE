@@ -8,32 +8,43 @@ This template is written verbatim into `<scope>/<docs-folder>/CLAUDE.md` the fir
 
 This folder holds the project's durable context — distilled, persistent knowledge that should outlive any single change. It is intentionally placed in the project's regular documentation folder so developers and agents find it under the same familiar path.
 
+The folder is organized into three categories by what kind of knowledge each file holds:
+
+- **Descriptive** — what the codebase *is* right now. Lives in `system/`. Updated as code changes.
+- **Prescriptive** — what the system *must* do. Lives in `architecture/`. Operational rules in MUST / MUST NOT / SHOULD voice; updated as rules change.
+- **Historical** — how decisions were made and why. Lives in `adr/` (decisions), `reference/` (rationale), and `working-notes/` (research). Append-only or immutable.
+
+The three categories have different update semantics, and an agent needs to know which kind it is reading before it can use the file.
+
 ## How to consult this folder
 
-Files in this folder are meant to be read by agents working anywhere in the codebase, not just inside the folder. Before substantive work in a given area, read the relevant scoped file:
+Files in `system/` and `architecture/` are binding context — meant to be read by agents working anywhere in the codebase, not just inside the folder. Before substantive work in a given area, read the relevant scoped files:
 
-- Touching auth, sessions, tokens, or anything trust-related → read `security.md` (or whatever scoped file covers the area)
-- Touching the API surface, request handling, or external interfaces → read `api-conventions.md` (or equivalent)
-- Touching the data layer, schema, or persistence → read `data-model.md` (or equivalent)
+- Touching auth, sessions, tokens, or anything trust-related → read `system/security.md` for what exists, and `architecture/security.md` (if present) for the rules.
+- Touching the API surface, request handling, or external interfaces → read `system/api-conventions.md` and `architecture/api-conventions.md` (if present).
+- Touching the data layer, schema, or persistence → read `system/data-model.md` and `architecture/data-model.md` (if present).
 
-If a file scoped to your current area exists, treat its contents as binding. They outrank general defaults and training-data assumptions. If multiple files seem related, read them all — these files are kept short specifically so reading several is cheap.
+If a file scoped to your current area exists, treat its contents as binding. Rules in `architecture/` outrank training-data assumptions and general defaults; descriptions in `system/` outrank training-data assumptions about how the code is laid out. If multiple files seem related, read them all — files here are kept short specifically so reading several is cheap.
 
 ## What `/playbook:distil` writes here
 
-- Conventions future work should follow
-- Security and trust boundaries
-- Durable design choices and the constraints they imply
-- Non-obvious gotchas that span multiple changes
+`/playbook:distil` routes each distilled candidate to one of two destinations based on what kind of knowledge it is:
+
+- **Descriptive** (the default) → `system/<topic>.md`. Conventions in force, durable design choices, non-obvious gotchas, security boundaries observed in the code.
+- **Prescriptive** → `architecture/<topic>.md` (only if `architecture/` exists in the project). Operational rules in MUST voice — typically distilled from an ADR's consequence, an external contract, a compliance requirement, or a post-incident learning.
+
+New files always land under `system/` or `architecture/`. Files that already live at the folder root (from earlier versions of the plugin) are updated at their existing path — no forced migration.
 
 ## What `/playbook:distil` does not write here
 
-- Implementation details that the code itself documents
-- Information already in the root `CLAUDE.md` (this folder supplements it, not duplicates it)
-- Decision rationale and alternatives considered — those go in an immutable ADR under `adr/`, written by `/playbook:adr`. Distilled files record the *resulting convention*; ADRs record *why it was chosen*
-- Aspirational or speculative content — only describe current state
+- Implementation details that the code itself documents.
+- Information already in the root `CLAUDE.md` (this folder supplements it, does not duplicate it).
+- Decision rationale and alternatives considered — those go in an immutable ADR under `adr/`, written by `/playbook:adr`. `system/` files record the *resulting convention*; `architecture/` files record the *resulting rule*; ADRs record *why it was chosen*.
+- Long-form rationale — that's `reference/` (if the project uses it).
+- Aspirational or speculative content — only describe current state.
 
-The `adr/` subfolder holds the project's architecture decision records. The folder may also contain other documentation the team maintains by hand (architecture notes, runbooks). All of these coexist with the distilled context; this `CLAUDE.md` describes the distilled files specifically.
+## File naming
 
-## File naming for distilled files
+Files scoped to a meaningful concept: `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment the context (no `that-blue-button.md`), not so broad they become a dump (`misc.md`).
 
-Files written by distil should be scoped to a meaningful concept: `security.md`, `data-model.md`, `kafka-events.md`, `api-conventions.md`. Not so narrow they fragment the context (no `that-blue-button.md`), not so broad they become a dump.
+When the same area has both descriptive and prescriptive content, **use the same filename in both folders**: `system/api.md` describes the API client; `architecture/api.md` constrains it. Readers move between them for the same area.

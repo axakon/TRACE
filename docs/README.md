@@ -1,38 +1,59 @@
 # docs/
 
-Everything written down about this project — the research that produced its design, the decisions made along the way, the long-form rationale, and the system-level overview.
+Everything written down about this project, organized by **what kind of knowledge each file holds**.
 
-## Purpose
+## Three categories
 
-`docs/` holds the project's written knowledge organized by **how settled** each piece is. Raw thinking lives separately from stabilized rationale, which lives separately from discrete decisions. The structure makes it obvious where to read for "why," where to write for "I just had an idea," and where to look for "what did we decide and when."
+A reader (human or agent) needs to know what kind of doc they're looking at before they can use it. `docs/` separates three:
+
+- **Descriptive** — what the codebase *is* right now. Lives in `system/`.
+- **Prescriptive** — what the system *must do*. Lives in `architecture/`.
+- **Historical** — how decisions were made and why. Lives in `working-notes/`, `reference/`, `adr/`.
+
+Each category has its own update semantics. Mixing them in one folder confuses readers because some docs track live truth, some are binding rules, and some are frozen at the moment they were written.
 
 ## Layout
 
-A one-way funnel from raw thinking to stabilized rationale:
-
 ```
-working-notes/   →   reference/
-   (still moving)    (stabilized)
+docs/
+├── system/         ← DESCRIPTIVE  — what the codebase IS (updated as code changes)
+├── architecture/   ← PRESCRIPTIVE — what the system MUST do (updated as rules change)
+├── adr/            ← HISTORICAL   — discrete decisions (append-only)
+├── reference/      ← HISTORICAL   — stabilized rationale (append-only)
+└── working-notes/  ← HISTORICAL   — raw research substrate (in motion until promoted)
 ```
 
-`adr/` and `architecture/` sit alongside, capturing decisions and the system-level picture.
-
-| Folder | Holds | When to read |
-|---|---|---|
-| [`architecture/`](architecture/) | The system-level picture: what this project is, how its pieces fit together. | Read first when new to the project. |
-| [`adr/`](adr/) | Discrete decisions with consequences (Nygard-lite). Immutable. | Read to learn *why* something is the way it is. |
-| [`reference/`](reference/) | Long-form rationale promoted from a working note once its opinions stop moving. | Read for in-depth "why" behind a position. |
-| [`working-notes/`](working-notes/) | Raw research, half-formed opinions, things still moving. | Read for substrate, or to find unresolved questions. |
+| Folder | Category | Holds | Update semantics |
+|---|---|---|---|
+| [`system/`](system/) | Descriptive | Living docs about the codebase — auth, data model, conventions. Binding context for agents working in those areas. | Updated as code changes. |
+| [`architecture/`](architecture/) | Prescriptive | Operational rules in MUST voice + the structural `overview.md`. Integration specs, contracts, sequences. | Updated as rules change. |
+| [`adr/`](adr/) | Historical | Discrete decisions with consequences (Nygard-lite). | Immutable once shipped; supersede, never edit. |
+| [`reference/`](reference/) | Historical | Long-form rationale promoted from stabilized working notes. | Append-only; revised deliberately. |
+| [`working-notes/`](working-notes/) | Historical | Raw research, half-formed opinions, things still moving. | In motion until promoted. |
 
 ## How content flows
 
-A claim about how the project should work typically travels:
+**Historical docs** travel through a funnel:
 
-1. **Working note.** Someone has a take. It goes into `working-notes/` with a `Status:` header and open questions. Opinions may shift; that's fine.
-2. **ADR (sometimes).** If the take resolves a structural choice with downstream consequences, write an ADR in the same change. Not every working note produces one.
-3. **Reference doc.** When the opinion stops moving, promote the substance into `reference/`. The original note stays behind, frozen.
+1. **Working note.** Someone has a take. Goes into `working-notes/` with a `Status:` header. Opinions may shift.
+2. **ADR (sometimes).** If the take resolves a structural choice with downstream consequences, an ADR records the decision in the same change.
+3. **Reference doc.** When the opinion stops moving, substance promotes into `reference/`. The original note stays behind, frozen.
 
-Promotion is a deliberate act, not a cleanup pass.
+**Descriptive docs** in `system/` don't have a funnel. They're written or updated whenever the codebase's current state changes in a way an agent would need to know.
+
+**Prescriptive docs** in `architecture/` are distilled from multiple upstream sources — ADRs, external API contracts, compliance requirements, post-incident learnings, reference docs — into terse imperative rules. Each rule cites its source.
+
+A typical chain across categories:
+
+```
+working-notes/ ──→ reference/ ──→ adr/    (the historical record of how a decision was made)
+
+ADR + external contract + compliance ──→ architecture/   (the rule, distilled and in force)
+
+                                          ↓
+
+                                        system/   (the implementation that satisfies the rule)
+```
 
 ## What does NOT go in docs/
 
