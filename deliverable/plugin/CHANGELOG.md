@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.7.0] - 2026-05-26
+
+### Added
+- **`pr-description` skill** — drafts a PR description or squash-merge commit message in the playbook's standard *What is this / Approach / Updated context / How to verify* shape. The format is a structure for reviewers, not a taxonomy: no Conventional-Commits prefix, no enum of types, just an imperative-mood title plus a *why / how* body. The skill reads the diff against the base branch (inferred from the open PR or the repo default), auto-populates the *Updated context* section with ADRs and docs files touched by the change, and gates the optional *How to verify* tail on one developer prompt. Output goes to chat for copy-paste; optional placement modes apply the body via `gh pr edit` or write it to a file. Model-invocable, so the agent surfaces it when a developer is about to commit or open a PR.
+
 ## [0.6.0] - 2026-05-25
 
 ### Fixed

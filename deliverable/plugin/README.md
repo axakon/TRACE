@@ -2,7 +2,7 @@
 
 A Claude Code plugin that gives a small, opinionated workflow for AI-assisted development. The premise: a single well-maintained `AGENTS.md` at the repo root (with a one-line `CLAUDE.md` forwarder for Claude Code's native discovery) plus a small set of distilled-context files in the project's docs folder beats elaborate process documentation, and a thorough up-front plan with explicit acceptance criteria is the right governance for substantial work — not a meeting.
 
-The plugin contains six skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, recording the decisions behind them, and keeping the permanent context current as work happens.
+The plugin contains seven skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, recording the decisions behind them, keeping the permanent context current as work happens, and drafting PR descriptions in a predictable shape for reviewers.
 
 ## Installation
 
@@ -149,6 +149,7 @@ Reads the recent changes (uncommitted diff first, recent commits if the tree is 
 | `/playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
 | `/playbook:adr` | A significant architectural decision was made and should be recorded immutably | User or agent (offered by `spec-workflow`) |
 | `/playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
+| `/playbook:pr-description` | Drafting a PR description or squash-merge commit message in the playbook's *What / Approach / Updated context* shape | User or agent |
 
 ## Hooks
 
@@ -203,4 +204,4 @@ Five principles drive the design. Each maps to a specific piece of the plugin th
 | **Humans at handoffs, not throughout.** Constant approval gates train developers to rubber-stamp. Surfacing the right moments preserves judgment where it matters. | `spec-workflow` pauses at three explicit gates — scope, plan, verification. `distil` confirms every routing decision before writing. No silent writes anywhere; no nagging in between. |
 | **Permanent context grows by distillation, not accumulation.** Docs that pile up uncurated go stale; knowledge never captured stays in heads. | After substantial work, `distil` evaluates the change against five criteria and proposes updates to the permanent context. For direct-path work, the sentinel surfaces `/playbook:distil` at the right moment so direct edits aren't silently exempt. |
 
-The plugin is small on purpose: six skills and three plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.
+The plugin is small on purpose: seven skills and three plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.
