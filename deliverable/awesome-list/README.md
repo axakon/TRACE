@@ -35,7 +35,9 @@ _Empty._
 
 ### MCP servers
 
-_Empty._
+- **[Context7](https://github.com/upstash/context7)** — pulls in current, version-specific docs for the libraries and frameworks you're using, so the agent works from the real API instead of guessing from memory.
+
+  > **Built into the playbook plugin** — bundled but disabled by default, so a fresh install ships it off. See [Enabling Context7](../plugin/README.md#bundled-mcp-servers) in the plugin README for the one-line setup.
 
 ### Rules
 
