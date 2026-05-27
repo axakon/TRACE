@@ -4,7 +4,7 @@ This file is for agents working on the `playbook` plugin itself (repo: `ai-playb
 
 ## What is this
 
-Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships seven skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `pr-description`) plus shared instructions, hooks, and a bundled MCP server.
+Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships eight skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `pr-description`, `commit-message`) plus shared instructions, hooks, and a bundled MCP server.
 
 The original design intent lives in `ai-playbook-research.md` at the repo root.
 
@@ -48,6 +48,7 @@ Skill bodies are read by both Claude and humans, and once a skill loads its full
 - **State what to do, not why the instruction exists.** Cut compliance-justification and meta-commentary ("this step is mandatory because…", "this is intentional", "this keeps it cross-platform"). Assume Claude is capable.
 - **Keep rationale only when it guides a judgment the instruction leaves open** (e.g. "promote to a higher scope only when genuinely cross-cutting").
 - **Prefer structure over prose** — bold lead-ins, tight lists, numbered phases — over explaining in sentences.
+- **`when_to_use` must require an explicit ask, not a generic "wrapping up" signal.** The `UserPromptSubmit` sentinel for `/playbook:distil` fires on "done", "ship it", "ready to commit" — a skill whose `when_to_use` matches those same phrases collides with it and surfaces at the wrong moment. Phrase the trigger around explicit verbs the developer would actually say ("write a commit message", "open a PR for this"), and include an explicit non-trigger line for the wrap-up signals. The `commit-message` and `pr-description` skills both carry such a non-trigger line.
 
 ## Gotchas
 

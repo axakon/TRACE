@@ -2,6 +2,15 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.8.0] - 2026-05-27
+
+### Added
+- **`commit-message` skill** — drafts a single commit's message in a leaner shape than `pr-description`: imperative-mood title, then a 1–3 sentence body covering the *why*, then optional decision bullets only when there are non-obvious choices worth surfacing. No *Risks / follow-ups*, no *Updated context*, no *How to verify* — those belong on a PR, not on one commit. The body is plain text, not markdown: no `##` headers, no `**bold**`, lines wrapped at ~72 characters so the message reads cleanly in `git log` and a terminal. Phase 1 picks scope (the staged diff, `HEAD`, or a commit-ish argument) and shows the developer which it chose; output goes to chat for copy-paste, with an optional Write target (e.g. `.git/COMMIT_EDITMSG`). Never runs `git commit` or rewrites history. **Model-invocable on an explicit ask only** — the agent surfaces it when the developer asks for a commit message ("write a commit message", "draft the commit") or asks the agent to commit on their behalf ("commit this"), and explicitly **not** when the developer merely signals they are wrapping up; "done", "ship it", and staged-changes-with-no-commit-ask remain the territory of `/playbook:distil`.
+
+### Changed
+- **Shared change-summary style extracted to `shared/change-summary-style.md`.** The writing-discipline rules used by both summary skills — imperative-mood title ≤72 chars, no Conventional-Commits prefix, "write for a reader who lacks the context", self-contained for the reader, skip-what-the-diff-makes-obvious, lead-in bullets — moved into a single shared file. `pr-description` and `commit-message` both reference it instead of carrying their own copy, so the two skills can't drift apart.
+- **`pr-description` triggers sharpened.** Frontmatter rewritten so the agent surfaces the skill only on an explicit ask — "write the PR description", "draft the PR body", "open a PR for this", "update the PR description" — and explicitly **not** on a generic "wrapping up" or "ship it" signal, which belongs to `/playbook:distil`. Also defers explicitly to `/playbook:commit-message` for single-commit messages so the two skills no longer compete for the same intent.
+
 ## [0.7.1] - 2026-05-27
 
 ### Changed

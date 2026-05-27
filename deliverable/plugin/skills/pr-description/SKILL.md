@@ -1,12 +1,14 @@
 ---
 name: pr-description
-description: Draft a PR description or squash-merge commit message in the playbook's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy.
-when_to_use: When the developer is preparing a PR description, drafting the final commit message for a squash-merge, or otherwise summarising a finished change for a reviewer. Not for one-line trivial commits, and not for the title alone.
+description: Draft a PR description or squash-merge commit message in the playbook's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy. Use when the developer explicitly asks for a PR description, asks for the squash-merge message, or asks the agent to open a PR on their behalf.
+when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/playbook:distil` or to no skill at all. For a single commit's message, use `/playbook:commit-message` instead.
 argument-hint: [base-branch | PR#]
 allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Glob Read Write AskUserQuestion
 ---
 
 You are drafting a PR description (or squash-merge commit message) in the playbook's standard format. The format is a shape, not a taxonomy — there are no required prefixes and no enum of types. The goal is a predictable structure a reviewer can scan: *why* this change, *what approach* was taken, *what permanent context* moved as a result.
+
+Writing style rules — title discipline, "write for a reader who lacks context", self-contained, skip-what-the-diff-makes-obvious, bold-lead-in bullets — live in [shared/change-summary-style.md](../../shared/change-summary-style.md). Read that file once at the start of the skill; this SKILL.md only covers what is PR-specific.
 
 The output template — emit exactly this, dropping any optional section that is empty:
 
@@ -17,7 +19,7 @@ The output template — emit exactly this, dropping any optional section that is
 {1–3 sentences. The why — the problem this change solves, the intent.}
 
 ## Approach
-{Bullets when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought. Lead each bullet with a **bold phrase** naming the decision, then ≤15 words of detail. Skip anything the diff makes obvious.}
+{Bullets when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought.}
 - **{Decision / trade-off}:** {≤15 words}
 - **{Decision / trade-off}:** {≤15 words}
 
@@ -32,10 +34,6 @@ The output template — emit exactly this, dropping any optional section that is
 - {Action only a reviewer can meaningfully take — staging behaviour, a UI flow, an output CI cannot assert. Not "run the tests".}
 ```
 
-**Self-contained for the reviewer.** The reviewer sees only this body and the diff. Never reference a plan, spec, ticket body, ADR draft, chat history, or any artifact not in the diff or linked inline. If a detail from the plan matters, inline it here.
-
-**Write for a reader who lacks the context.** Assume the reviewer has never seen this problem, ticket, or system before. Plain language over jargon. Spell out a domain term the first time it appears, or replace it with a plain phrase if one fits. Short sentences, concrete nouns, one idea per sentence. If you have to re-read a sentence to parse it, rewrite it. The goal is comprehension on first pass — not concision at the cost of clarity, and never cleverness.
-
 ## Phase 1: Determine the change range
 
 Find the range of commits this draft summarises.
@@ -48,19 +46,13 @@ Run `git diff --stat <base>...HEAD` and `git log <base>..HEAD --oneline` to get 
 
 ## Phase 2: Draft the title and "What is this"
 
-The title is one imperative-mood line, ≤72 characters, no Conventional-Commits prefix. Examples: `Rate-limit the public search endpoint`, `Fix race in session refresh`. Not `feat: add rate limiting`.
-
 The "What is this" body is the *why*: the problem this change solves and the intent behind it. One to three sentences. If the conversation already established the intent, draft from that; otherwise propose a draft from the diff and confirm with the developer in one short question.
 
 ## Phase 3: Draft the "Approach" and "Risks / follow-ups"
 
-**Approach.** List only what isn't obvious from the diff: non-obvious decisions, rejected alternatives, deliberate omissions. Use bullets with **bold lead-ins** when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought. Each bullet ≤15 words. Do not narrate the diff.
-
-Lead each bullet with the decision as it appears in the code, not a comparison. Rationale and rejected alternatives are supporting detail, not the headline. Write `Token updates use PUT: …` not `PUT over DELETE+POST: …`.
+**Approach.** List only what isn't obvious from the diff: non-obvious decisions, rejected alternatives, deliberate omissions.
 
 **Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
-
-Do not reference external artifacts the reviewer cannot see (plan, spec, ticket body, chat). Inline the relevant detail or omit it.
 
 ## Phase 4: Detect "Updated context"
 
@@ -91,7 +83,8 @@ If the developer's target is a UI with a separate title field (GitHub, GitLab), 
 
 ## Notes
 
-- The format is a shape, not a taxonomy. No prefixes, no required type. The Tim Pope discipline (imperative mood, ≤72-char subject) is the only carry-over from commit-message conventions.
+- The format is a shape, not a taxonomy. No prefixes, no required type.
 - Never push, never open a PR, never amend a commit. The skill drafts; the developer ships.
 - The skill works without `gh` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone.
 - If the diff is empty (nothing to summarise), say so and stop.
+- For a single commit (not a whole PR or squash-merge), use `/playbook:commit-message` instead — same writing discipline, leaner template.
