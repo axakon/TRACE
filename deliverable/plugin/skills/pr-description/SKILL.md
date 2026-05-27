@@ -17,18 +17,24 @@ The output template — emit exactly this, dropping any optional section that is
 {1–3 sentences. The why — the problem this change solves, the intent.}
 
 ## Approach
-{2–5 sentences. The how — the chosen approach and notable trade-offs.
-Do not restate the diff line-by-line.}
+{Bullets when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought. Lead each bullet with a **bold phrase** naming the decision, then ≤15 words of detail. Skip anything the diff makes obvious.}
+- **{Decision / trade-off}:** {≤15 words}
+- **{Decision / trade-off}:** {≤15 words}
 
----
+## Risks / follow-ups
+- **{Risk or deferred work}:** {what the reviewer or operator needs to know}
 
 ## Updated context
 - ADR: {NNNN-short-title} — {one-line summary}
 - Docs: {file or area} — {one-line summary}
 
 ## How to verify
-- {step or check the reviewer can run}
+- {Action only a reviewer can meaningfully take — staging behaviour, a UI flow, an output CI cannot assert. Not "run the tests".}
 ```
+
+**Self-contained for the reviewer.** The reviewer sees only this body and the diff. Never reference a plan, spec, ticket body, ADR draft, chat history, or any artifact not in the diff or linked inline. If a detail from the plan matters, inline it here.
+
+**Write for a reader who lacks the context.** Assume the reviewer has never seen this problem, ticket, or system before. Plain language over jargon. Spell out a domain term the first time it appears, or replace it with a plain phrase if one fits. Short sentences, concrete nouns, one idea per sentence. If you have to re-read a sentence to parse it, rewrite it. The goal is comprehension on first pass — not concision at the cost of clarity, and never cleverness.
 
 ## Phase 1: Determine the change range
 
@@ -46,9 +52,15 @@ The title is one imperative-mood line, ≤72 characters, no Conventional-Commits
 
 The "What is this" body is the *why*: the problem this change solves and the intent behind it. One to three sentences. If the conversation already established the intent, draft from that; otherwise propose a draft from the diff and confirm with the developer in one short question.
 
-## Phase 3: Draft the "Approach"
+## Phase 3: Draft the "Approach" and "Risks / follow-ups"
 
-Summarise the technical approach in two to five sentences: the chosen path, the notable trade-off, and the area touched. The reader has the diff — do not narrate it. Mention only details that aren't obvious from reading the code: a non-obvious decision, a deferred follow-up, a deliberate omission.
+**Approach.** List only what isn't obvious from the diff: non-obvious decisions, rejected alternatives, deliberate omissions. Use bullets with **bold lead-ins** when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought. Each bullet ≤15 words. Do not narrate the diff.
+
+Lead each bullet with the decision as it appears in the code, not a comparison. Rationale and rejected alternatives are supporting detail, not the headline. Write `Token updates use PUT: …` not `PUT over DELETE+POST: …`.
+
+**Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
+
+Do not reference external artifacts the reviewer cannot see (plan, spec, ticket body, chat). Inline the relevant detail or omit it.
 
 ## Phase 4: Detect "Updated context"
 
@@ -61,7 +73,11 @@ If the change made a substantial decision but no ADR exists in the diff, mention
 
 ## Phase 5: Decide on "How to verify"
 
-Ask the developer once with `AskUserQuestion`: **Include verification steps** / **Skip**. Default to skip for trivial or pure-refactor changes; default to include for behavioural changes, bug fixes, or anything user-facing. If included, draft 2–5 short steps a reviewer can run (commands, URLs, expected outputs). Keep them concrete.
+Ask the developer once with `AskUserQuestion`: **Include verification steps** / **Skip**. Default to skip for trivial or pure-refactor changes; default to include for behavioural changes, bug fixes, or anything user-facing.
+
+If included, draft 1–3 short steps **a reviewer can meaningfully take** — staging behaviour to exercise, a UI flow to walk, an output to eyeball. Each step concrete (URL, command, expected observation).
+
+Exclude anything the developer or CI already covered: do not write "`go test ./...` passes", "lint is clean", "the build succeeds", or any restatement of CI. The reviewer is not re-running the dev's pre-flight. If the only verification is "CI passes", skip the section.
 
 ## Phase 6: Show, confirm, and place
 

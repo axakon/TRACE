@@ -2,6 +2,16 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.7.1] - 2026-05-27
+
+### Changed
+- **`pr-description` format sharpened for reviewer experience.** Drafts were producing dense, jargon-heavy prose that buried operationally important details and assumed prior context only the author had. Four adjustments to the skill:
+  - **Self-contained for the reviewer.** Explicit rule against referencing artifacts the reviewer cannot see — no plan, spec, ticket body, ADR draft, or chat history. Inline what matters.
+  - **Write for a reader who lacks the context.** Plain language over jargon; spell out domain terms on first use; one idea per sentence; comprehension on first pass over concision-at-any-cost.
+  - **Approach as bullets with bold lead-ins.** Bullets when there are 3+ distinct points (≤15 words each), short prose only for a single continuous thought. Lead each bullet with the decision as it appears in the code (`Token updates use PUT: …`), not a comparison framing (`PUT over DELETE+POST: …`) — rationale and rejected alternatives are supporting detail, not the headline.
+  - **New optional `Risks / follow-ups` section.** Pulls manual rollout steps, deferred cleanups, and known limitations out of mid-paragraph and into a scannable block. Omitted entirely when nothing qualifies.
+  - **`How to verify` is reviewer-actionable only.** Explicit ban on restating CI (`go test ./...` passes, lint clean, build succeeded). The reviewer is not re-running the developer's pre-flight; if the only verification is CI, the section is skipped.
+
 ## [0.7.0] - 2026-05-26
 
 ### Added
