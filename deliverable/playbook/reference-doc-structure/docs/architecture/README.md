@@ -4,12 +4,12 @@
 
 The **prescriptive** layer of the project's documentation: what the system *must do*, how its pieces tie together, and the operational rules every implementation has to satisfy.
 
-Where `system/` is descriptive ("we use Postgres 16; auth handler is at `src/auth.ts`"), `architecture/` is prescriptive ("events MUST publish to Kafka within 5 seconds of state change"). Where `adr/` records the decisions that *led to* a rule, `architecture/` records the rule *in force* — the version a developer or agent consults to know what they have to build to.
+`system/` says what's there ("we use Postgres 16; auth handler is at `src/auth.ts`"). `architecture/` says what's required ("events MUST publish to Kafka within 5 seconds of state change"). `adr/` records the decision that led to a rule; `architecture/` records the rule itself, in the form a developer or agent reads to know what to build.
 
 ## What goes here
 
-- **`overview.md`** — the structural map. What subsystems exist, how they communicate, the high-level sequences and integration patterns. Prose + Mermaid diagrams, no MUST voice required at this level; the integration map itself *is* the meta-rule.
-- **`<area>.md`** — operational rules for one area, integration, or subsystem. Imperative voice, scannable, linked to the upstream source (an ADR, a contract, a reference doc, an incident report) for each rule. Filename pairs with the `system/` file for the same area: `system/api.md` describes the client; `architecture/api.md` constrains it.
+- **`overview.md`** — the structural map. What subsystems exist, how they talk to each other, the high-level sequences and integration patterns. Prose + Mermaid diagrams. MUST voice not required here.
+- **`<area>.md`** — operational rules for one area, integration, or subsystem. Imperative voice, scannable, with each rule linked to its source (an ADR, a contract, a reference doc, an incident report). Filename pairs with the `system/` file for the same area: `system/api.md` describes the client; `architecture/api.md` constrains it.
 
 ## What does NOT go here
 
@@ -34,7 +34,7 @@ If a rule has no nameable source, that's a smell: either it's not actually a rul
 
 ## Format
 
-Spec files use **RFC 2119**-style imperative voice. Short, scannable, no padding:
+Spec files use imperative voice — **MUST / MUST NOT / SHOULD / SHOULD NOT**. Short, scannable, no padding:
 
 ```markdown
 # API — Acme integration
@@ -57,7 +57,7 @@ Spec files use **RFC 2119**-style imperative voice. Short, scannable, no padding
 
 Style points:
 
-- **MUST / MUST NOT / SHOULD / SHOULD NOT** are the verbs. Avoid "we recommend," "ideally," or "try to."
+- Avoid soft verbs like "we recommend," "ideally," or "try to." Use MUST / MUST NOT / SHOULD / SHOULD NOT.
 - **Each rule names what it constrains** — an endpoint, an area, a sequence, a contract — so the reader knows when it applies.
 - **Each rule cites its source.** A rule without a source can't be evaluated for "is this still true?"
 - **No prose explaining the rule.** The argument lives in `reference/` or the ADR. If a rule needs three paragraphs of justification, the justification belongs upstream and the rule itself stays terse.
@@ -65,6 +65,6 @@ Style points:
 ## Conventions
 
 - **Pair filenames with `system/`.** `architecture/<area>.md` and `system/<area>.md` describe the same area from prescriptive and descriptive sides. Readers should be able to flip between them without translation.
-- **Architecture rules are *prescriptive living*.** Updated when the rules change (a contract revises, a new ADR lands, a compliance requirement shifts), not when code changes. Distinct from `system/` (updated when *code* changes) and from `adr/` (immutable once shipped).
+- **Rules here change when the rules change** — a contract revises, a new ADR lands, a compliance requirement shifts. Distinct from `system/` (updated when code changes) and from `adr/` (immutable once shipped).
 - **Keep prose tight.** A spec file is a list of rules with sources, not an essay. If a section is becoming an essay, it belongs in `reference/`, linked from the rule.
 - **`overview.md` is the exception** — it's allowed prose and diagrams because the structural map needs them. But it stays terse: long arguments still go to `reference/`.

@@ -15,12 +15,12 @@ The deliverable is a Git repository. A team clones it, follows the Quick Start, 
 
 Brownfield is the default path; greenfield is handled as called-out variations within each phase.
 
-## Repo layout — deliverable vs. workshop
+## Repo layout — deliverable vs. own docs
 
 The repo is split in two:
 
 - **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugin/` (the Claude Code plugin), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
-- **`docs/`** — the workshop. TRACE applying its own conventions on itself. Working notes, reference rationale, ADRs, and the architecture overview you are reading now. The READMEs inside `docs/` are generic — describing the convention an adopter is following — so they double as templates.
+- **`docs/`** — TRACE's own working docs, applying TRACE's conventions to itself. Working notes, reference rationale, ADRs, and the architecture overview you are reading now. The READMEs inside `docs/` are generic — describing the convention an adopter is following — so they double as templates.
 
 The reference layer (`docs/reference/`) holds the rationale behind every playbook step; each `deliverable/playbook/<phase>.md` links back to the reference doc(s) and ADR(s) that justify it.
 

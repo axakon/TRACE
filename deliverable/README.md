@@ -24,22 +24,23 @@ Only proceed once all three hold.
 
 ### Done when
 
-- `<cwd>/docs/` exists and contains the canonical folder layout:
-  - `docs/README.md`
-  - `docs/system/README.md`
-  - `docs/architecture/README.md`
-  - `docs/adr/README.md`
-  - `docs/reference/README.md`
-  - `docs/working-notes/README.md`
-- Each of those READMEs is a **verbatim copy** of the corresponding file under `<trace-clone>/deliverable/playbook/reference-doc-structure/docs/`.
-- No other content has been authored. In particular, `docs/architecture/overview.md`, `docs/adr/0000-record-architecture-decisions.md`, and a root `AGENTS.md` are **not** created in this step.
+Six README files exist under `<cwd>/docs/`, each a verbatim copy of the corresponding file under `<trace-clone>/deliverable/playbook/reference-doc-structure/docs/`:
+
+- `docs/README.md`
+- `docs/system/README.md`
+- `docs/architecture/README.md`
+- `docs/adr/README.md`
+- `docs/reference/README.md`
+- `docs/working-notes/README.md`
+
+Nothing else has been authored in this step. In particular `docs/architecture/overview.md`, `docs/adr/0000-record-architecture-decisions.md`, and a root `AGENTS.md` are **not** created here.
 
 ### Agent instructions
 
 1. **Collision check.** If `<cwd>/docs/` exists and contains non-empty files, **stop**. Tell the user what's there and ask whether to (a) abort, (b) move the existing `docs/` aside, or (c) merge — and how. Do not silently overlay TRACE's structure onto an existing docs folder.
-2. **Create the folder structure.** Copy each README from `<trace-clone>/deliverable/playbook/reference-doc-structure/docs/` to the matching path under `<cwd>/docs/`. Six files total (the top-level `docs/README.md` plus the five folder READMEs). The Write tool creates parent directories automatically.
-3. **Do NOT author** `docs/architecture/overview.md`, `docs/adr/0000-record-architecture-decisions.md`, or a root `AGENTS.md` here. These need real content drawn from the user's project; fabricating them would violate TRACE's "never pre-author" guardrail. `AGENTS.md` gets created in step 3 via the plugin. The other two are organic — they appear when the user has real architecture or a first decision to record.
-4. **Confirm to the user** what was created — list the six files — and proceed to step 2.
+2. **Copy the six READMEs** listed above into `<cwd>/docs/`. The Write tool creates parent directories automatically.
+3. **Do not author** `docs/architecture/overview.md`, `docs/adr/0000-record-architecture-decisions.md`, or a root `AGENTS.md` here. Those need real content drawn from the user's project; fabricating them would violate TRACE's "never pre-author" guardrail. `AGENTS.md` gets created in step 3 via the plugin. The other two appear when the user has real architecture or a first decision to record.
+4. **Confirm to the user** what was created and proceed to step 2.
 
 ---
 
