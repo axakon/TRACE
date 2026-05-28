@@ -11,12 +11,13 @@ You are helping a developer set up or update their project's `AGENTS.md` file. T
 The convention: **`AGENTS.md` is canonical** (full content lives here, readable by every coding agent that follows the AGENTS.md standard). A sibling **`CLAUDE.md` is a one-line forwarder** containing `See @AGENTS.md for more information.`, so Claude Code's native discovery still finds the file. This skill writes both.
 
 Before you write anything, read these supporting files:
+- [scope-resolution.md](../../shared/scope-resolution.md) — how the optional `[path]` argument resolves into a scope root
 - [agents-md-rules.md](./agents-md-rules.md) — quality rules your draft must satisfy
 - [authoring-rules.md](../../shared/authoring-rules.md) — cross-cutting writing standards
 - [example-output.md](./example-output.md) — a concrete example of a well-formed AGENTS.md
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — how to find the scope's durable-context folder for the directory index
 
-The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as the scope root. Everywhere this skill says "the repo root" or "the root", read it as the scope root just resolved — Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside `<scope>`, never above it.
+Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `$ARGUMENTS` if given, otherwise cwd. Everywhere this skill says "the repo root" or "the root", read it as the resolved scope root: Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside it.
 
 Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per this plugin's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
 

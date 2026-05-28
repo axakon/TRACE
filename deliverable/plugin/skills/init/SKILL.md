@@ -13,9 +13,10 @@ You are configuring the playbook for the current scope. Init does four things, i
 3. Mark the folder with `AGENTS.md` + `CLAUDE.md` forwarder so the rest of the playbook recognises it.
 4. Persist the choice to `<scope>/.claude/.playbook/config.json`.
 
-The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as `<scope>` for every phase below. Init does not walk upward in either case. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`. Init does **not** touch any `AGENTS.md` outside the chosen folder; the directory index is `/playbook:agents-md-setup`'s job.
+Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `$ARGUMENTS` if given, otherwise cwd. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`. Init does **not** touch any `AGENTS.md` outside the chosen folder; the directory index is `/playbook:agents-md-setup`'s job.
 
 Before doing anything, read:
+- [scope-resolution.md](../../shared/scope-resolution.md) — how the optional `[path]` argument resolves into a scope root
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — the marker definition and the resolution precedence the rest of the playbook reads
 - [context-folder-template.md](../distil/context-folder-template.md) — the marker file written in Phase 4
 

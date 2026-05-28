@@ -11,12 +11,13 @@ You are bootstrapping a project's durable-context folder: suggest starter docs f
 Files land in `<docs-folder>/system/` (descriptive — what the codebase IS) and, for the one paired topic, also `<docs-folder>/architecture/` (prescriptive — what the system MUST do). The three-category model itself is described in the READMEs `/playbook:init` copies into place; scaffold assumes those READMEs are there.
 
 Before doing anything, read:
+- [scope-resolution.md](../../shared/scope-resolution.md) — how the optional `[path]` argument resolves into a scope root
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — where to write
 - [authoring-rules.md](../../shared/authoring-rules.md) — record only what the repo confirms; prompts are questions, not claims
 
 ## Phase 1: Resolve, verify init has run, survey
 
-The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as the scope root — all globs, reads, and writes in the phases below operate inside it, including Phase 2's signal scan.
+Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `$ARGUMENTS` if given, otherwise cwd. All globs, reads, and writes in the phases below operate inside it (including Phase 2's signal scan).
 
 Resolve the scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). The folder must contain `system/README.md` and `architecture/README.md` (placed by `/playbook:init`). If either is missing, tell the developer to run `/playbook:init` first (pass the same path argument when the scope isn't cwd) and stop — scaffold relies on the canonical structure being in place.
 
