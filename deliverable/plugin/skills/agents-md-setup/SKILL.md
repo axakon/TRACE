@@ -2,6 +2,7 @@
 name: agents-md-setup
 description: Set up or review the project's AGENTS.md through an interactive interview with the developer
 when_to_use: When a developer opens a project without an AGENTS.md, asks about project setup or conventions, or wants to update an existing AGENTS.md
+argument-hint: [path]
 allowed-tools: Glob Read Edit Write AskUserQuestion
 ---
 
@@ -15,7 +16,9 @@ Before you write anything, read these supporting files:
 - [example-output.md](./example-output.md) — a concrete example of a well-formed AGENTS.md
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — how to find the scope's durable-context folder for the directory index
 
-Determine whether `AGENTS.md` already exists at the repo root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per this plugin's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
+The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as the scope root. Everywhere this skill says "the repo root" or "the root", read it as the scope root just resolved — Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside `<scope>`, never above it.
+
+Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per this plugin's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
 
 ## Interview mechanics (both paths)
 

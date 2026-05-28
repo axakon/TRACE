@@ -29,13 +29,13 @@ If the diff yields no candidates and nothing in it plausibly invalidates existin
 
 A project may be a single repo or a super-repo of sub-repos that each carry their own `AGENTS.md` and durable-context folder. Route each candidate to the *most-local* scope whose contents it describes — otherwise sub-repo knowledge lands at the super-repo level, where someone working inside the sub-repo never sees it.
 
-For each candidate, find its **nearest-ancestor scope** — the closest ancestor directory (from the changed file upward) containing an `AGENTS.md`; the repo root counts, intermediate directories with their own `AGENTS.md` count first. (An existing `CLAUDE.md` without a sibling `AGENTS.md` does *not* count — per this plugin's convention only AGENTS.md is canonical.) Resolve that scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md); if it isn't playbook-marked yet, you'll mark it on first write (Phase 5).
+For each candidate, find its **nearest-ancestor scope** — the closest ancestor directory (from the changed file upward) containing an `AGENTS.md`; the repo root counts, intermediate directories with their own `AGENTS.md` count first. (An existing `CLAUDE.md` without a sibling `AGENTS.md` does *not* count — per this plugin's convention only AGENTS.md is canonical.) Resolve that scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md); if it isn't playbook-marked yet, you'll mark it on first write (Phase 5). Also note any **further-ancestor scopes** between that one and the project root — distil reads these too, so a sub-scope candidate doesn't duplicate something a domain-wide AGENTS.md or docs folder already records.
 
 Read existing context **proportionally** — enough to avoid duplicates and contradictions, not the whole library:
 
-- The affected scope's root `AGENTS.md` (small; also your correction check for criterion 5).
-- In the durable-context folder, the per-folder `AGENTS.md` marker and the *filenames* in `<docs-folder>/system/`, `<docs-folder>/architecture/` (if present), and at the `<docs-folder>/` root (legacy location for descriptive files). Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
-- Any existing ADR under `<docs-folder>/adr/` touching a candidate's area, so you don't restate its rationale.
+- The affected scope's root `AGENTS.md`, and each ancestor scope's root `AGENTS.md` up to the project root (all small; together they are your dedup *and* your correction check for criterion 5 — a change can invalidate something the parent scope claims, not just the local one).
+- In each of those scopes' durable-context folders, the per-folder `AGENTS.md` marker and the *filenames* in `<docs-folder>/system/`, `<docs-folder>/architecture/` (if present), and at the `<docs-folder>/` root (legacy location for descriptive files). Open in full only the file(s) whose area overlaps a candidate — skip unrelated ones.
+- Any existing ADR under `<docs-folder>/adr/` at the affected scope or any ancestor, touching a candidate's area, so you don't restate its rationale.
 
 `<docs-folder>/adr/` is never a distillation target. Historical folders (`reference/`, `working-notes/`) are also never targets — distil writes living knowledge, not rationale or research. `<docs-folder>/architecture/` *is* a valid target for prescriptive candidates (operational rules), but only when the project has the folder set up; descriptive candidates always route to `system/`.
 
@@ -43,7 +43,13 @@ Read existing context **proportionally** — enough to avoid duplicates and cont
 
 For each candidate observation, pick a destination using two questions in this order:
 
-**1. Which scope owns this knowledge?** Default to the nearest-ancestor scope of the changed paths the candidate describes. Promote to a higher scope (a parent repo's `AGENTS.md` or durable-context folder) only when the candidate is genuinely cross-cutting — it describes a convention multiple sub-repos must follow, names a relationship between sub-repos, or constrains how they integrate. When unsure, propose the local target; the developer can override. Over-correction toward the super-repo is harder to undo.
+**1. Which scope owns this knowledge?** Default to the nearest-ancestor scope of the changed paths. Then check three promotion signals against the ancestor scopes you read in Phase 3:
+
+- **Parent already covers the area** — an ancestor's `AGENTS.md` or a file in its docs folder already discusses what this candidate adds to. Propose updating *that file* instead of writing a local duplicate.
+- **Diff touches shared code** — the change includes files outside the affected scope (a root-level `shared/`, `contracts/`, `proto/`, or similar). Propose the nearest scope that owns the shared path.
+- **Candidate references siblings** — the candidate text names another sub-scope, or describes a contract between sub-scopes. Propose their common-ancestor scope.
+
+When any signal fires, lead with the upward target in Phase 5; the developer can still flip via **Change location**. When none fire but the candidate still feels domain-wide (a general rule rather than scope-specific behaviour), use `AskUserQuestion` before drafting: **Keep at `<local>`** / **Hoist to `<parent>`** / **Skip**. Don't guess silently. When none fire and the candidate is plainly local, propose local and move on.
 
 **2. Inside that scope, which file?**
 

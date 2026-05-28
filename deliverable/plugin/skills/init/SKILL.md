@@ -2,6 +2,7 @@
 name: init
 description: Configure the playbook for this scope — choose where durable project context lives, copy the canonical three-category doc structure into it, mark the folder, and persist the choice. Recommended as the first playbook command in a fresh repo, before /playbook:agents-md-setup. Safe to re-run to change the location.
 disable-model-invocation: true
+argument-hint: [path]
 allowed-tools: Glob Read Write Edit AskUserQuestion
 ---
 
@@ -12,7 +13,7 @@ You are configuring the playbook for the current scope. Init does four things, i
 3. Mark the folder with `AGENTS.md` + `CLAUDE.md` forwarder so the rest of the playbook recognises it.
 4. Persist the choice to `<scope>/.claude/.playbook/config.json`.
 
-The scope is the current working directory; init does not walk upward. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`. Init does **not** touch the root `AGENTS.md`; the directory index is `/playbook:agents-md-setup`'s job.
+The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as `<scope>` for every phase below. Init does not walk upward in either case. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`. Init does **not** touch any `AGENTS.md` outside the chosen folder; the directory index is `/playbook:agents-md-setup`'s job.
 
 Before doing anything, read:
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — the marker definition and the resolution precedence the rest of the playbook reads
@@ -97,7 +98,7 @@ One short message listing only the bullets that apply:
 - Which of the six canonical README files were written, already present, or overwritten.
 - Whether the marker pair (`AGENTS.md` + `CLAUDE.md` forwarder) was written, already present, or overwritten.
 - The config path `.claude/.playbook/config.json`.
-- If no root `AGENTS.md` exists at the scope root, one line suggesting `/playbook:agents-md-setup` next — that skill owns the root AGENTS.md (init does not edit it).
+- If no `AGENTS.md` exists at the scope root, one line suggesting `/playbook:agents-md-setup` next (pass the same path argument when the scope isn't cwd) — that skill owns the scope's AGENTS.md, and without it `/playbook:distil` won't recognise this folder as its own scope.
 
 ## Notes
 

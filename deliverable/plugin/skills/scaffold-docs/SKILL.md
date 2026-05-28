@@ -2,6 +2,7 @@
 name: scaffold-docs
 description: Suggest and scaffold starter docs for a project's durable-context folder, tailored to what the repo evidences. One-time bootstrap on a project that has code but little documentation, after /playbook:init and /playbook:agents-md-setup.
 disable-model-invocation: true
+argument-hint: [path]
 allowed-tools: Glob Read Write AskUserQuestion
 ---
 
@@ -15,7 +16,9 @@ Before doing anything, read:
 
 ## Phase 1: Resolve, verify init has run, survey
 
-Resolve the scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). The folder must contain `system/README.md` and `architecture/README.md` (placed by `/playbook:init`). If either is missing, tell the developer to run `/playbook:init` first and stop — scaffold relies on the canonical structure being in place.
+The scope is `$ARGUMENTS` if given, otherwise the current working directory. With an argument, resolve it relative to cwd, require it to be an existing directory under cwd (reject absolute paths or `../` paths that escape the tree), and treat that resolved path as the scope root — all globs, reads, and writes in the phases below operate inside it, including Phase 2's signal scan.
+
+Resolve the scope's durable-context folder per [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). The folder must contain `system/README.md` and `architecture/README.md` (placed by `/playbook:init`). If either is missing, tell the developer to run `/playbook:init` first (pass the same path argument when the scope isn't cwd) and stop — scaffold relies on the canonical structure being in place.
 
 List the `.md` files already in `<docs-folder>/system/` and `<docs-folder>/architecture/`. Also note anything at the `<docs-folder>/` root (a legacy location from earlier plugin versions). Never suggest a topic an existing file already covers.
 

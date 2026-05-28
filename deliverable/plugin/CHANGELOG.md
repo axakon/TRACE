@@ -2,6 +2,15 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.12.0] - 2026-05-28
+
+### Added
+- **`init`, `agents-md-setup`, and `scaffold-docs` accept an optional `[path]` argument** so a sub-scope in a monorepo can be set up from the super-repo root without `cd`-ing. With no argument the skills resolve scope to the current working directory (unchanged behaviour). With an argument, the path is resolved relative to cwd, validated to be an existing directory under cwd (absolute or `../`-escaping paths are rejected), and used as the scope root — config, docs structure, the marker pair, and `scaffold-docs`' Phase 2 signal scan all operate inside it. Typical monorepo flow becomes `/playbook:init services/api` → `/playbook:agents-md-setup services/api` → `/playbook:scaffold-docs services/api`, all from the repo root. `adr` is deliberately not extended — it is mostly invoked via `spec-workflow` or mid-conversation where cwd already matches the intended scope, and its `$ARGUMENTS` slot is owned by the decision title.
+
+### Changed
+- **`distil` reads ancestor scopes, not only the affected one.** Phase 3 now walks from the changed file upward through every ancestor `AGENTS.md` to the project root and globs filenames in each scope's docs folder (full reads only when an area overlaps a candidate). Two consequences in a funnelled monorepo: a sub-scope candidate is dedup'd against domain-wide context that was previously invisible to distil, and the criterion 5 correction check catches claims invalidated at *any* level of the funnel, not only the local one.
+- **`distil` surfaces hoist signals actively in Phase 4.** Three named promotion signals — *parent already covers the area* / *diff touches shared code* / *candidate references sibling scopes* — flip the default proposed target from local to the upward scope when any of them fires. When none fire but the candidate still feels domain-wide (a general rule rather than scope-specific behaviour), distil now calls `AskUserQuestion` explicitly (**Keep at `<local>`** / **Hoist to `<parent>`** / **Skip**) rather than guessing silently. The per-candidate chip in Phase 5 remains the developer's final say.
+
 ## [0.11.0] - 2026-05-28
 
 ### Changed
