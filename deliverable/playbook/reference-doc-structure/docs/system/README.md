@@ -4,7 +4,7 @@
 
 Living documentation about the codebase. Each file describes the **current state** of one area of the system — what conventions exist, what the trust boundaries are, what the data layer looks like — so that an agent (or a new developer) can be productive in that area without reading the whole codebase first.
 
-These files are **binding context**: when an agent works in an area covered by a file here, the file's contents outrank training-data defaults and general assumptions.
+When an agent works in an area covered by a file here, treat the file's contents as authoritative — they outrank training-data defaults and general assumptions.
 
 ## What goes here
 

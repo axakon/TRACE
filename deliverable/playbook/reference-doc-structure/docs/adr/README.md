@@ -2,22 +2,22 @@
 
 ## Purpose
 
-Architecture Decision Records. Discrete decisions with downstream consequences, recorded **immutably once shipped**.
+Architecture Decision Records. One record per decision, with downstream consequences, **immutable once shipped**.
 
-ADRs are the project's structural memory. When a future contributor asks "why is it like this?", an ADR is the canonical answer. Without ADRs, decisions exist only in the heads of whoever made them — and those people leave, change teams, or simply forget.
+ADRs are the project's structural memory. When a future contributor asks "why is it like this?", an ADR is the canonical answer.
 
 ## What goes here
 
 - Numbered files: `0001-<short-kebab-name>.md`, `0002-<...>.md`, etc., strictly sequential.
 - One decision per file.
-- Nygard-lite template — sections: **Context** (the forces in tension, alternatives considered), **Decision** (what we will do, in active voice), **Consequences** (the resulting context — what becomes easier, what becomes harder).
-- No `Status` field. A shipped ADR is by definition accepted; an unshipped one is still being edited. Supersession is recorded as a `> Superseded by <NNNN>.` banner under the title, added the only time a shipped ADR is allowed to be touched.
-- The foundational record `0000-record-architecture-decisions.md` — declares that this project uses ADRs and how. Created once at project setup.
+- Three sections, in order: **Context** (the forces in tension, alternatives considered), **Decision** (what we will do, in active voice), **Consequences** (what becomes easier, what becomes harder).
+- No `Status` field. A shipped ADR is accepted by definition; an unshipped one is still being edited. Supersession adds a `> Superseded by <NNNN>.` line under the title — the only edit allowed on a shipped ADR.
+- The foundational record `0000-record-architecture-decisions.md` declares that this project uses ADRs and how. Created once at project setup.
 
 ## What does NOT go here
 
-- Active deliberation, alternatives still being weighed → that's [`../working-notes/`](../working-notes/). An ADR captures a *resolved* decision, not the debate that led to it.
-- Long-form rationale or essay-style argument → that's [`../reference/`](../reference/). ADRs are minutes; reference docs are essays. If your ADR has grown past two screens, the substance probably belongs in a reference doc that the ADR links to.
+- Active deliberation, alternatives still being weighed → [`../working-notes/`](../working-notes/). An ADR captures a *resolved* decision, not the debate that led to it.
+- Long-form rationale or essay-style argument → [`../reference/`](../reference/). ADRs are short minutes; reference docs are full essays. If your ADR has grown past two screens, the substance probably belongs in a reference doc that the ADR links to.
 - Implementation details, runbooks, how-to guides → those belong in the codebase or a project guide, not here.
 - General "thoughts" or unstructured notes — an ADR records exactly one decision.
 

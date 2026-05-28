@@ -1,5 +1,7 @@
 # reference/
 
+> Canonical adopter copy: [`deliverable/playbook/reference-doc-structure/docs/reference/`](../../deliverable/playbook/reference-doc-structure/docs/reference/).
+
 ## Purpose
 
 Long-form rationale. The **why** behind a position the project takes. Each file here is promoted from a stabilized working note once its opinions have stopped moving.
@@ -13,9 +15,9 @@ Long-form rationale. The **why** behind a position the project takes. Each file 
 
 ## What does NOT go here
 
-- Active research or half-formed opinions → those belong in [`../working-notes/`](../working-notes/).
-- Discrete decision records with a single Decision/Consequences shape → that's an ADR in [`../adr/`](../adr/). Reference docs are essays; ADRs are minutes.
-- Imperative how-to ("do X, then Y") → those belong in a project guide or runbook, not here. Reference docs explain *why*; they don't tell the reader what to do.
+- Active research or half-formed opinions → [`../working-notes/`](../working-notes/).
+- Records of a single decision and its consequences → an ADR in [`../adr/`](../adr/). Reference docs are essays; ADRs are short minutes.
+- Imperative how-to ("do X, then Y") → a project guide or runbook, not here. Reference docs explain *why*; they don't tell the reader what to do.
 - Code, scripts, or examples → those live elsewhere in the repo.
 
 ## Lifecycle

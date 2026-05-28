@@ -22,10 +22,11 @@ The repo is organized in two halves:
 
 ## Conventions
 
-- **Working notes** live in `docs/working-notes/` and use a `Status:` header (`Research note` / `Stabilizing` / `Promoted`), plus `Resolved` and `Open questions` sections.
-- **Decisions** about the framework are recorded as ADRs in `docs/adr/` using the lightweight Nygard template (Context / Decision / Consequences). Don't make a framework-level decision in conversation without writing it up.
-- **Promotion lifecycle:** working note → reference doc → playbook section. A note is promoted only when its opinions stop moving. The original note stays as historical substrate, frozen.
-- **Playbook layout** is flat numbered files: `deliverable/playbook/01-assess.md`, `02-document.md`, `03-equip.md`, `04-operate.md`. Do not create a phase file until that phase has real, synthesized content.
+The full lifecycle (working note → reference doc → playbook section, plus ADRs alongside) is described in [`docs/README.md`](docs/README.md). The repo-specific points are:
+
+- **Decisions** about the framework are recorded as ADRs in `docs/adr/`. Don't make a framework-level decision in conversation without writing it up.
+- A note is promoted only when its opinions stop moving. The original note stays as a frozen record, not deleted.
+- **Playbook layout** is flat numbered files: `deliverable/playbook/01-assess.md`, `02-document.md`, `03-equip.md`, `04-operate.md`. Don't create a phase file until that phase has real, synthesized content.
 
 ## Guardrails
 

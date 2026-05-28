@@ -10,7 +10,7 @@ A reader (human or agent) needs to know what kind of doc they're looking at befo
 - **Prescriptive** — what the system *must do*. Lives in `architecture/`.
 - **Historical** — how decisions were made and why. Lives in `working-notes/`, `reference/`, `adr/`.
 
-Each category has its own update semantics. Mixing them in one folder confuses readers because some docs track live truth, some are binding rules, and some are frozen at the moment they were written.
+Each category has its own update rules. Mixing them in one folder confuses readers because some docs track live truth, some are rules to follow, and some are frozen at the moment they were written.
 
 ## Layout
 

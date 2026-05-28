@@ -1,33 +1,27 @@
 # working-notes/
 
-## Purpose
+> Canonical adopter copy: [`deliverable/playbook/reference-doc-structure/docs/working-notes/`](../../deliverable/playbook/reference-doc-structure/docs/working-notes/).
 
-Raw research substrate. Half-formed opinions, in-progress thinking, exploratory drafts. This is where ideas live while they are still moving — before anyone is committed to them.
+Rough notes and in-progress thinking — ideas before they've settled. Half-formed opinions go here, not in `reference/` or `adr/`.
 
-## What goes here
+## What a note looks like
 
-- One markdown file per topic, kebab-case filename.
+- One markdown file per topic, kebab-case filename, no date prefix (git history is the date).
 - A `Status:` header at the top: `Research note`, `Stabilizing`, or `Promoted`.
-- A `Resolved` section that grows as questions are answered.
-- An `Open questions` section, even if empty.
-- Direct prose. Bullet points. Half-finished arguments. Whatever helps the author think.
+- A `Resolved` section that grows as questions get answered.
+- An `Open questions` section, even if it's empty.
+- Whatever prose, bullets, or half-finished arguments help the author think.
 
 ## What does NOT go here
 
-- Stabilized rationale you intend to cite from elsewhere → that belongs in [`../reference/`](../reference/).
-- Discrete decisions with consequences ("we chose A over B because…") → that's an ADR in [`../adr/`](../adr/).
-- Anything that's already been promoted and copied elsewhere — the note stays here, but no new content goes into a promoted note.
+- Settled rationale you intend to cite from elsewhere → [`../reference/`](../reference/).
+- A single decision with consequences ("we chose A over B") → an ADR in [`../adr/`](../adr/).
+- New content added to a note that's already been promoted. The note stays here, frozen.
 
-## Lifecycle
+## Status values
 
-A note moves through three statuses, encoded in its `Status:` header:
+- **Research note** — active thinking. Opinions may flip.
+- **Stabilizing** — most questions resolved; author believes the take is right but hasn't promoted it yet.
+- **Promoted** — substance has been lifted into `reference/` (or an ADR). The note is frozen as a record of how the thinking evolved.
 
-1. **Research note.** Active thinking. Opinions may flip. No downstream artifacts should depend on this content yet.
-2. **Stabilizing.** Most questions resolved. Author believes the take is correct but hasn't promoted it yet.
-3. **Promoted.** Substance has been lifted into `reference/` (or an ADR). The note becomes historical substrate — frozen, not deleted. Future readers can see how the thinking evolved.
-
-Promotion is a deliberate act. Do not promote a note to `reference/` without explicit go-ahead.
-
-## Naming
-
-`<topic>.md` in kebab-case. No date prefixes — the file's git history is the date. Files are not renumbered or reorganized; topic-clustering happens at the reference/ layer, not here.
+Promotion is a deliberate act, never automatic. Don't promote without explicit go-ahead. The full funnel (working note → reference → playbook) is described in [`../README.md`](../README.md).
