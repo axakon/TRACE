@@ -40,7 +40,16 @@ Internal API for the Meridian customer portal. Handles authentication, account m
 | `prisma/` | Schema and migrations |
 | `config/` | Environment-specific config. Loaded via `config/index.ts`, not dotenv directly |
 | `scripts/` | One-off and seed scripts. `scripts/seed-dev.ts` sets up local dev data |
-| `docs/` | Durable project context — distilled conventions, security boundaries, design choices, and gotchas. Maintained by `/playbook:distil` in small files scoped to one area each. Consult related files before substantive work in the area they cover; they outrank general defaults. |
+| `docs/` | Durable project context. Sub-folder layout below shows where each kind of doc goes. |
+
+```
+docs/
+├── system/         ← what the code does today (updated as code changes)
+├── architecture/   ← what the system must do (updated when rules change)
+├── adr/            ← architecture decisions (immutable once shipped)
+├── reference/      ← long-form rationale (append-only)
+└── working-notes/  ← active research, in motion until promoted
+```
 
 ## Commands
 

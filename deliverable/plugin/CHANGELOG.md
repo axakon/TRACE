@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.11.0] - 2026-05-28
+
+### Changed
+- **`agents-md-setup` now embeds the docs sub-folder layout in the root `AGENTS.md`.** Section 3 (Directory index) keeps a single row for `<docs-folder>/` but appends a small ASCII tree mirroring the Layout in `<docs-folder>/README.md` — `system/` (what the code does today), `architecture/` (what it must do), `adr/`, `reference/`, `working-notes/`. The point is routing: when a developer asks for research or rules, an agent reading AGENTS.md sees the destination folder without opening the docs README first. Review-and-update flow checks for the layout block and proposes adding it if only the older single `<docs-folder>/` row is present. The previous one-row description ("Durable project context — distilled conventions, security boundaries, …") is replaced; the routing semantics now live in the tree.
+
 ## [0.10.0] - 2026-05-28
 
 ### Changed
