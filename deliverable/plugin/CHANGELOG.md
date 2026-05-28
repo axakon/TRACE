@@ -2,6 +2,12 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.10.0] - 2026-05-28
+
+### Changed
+- **`scaffold-docs` aligned with the TRACE three-category model.** The skill still seeds small, signal-driven topic files (`security`, `data-layer`, `migrations`, `api`, `api-integration`, `events`), but now writes to `<docs-folder>/system/` for descriptive content and, for `security` only, also seeds a paired `<docs-folder>/architecture/security.md` stub in MUST voice. The pairing demonstrates the system+architecture filename convention TRACE uses for areas with both descriptive and prescriptive content; other topics stay descriptive-only at scaffold time. Defaults renamed where TRACE expects paired filenames: `database.md` → `data-layer.md`, `api-conventions.md` → `api.md`.
+- **`scaffold-docs` now requires `/playbook:init` to have run.** With init owning structure setup (including the marker pair), scaffold no longer writes the docs-folder marker itself. If `system/README.md` or `architecture/README.md` is missing, scaffold tells the developer to run `/playbook:init` first and stops. This removes the duplicated marker-writing logic and keeps each skill focused on one job.
+
 ## [0.9.0] - 2026-05-28
 
 ### Added
