@@ -1,45 +1,70 @@
 ---
 name: init
-description: Configure the playbook for this scope — choose where durable project context lives, mark the folder, and persist the choice. Recommended as the first playbook command in a fresh repo, before /playbook:agents-md-setup. Safe to re-run to change the location.
+description: Configure the playbook for this scope — choose where durable project context lives, copy the canonical three-category doc structure into it, mark the folder, and persist the choice. Recommended as the first playbook command in a fresh repo, before /playbook:agents-md-setup. Safe to re-run to change the location.
 disable-model-invocation: true
 allowed-tools: Glob Read Write Edit AskUserQuestion
 ---
 
-You are configuring the playbook for the current scope — choosing where this scope's durable context lives (the folder `/playbook:distil` writes into), persisting that to `<scope>/.claude/.playbook/config.json`, and marking the folder with a small `AGENTS.md` plus a sibling `CLAUDE.md` forwarder.
+You are configuring the playbook for the current scope. Init does four things, in order:
 
-The scope is the current working directory; init does not walk upward. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`, so a missing one is normal on a fresh setup.
+1. Choose where this scope's durable context lives (the folder `/playbook:distil` writes into).
+2. Lay down the canonical three-category doc structure inside it (`system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`, each with a README copied verbatim from the plugin).
+3. Mark the folder with `AGENTS.md` + `CLAUDE.md` forwarder so the rest of the playbook recognises it.
+4. Persist the choice to `<scope>/.claude/.playbook/config.json`.
+
+The scope is the current working directory; init does not walk upward. A root `AGENTS.md` is not required — the recommended order is `/playbook:init` then `/playbook:agents-md-setup`. Init does **not** touch the root `AGENTS.md`; the directory index is `/playbook:agents-md-setup`'s job.
 
 Before doing anything, read:
-- [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — the marker definition and the precedence the rest of the playbook reads
-- [context-folder-template.md](../distil/context-folder-template.md) — the marker file you write into the chosen folder
+- [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — the marker definition and the resolution precedence the rest of the playbook reads
+- [context-folder-template.md](../distil/context-folder-template.md) — the marker file written in Phase 4
 
 ## Phase 1: Check for existing config
 
-Read `<scope>/.claude/.playbook/config.json` if it exists. If it does, show the current `docs_folder` value and call `AskUserQuestion`: **Keep as-is** (exit, no changes) / **Change location** (proceed) / **Cancel** (exit).
+Read `<scope>/.claude/.playbook/config.json` if it exists. If it does, show the current `docs_folder` value and call `AskUserQuestion`: **Keep as-is** (exit) / **Change location** (proceed) / **Cancel** (exit).
 
 If the file does not exist, proceed.
 
 ## Phase 2: Discover candidates and choose
 
-Use the Glob tool to list top-level directories. Identify two kinds of candidate:
+Glob the top-level directories. Identify:
 
-- **Already playbook-marked** — a folder whose `AGENTS.md` is playbook-marked (see the marker definition in [docs-folder-resolution.md](../../shared/docs-folder-resolution.md)). Read the first ~30 lines of each candidate folder's `AGENTS.md` to check. An existing `CLAUDE.md` marker (from earlier plugin versions) is **not** recognized — per this plugin's convention only AGENTS.md counts as the canonical marker; the folder is treated as not-yet-marked.
+- **Already playbook-marked** — a folder whose `AGENTS.md` is playbook-marked (see [docs-folder-resolution.md](../../shared/docs-folder-resolution.md)). Read the first ~30 lines to check. A `CLAUDE.md` without a sibling `AGENTS.md` does **not** count.
 - **Existing docs roots** — `docs/`, `documentation/`, `wiki/`: folders that look like documentation homes even without a marker.
 
-Show concisely what you found. Do not auto-pick. Then call `AskUserQuestion` with up to four options, ordered by strength, including only the rows that apply (the auto-added "Other" covers anything else):
+Show concisely what you found. Then call `AskUserQuestion` with up to four options, ordered by strength, including only rows that apply (the auto-added "Other" covers anything else):
 
-- The strongest already-marked candidate, if any — e.g. **Use existing marked folder `docs/`**
-- One reasonable existing docs root, if different from the above — e.g. **Use existing `documentation/`**
-- **Create or use `docs/`** — the playbook default, whether or not `docs/` exists
+- The strongest already-marked candidate, if any.
+- One reasonable existing docs root, if different.
+- **Create or use `docs/`** — the playbook default.
 - **Type a custom path** — for `claude-context/`, `internal/docs/`, etc.
 
-If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: a small `AGENTS.md` marker will be written into it describing what `/playbook:distil` writes there (plus a `CLAUDE.md` forwarder sibling), and that hand-written docs alongside it are fine. Confirm once in chat (no second `AskUserQuestion`).
+If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: the playbook's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second `AskUserQuestion`.
 
-## Phase 3: Mark the folder
+## Phase 3: Copy the canonical doc structure
 
-Write `<chosen-folder>/AGENTS.md` using the body of [context-folder-template.md](../distil/context-folder-template.md), dropping the leading "# AGENTS.md (template for...)" preamble — start from the `# Durable project context` heading. The Write tool creates parent directories, so a non-existent folder is fine.
+Copy each of these six files from the plugin's `shared/doc-structure/` to `<chosen-folder>/`, preserving sub-paths. Read each source via the Read tool (`../../shared/doc-structure/<path>` relative to this skill), then Write to the target. The Write tool creates parent directories.
 
-Also write `<chosen-folder>/CLAUDE.md` as a one-line forwarder containing exactly:
+| Source | Target |
+|---|---|
+| `../../shared/doc-structure/README.md` | `<chosen-folder>/README.md` |
+| `../../shared/doc-structure/system/README.md` | `<chosen-folder>/system/README.md` |
+| `../../shared/doc-structure/architecture/README.md` | `<chosen-folder>/architecture/README.md` |
+| `../../shared/doc-structure/adr/README.md` | `<chosen-folder>/adr/README.md` |
+| `../../shared/doc-structure/reference/README.md` | `<chosen-folder>/reference/README.md` |
+| `../../shared/doc-structure/working-notes/README.md` | `<chosen-folder>/working-notes/README.md` |
+
+For each target, if it already exists:
+
+- If its content is byte-identical to the source, skip silently — the structure is already in place.
+- Otherwise, show what's there briefly and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**.
+
+Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of the playbook's guardrails.
+
+## Phase 4: Mark the folder
+
+Write `<chosen-folder>/AGENTS.md` using the body of [context-folder-template.md](../distil/context-folder-template.md), dropping the leading "# AGENTS.md (template for...)" preamble — start from the `# Durable project context` heading.
+
+Write `<chosen-folder>/CLAUDE.md` as the one-line forwarder:
 
 ```
 See @AGENTS.md for more information.
@@ -47,14 +72,14 @@ See @AGENTS.md for more information.
 
 If `<chosen-folder>/AGENTS.md` already exists:
 
-- If it is already playbook-marked, leave it alone and report no change in Phase 6.
+- If it is already playbook-marked, leave it alone.
 - If it differs, show the existing content briefly and call `AskUserQuestion`: **Overwrite with template** / **Leave existing** / **Cancel init**.
 
-If `<chosen-folder>/CLAUDE.md` already exists with content that is not the one-line forwarder, overwrite it — per the plugin's convention CLAUDE.md is always just a forwarder.
+If `<chosen-folder>/CLAUDE.md` exists with content other than the one-line forwarder, overwrite it — per the plugin's convention CLAUDE.md is always just a forwarder.
 
-## Phase 4: Persist the choice
+## Phase 5: Persist the choice
 
-Write `<scope>/.claude/.playbook/config.json` with the chosen folder path, relative to the scope root:
+Write `<scope>/.claude/.playbook/config.json`:
 
 ```json
 {
@@ -62,23 +87,20 @@ Write `<scope>/.claude/.playbook/config.json` with the chosen folder path, relat
 }
 ```
 
-Substitute the developer's actual choice; keep a trailing slash. Overwrite if it already exists — the chosen value supersedes any previous one.
-
-## Phase 5: Update the root AGENTS.md directory index (only if one exists and is stale)
-
-Skip entirely if no `AGENTS.md` exists at the scope root — `/playbook:agents-md-setup` reads the config you just wrote and seeds the entry itself. An existing root `CLAUDE.md` (with content) is not a substitute; per the plugin's convention only AGENTS.md is canonical.
-
-If a root `AGENTS.md` exists, check its `## Directory index`. If the chosen folder is already listed with a reasonable description, do nothing. If the index is missing the folder, or still points at a different/old location (e.g. after a re-run that changed the location), propose an Edit adding or correcting the row and call `AskUserQuestion`: **Apply** / **Skip**. Standard description text (matches `agents-md-setup`):
-
-> Durable project context — distilled conventions, security boundaries, design choices, and gotchas. Maintained by `/playbook:distil` in small files scoped to one area each. Consult related files before substantive work in the area they cover; they outrank general defaults.
+Substitute the developer's actual choice; keep the trailing slash. Overwrite if present — the chosen value supersedes any previous one.
 
 ## Phase 6: Summarise
 
-One short message listing only the bullets that apply: the chosen folder (created or pre-existing); whether the marker was written, already present, or overwritten (mention both `AGENTS.md` and the `CLAUDE.md` forwarder); whether the root index was updated or skipped; the config path `.claude/.playbook/config.json`; and — if no root `AGENTS.md` exists — a single line suggesting `/playbook:agents-md-setup` next.
+One short message listing only the bullets that apply:
+
+- The chosen folder (created or pre-existing).
+- Which of the six canonical README files were written, already present, or overwritten.
+- Whether the marker pair (`AGENTS.md` + `CLAUDE.md` forwarder) was written, already present, or overwritten.
+- The config path `.claude/.playbook/config.json`.
+- If no root `AGENTS.md` exists at the scope root, one line suggesting `/playbook:agents-md-setup` next — that skill owns the root AGENTS.md (init does not edit it).
 
 ## Notes
 
 - Init is per-scope. In a super-repo, run it once per scope; the repo root and each sub-repo are independent.
-- The config file is plain JSON. Developers can edit it by hand later, or re-run `/playbook:init` to update marker, index, and config in one step.
-- Both `/playbook:distil` and `/playbook:agents-md-setup` read this config. If it is absent, both fall back to the precedence in [docs-folder-resolution.md](../../shared/docs-folder-resolution.md).
-- Init does not move files or run shell commands. It only writes the scope's chosen-folder marker (`AGENTS.md` + `CLAUDE.md` forwarder), the config file, and (with approval) the root AGENTS.md index entry.
+- The six READMEs describe the three-category model (descriptive / prescriptive / historical). They are reference material for readers of the docs folder, not content the playbook fills in for the developer.
+- Both `/playbook:distil` and `/playbook:agents-md-setup` read this scope's config. If it is absent, both fall back to the precedence in [docs-folder-resolution.md](../../shared/docs-folder-resolution.md).

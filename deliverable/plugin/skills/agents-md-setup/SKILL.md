@@ -94,13 +94,22 @@ _Short table mapping top-level dirs (plus select subdirs) to what they contain. 
 
 Propose a directory index from the actual folder structure and ask whether any descriptions are wrong or any subdirectories were left out.
 
-Then append the playbook-managed entry below so the agent can discover the playbook's output once it appears. Resolve `<docs-folder>` using the precedence in [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) (the same logic distil uses, so the index is accurate even before the first distillation):
+Then append the docs-folder row plus the layout sub-block below, so an agent reading AGENTS.md knows where in `<docs-folder>` to place files without opening the docs README. Resolve `<docs-folder>` using the precedence in [docs-folder-resolution.md](../../shared/docs-folder-resolution.md):
 
 | Path | What's there |
 |------|-------------|
-| `<docs-folder>/` | Durable project context — distilled conventions, security boundaries, design choices, and gotchas. Maintained by `/playbook:distil` in small files scoped to one area each. Consult related files before substantive work in the area they cover; they outrank general defaults. |
+| `<docs-folder>/` | Durable project context. Sub-folder layout below shows where each kind of doc goes. |
 
-Explain it's added by convention so future agents find the playbook's output; if the docs folder already holds hand-written docs, note the distilled files live alongside them. Default to keeping it — the developer can drop it in their `ok`/change reply.
+````
+<docs-folder>/
+├── system/         ← what the code does today (updated as code changes)
+├── architecture/   ← what the system must do (updated when rules change)
+├── adr/            ← architecture decisions (immutable once shipped)
+├── reference/      ← long-form rationale (append-only)
+└── working-notes/  ← active research, in motion until promoted
+````
+
+The sub-block mirrors the Layout in `<docs-folder>/README.md` so an agent picks up routing — "research → working-notes/", "rules → architecture/" — without reading another file. Substitute the actual `<docs-folder>` path in both the table row and the tree (e.g., `docs/` or `documentation/`). Default to keeping the block; the developer can trim or replace it in their `ok`/change reply.
 
 **Section 4 — Commands**
 
@@ -152,7 +161,7 @@ Go section by section with the developer, applying the interview mechanics above
 
 If a section that should exist is missing (e.g. no Gotchas but the developer has some when prompted), propose adding it using the create-flow template. If a section doesn't belong (e.g. "Future plans"), point it out and offer to remove it — handle both in that section's conversational confirm.
 
-For the directory index specifically, check whether the scope's durable-context folder is listed. Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If it's missing, propose adding it with the standard description (from create-flow Section 3); default to adding it. An AGENTS.md written before the playbook landed should be brought up to date this way.
+For the directory index specifically, check whether the scope's durable-context folder is listed *with* the sub-folder layout block (the ASCII tree showing `system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`). Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If the row is missing entirely, or only the older single `<docs-folder>/` row exists without the layout sub-block, propose adding the full block from create-flow Section 3; default to adding it. An AGENTS.md written before this version of the playbook landed should be brought up to date this way.
 
 ### Phase 3: Self-review
 

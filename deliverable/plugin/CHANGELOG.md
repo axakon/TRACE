@@ -2,6 +2,25 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.11.0] - 2026-05-28
+
+### Changed
+- **`agents-md-setup` now embeds the docs sub-folder layout in the root `AGENTS.md`.** Section 3 (Directory index) keeps a single row for `<docs-folder>/` but appends a small ASCII tree mirroring the Layout in `<docs-folder>/README.md` — `system/` (what the code does today), `architecture/` (what it must do), `adr/`, `reference/`, `working-notes/`. The point is routing: when a developer asks for research or rules, an agent reading AGENTS.md sees the destination folder without opening the docs README first. Review-and-update flow checks for the layout block and proposes adding it if only the older single `<docs-folder>/` row is present. The previous one-row description ("Durable project context — distilled conventions, security boundaries, …") is replaced; the routing semantics now live in the tree.
+
+## [0.10.0] - 2026-05-28
+
+### Changed
+- **`scaffold-docs` aligned with the TRACE three-category model.** The skill still seeds small, signal-driven topic files (`security`, `data-layer`, `migrations`, `api`, `api-integration`, `events`), but now writes to `<docs-folder>/system/` for descriptive content and, for `security` only, also seeds a paired `<docs-folder>/architecture/security.md` stub in MUST voice. The pairing demonstrates the system+architecture filename convention TRACE uses for areas with both descriptive and prescriptive content; other topics stay descriptive-only at scaffold time. Defaults renamed where TRACE expects paired filenames: `database.md` → `data-layer.md`, `api-conventions.md` → `api.md`.
+- **`scaffold-docs` now requires `/playbook:init` to have run.** With init owning structure setup (including the marker pair), scaffold no longer writes the docs-folder marker itself. If `system/README.md` or `architecture/README.md` is missing, scaffold tells the developer to run `/playbook:init` first and stops. This removes the duplicated marker-writing logic and keeps each skill focused on one job.
+
+## [0.9.0] - 2026-05-28
+
+### Added
+- **`init` scaffolds the TRACE three-category doc structure.** The plugin now bundles the six canonical README files (`<docs-folder>/README.md` plus one in each of `system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`) under `shared/doc-structure/`, and `init` copies them into the chosen docs folder. Adopters get the opinionated structure as part of plugin setup instead of copying READMEs by hand from the TRACE clone. Existing files at any target path prompt for overwrite/leave/cancel; byte-identical existing files are skipped silently. The skill still does not pre-author content — no `architecture/overview.md`, no `adr/0000-record-architecture-decisions.md`, no `system/<topic>.md`.
+
+### Changed
+- **`init` no longer touches the root `AGENTS.md` directory index.** The previous Phase 5 was the main source of scope creep — `init` editing AGENTS.md crossed into `agents-md-setup`'s territory. Init now only writes to the chosen docs folder and to `.claude/.playbook/config.json`; the summary suggests `/playbook:agents-md-setup` when no root `AGENTS.md` exists. `agents-md-setup` already covers the directory-index entry from its create and review flows.
+
 ## [0.8.0] - 2026-05-27
 
 ### Added
