@@ -2,6 +2,14 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.9.0] - 2026-05-28
+
+### Added
+- **`init` scaffolds the TRACE three-category doc structure.** The plugin now bundles the six canonical README files (`<docs-folder>/README.md` plus one in each of `system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`) under `shared/doc-structure/`, and `init` copies them into the chosen docs folder. Adopters get the opinionated structure as part of plugin setup instead of copying READMEs by hand from the TRACE clone. Existing files at any target path prompt for overwrite/leave/cancel; byte-identical existing files are skipped silently. The skill still does not pre-author content — no `architecture/overview.md`, no `adr/0000-record-architecture-decisions.md`, no `system/<topic>.md`.
+
+### Changed
+- **`init` no longer touches the root `AGENTS.md` directory index.** The previous Phase 5 was the main source of scope creep — `init` editing AGENTS.md crossed into `agents-md-setup`'s territory. Init now only writes to the chosen docs folder and to `.claude/.playbook/config.json`; the summary suggests `/playbook:agents-md-setup` when no root `AGENTS.md` exists. `agents-md-setup` already covers the directory-index entry from its create and review flows.
+
 ## [0.8.0] - 2026-05-27
 
 ### Added

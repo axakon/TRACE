@@ -10,7 +10,7 @@ Adopting TRACE in a fresh repo takes a few minutes and produces:
 
 ## Where to go next
 
-- **Adopting TRACE in your project?** Go to [`deliverable/README.md`](deliverable/README.md). It's the three-step walkthrough — both readable by humans and executable by an AI agent.
+- **Adopting TRACE in your project?** Read [`deliverable/README.md`](deliverable/README.md). It's the three-step walkthrough — both readable by humans and executable by an AI agent. No clone needed; the doc structure ships inside the plugin, and the walkthrough can be followed directly from GitHub.
 - **Working on TRACE itself?** Go to [`AGENTS.md`](AGENTS.md). Different audience, different rules.
 
-If you're an AI agent that was pointed at this URL: first check that you are **not** running inside TRACE's own source tree (the directory does not contain `deliverable/playbook/` at its root). If you are, stop and tell the user to `cd` to their target project. Otherwise, continue at [`deliverable/README.md`](deliverable/README.md).
+If you're an AI agent that was pointed at this URL: first check that you are **not** running inside TRACE's own source tree (the cwd does not contain `deliverable/playbook/` at its root). If you are, stop and tell the user to `cd` to their target project. Otherwise, fetch [`deliverable/README.md`](deliverable/README.md) and continue from there.
