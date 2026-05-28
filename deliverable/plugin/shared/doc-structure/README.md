@@ -1,16 +1,16 @@
 # docs/
 
-Everything written down about this project, organized by **what kind of knowledge each file holds**.
+Everything written about this project lives here, sorted by what each file is for.
 
-## Three categories
+## Three kinds of docs
 
-A reader (human or agent) needs to know what kind of doc they're looking at before they can use it. `docs/` separates three:
+Before you read a doc, you need to know what kind it is. There are three:
 
-- **Descriptive** — what the codebase *is* right now. Lives in `system/`.
-- **Prescriptive** — what the system *must do*. Lives in `architecture/`.
-- **Historical** — how decisions were made and why. Lives in `working-notes/`, `reference/`, `adr/`.
+- **What the code does today** (descriptive) — `system/`. Kept up to date as the code changes.
+- **What the code must do** (prescriptive) — `architecture/`. The rules your system has to follow. Updated when the rules change.
+- **How you got here** (historical) — `working-notes/`, `reference/`, `adr/`. Your past thinking and decisions. Frozen once written.
 
-Each category has its own update rules. Mixing them in one folder confuses readers because some docs track live truth, some are rules to follow, and some are frozen at the moment they were written.
+Each kind has its own update rules. If you mix them up in one folder, readers can't tell whether they're reading how things are now, rules to follow, or a snapshot of past thinking.
 
 ## Layout
 

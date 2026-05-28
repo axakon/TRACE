@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Architecture Decision Records. One record per decision, with downstream consequences, **immutable once shipped**.
+A short record of each significant choice you've made about how the system is built, and why. One file per decision. Once you've shipped it, you don't change it — if you change your mind later, you write a new one that replaces the old.
 
-ADRs are the project's structural memory. When a future contributor asks "why is it like this?", an ADR is the canonical answer.
+When someone asks "why is it like this?" — including future-you — this folder is the answer.
 
 ## What goes here
 

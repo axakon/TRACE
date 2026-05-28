@@ -2,7 +2,9 @@
 
 ## Purpose
 
-Long-form rationale. The **why** behind a position the project takes. Each file here is promoted from a stabilized working note once its opinions have stopped moving.
+The long version of "why we think this." When you've worked through a topic enough that your view has stopped shifting, you write the full argument here — what you considered, what you decided against, why you landed where you did.
+
+Different from `adr/`: an ADR is short and records one decision. A reference doc is the longer essay behind it.
 
 ## What goes here
 

@@ -2,9 +2,9 @@
 
 ## Purpose
 
-The **prescriptive** layer of the project's documentation: what the system *must do*, how its pieces tie together, and the operational rules every implementation has to satisfy.
+The rules your system has to follow, written as plain "must do" statements. One file per area.
 
-`system/` says what's there ("we use Postgres 16; auth handler is at `src/auth.ts`"). `architecture/` says what's required ("events MUST publish to Kafka within 5 seconds of state change"). `adr/` records the decision that led to a rule; `architecture/` records the rule itself, in the form a developer or agent reads to know what to build.
+`system/` says what your code does — "we use Postgres 16; auth handler is at `src/auth.ts`." `architecture/` says what your code must keep doing — "events MUST publish to Kafka within 5 seconds." Where `adr/` records the decision behind a rule, this folder records the rule itself.
 
 ## What goes here
 

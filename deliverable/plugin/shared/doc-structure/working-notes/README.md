@@ -1,6 +1,6 @@
 # working-notes/
 
-Rough notes and in-progress thinking — ideas before they've settled. Half-formed opinions go here, not in `reference/` or `adr/`.
+Your thinking while it's still in motion. Rough notes, half-formed opinions, ideas you're not sure about yet — they live here, not in `reference/` or `adr/`. When an idea finally settles, you move the substance into one of those.
 
 ## What a note looks like
 

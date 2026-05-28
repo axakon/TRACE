@@ -2,9 +2,9 @@
 
 ## Purpose
 
-Living documentation about the codebase. Each file describes the **current state** of one area of the system — what conventions exist, what the trust boundaries are, what the data layer looks like — so that an agent (or a new developer) can be productive in that area without reading the whole codebase first.
+Notes about what your code does today. One file per area — your database, your auth, your API — so a new teammate (or an AI assistant) can get up to speed without reading every file.
 
-When an agent works in an area covered by a file here, treat the file's contents as authoritative — they outrank training-data defaults and general assumptions.
+If you're working in an area that has a file here, trust it. It's the most accurate picture of how things actually work.
 
 ## What goes here
 
