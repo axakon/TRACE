@@ -3,7 +3,7 @@ name: pr-description
 description: Draft a PR description or squash-merge commit message in the playbook's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy. Use when the developer explicitly asks for a PR description, asks for the squash-merge message, or asks the agent to open a PR on their behalf.
 when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/playbook:distil` or to no skill at all. For a single commit's message, use `/playbook:commit-message` instead.
 argument-hint: [base-branch | PR#]
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Glob Read Write AskUserQuestion
+allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Glob Read Write
 ---
 
 You are drafting a PR description (or squash-merge commit message) in the playbook's standard format. The format is a shape, not a taxonomy — there are no required prefixes and no enum of types. The goal is a predictable structure a reviewer can scan: *why* this change, *what approach* was taken, *what permanent context* moved as a result.
@@ -65,26 +65,29 @@ If the change made a substantial decision but no ADR exists in the diff, mention
 
 ## Phase 5: Decide on "How to verify"
 
-Ask the developer once with `AskUserQuestion`: **Include verification steps** / **Skip**. Default to skip for trivial or pure-refactor changes; default to include for behavioural changes, bug fixes, or anything user-facing.
+Decide whether to include the section from the change itself: skip for trivial or pure-refactor changes; include for behavioural changes, bug fixes, or anything user-facing.
 
 If included, draft 1–3 short steps **a reviewer can meaningfully take** — staging behaviour to exercise, a UI flow to walk, an output to eyeball. Each step concrete (URL, command, expected observation).
 
 Exclude anything the developer or CI already covered: do not write "`go test ./...` passes", "lint is clean", "the build succeeds", or any restatement of CI. The reviewer is not re-running the dev's pre-flight. If the only verification is "CI passes", skip the section.
 
-## Phase 6: Show, confirm, and place
+## Phase 6: Output the description
 
-Print the full drafted body to chat in a fenced block so the developer can copy it. Then ask once with `AskUserQuestion` how to place it:
+Output the full drafted body as plain text in a fenced block, then act on the original request:
 
-- **Copy from chat** (default) — no further action.
-- **Write to a file** — ask for the path, then Write it.
-- **Apply to the open PR** — only if `gh pr view --json number` succeeds on the current branch. Run `gh pr edit <number> --body-file <tmp>` after writing the body to a temp file. Do not create a new PR.
+- **Asked only for the description or squash-merge message** — stop here. The developer takes it from there.
+- **Asked you to open or update the PR** — carry it out in your normal flow using this body:
+  - **New PR** — push the branch if needed, then `gh pr create` with the title and body.
+  - **Existing PR** (`gh pr view --json number` succeeds on the branch) — `gh pr edit <number> --body-file <tmp>`. Don't open a duplicate.
 
-If the developer's target is a UI with a separate title field (GitHub, GitLab), tell them to put the title in the title field and the rest in the body. If the target is a squash-merge commit message, the whole block goes in.
+Do not ask whether to copy the body, where to place it, or how to apply it.
+
+If the target is a UI with a separate title field (GitHub, GitLab), the title goes in the title field and the rest in the body. For a squash-merge commit message, the whole block goes in.
 
 ## Notes
 
 - The format is a shape, not a taxonomy. No prefixes, no required type.
-- Never push, never open a PR, never amend a commit. The skill drafts; the developer ships.
+- Match the request: draft-only when the developer asked for the text; open or update the PR when they asked you to. Don't push or open a PR on your own initiative when only the text was requested.
 - The skill works without `gh` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone.
 - If the diff is empty (nothing to summarise), say so and stop.
 - For a single commit (not a whole PR or squash-merge), use `/playbook:commit-message` instead — same writing discipline, leaner template.

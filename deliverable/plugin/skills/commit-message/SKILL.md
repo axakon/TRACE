@@ -3,7 +3,7 @@ name: commit-message
 description: Draft a single commit's message — imperative-mood title plus a short why body, optional decision bullets, plain text (no markdown). Use when the developer explicitly asks for a commit message, asks to fix a message before amending, or asks the agent to perform the commit on their behalf.
 when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for a commit message itself ("write a commit message", "draft the commit message", "help me write the commit", "give me a message for this commit", "fix the message before I amend"); (2) the developer asks the agent to perform the commit ("commit this", "commit the staged changes", "go ahead and commit") — the skill drafts the message the agent then uses. Also covers a request for the message of a specific past commit. Do **not** trigger merely because the developer is wrapping up, is done with a piece of work, has staged changes, or says "ship it" — those signals belong to `/playbook:distil`, not here. Not for PR descriptions or squash-merge messages — `/playbook:pr-description` handles those.
 argument-hint: [commit-ish]
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git show*) Bash(git rev-parse*) Glob Read Write AskUserQuestion
+allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git show*) Bash(git rev-parse*) Glob Read Write
 ---
 
 You are drafting a single commit's message in the playbook's standard shape. The format is a shape, not a taxonomy — no prefixes, no enum of types. The goal is a predictable structure a future reader can scan in `git log`: *why this change* and *the non-obvious decisions behind it*.
@@ -56,14 +56,14 @@ List only what isn't visible from reading the diff: a non-obvious decision, a re
 
 No `**bold**` — commit messages are plain text. If nothing qualifies, skip the bullets entirely — do not pad. Most commits will have none.
 
-## Phase 4: Show and place
+## Phase 4: Output the message
 
-Print the full drafted message to chat in a fenced block so the developer can copy it. Then ask once with `AskUserQuestion` how to place it:
+Output the drafted message as plain text in a fenced block, then act on the original request:
 
-- **Copy from chat** (default) — no further action.
-- **Write to a file** — ask for the path, then Write it. A common target is `.git/COMMIT_EDITMSG` so `git commit` picks it up; warn the developer that this overwrites whatever is there.
+- **Asked only for the message text** — stop here. The developer takes it from there.
+- **Asked you to perform the commit** — use this message as the commit message and carry out the commit in your normal flow.
 
-Never run `git commit`, `git commit --amend`, `git add`, or any history-rewriting command. The skill drafts; the developer commits.
+Do not ask whether to copy the message, where to place it, or how to apply it. Match the request: draft-only when the developer asked for text, commit when they asked you to commit.
 
 ## Notes
 
