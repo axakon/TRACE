@@ -3,7 +3,7 @@ name: init
 description: Configure the playbook for this scope — choose where durable project context lives, copy the canonical three-category doc structure into it, mark the folder, and persist the choice. Recommended as the first playbook command in a fresh repo, before /playbook:agents-md-setup. Safe to re-run to change the location.
 disable-model-invocation: true
 argument-hint: [path]
-allowed-tools: Glob Read Write Edit AskUserQuestion
+allowed-tools: Bash(node *) Glob Read Write Edit AskUserQuestion
 ---
 
 You are configuring the playbook for the current scope. Init does four things, in order:
@@ -44,21 +44,17 @@ If the developer picks a folder that already contains hand-written content, tell
 
 ## Phase 3: Copy the canonical doc structure
 
-Copy each of these six files from the plugin's `shared/doc-structure/` to `<chosen-folder>/`, preserving sub-paths. Read each source via the Read tool (`../../shared/doc-structure/<path>` relative to this skill), then Write to the target. The Write tool creates parent directories.
+Copy the six canonical READMEs from the plugin's `shared/doc-structure/` into `<chosen-folder>/` with one call:
 
-| Source | Target |
-|---|---|
-| `../../shared/doc-structure/README.md` | `<chosen-folder>/README.md` |
-| `../../shared/doc-structure/system/README.md` | `<chosen-folder>/system/README.md` |
-| `../../shared/doc-structure/architecture/README.md` | `<chosen-folder>/architecture/README.md` |
-| `../../shared/doc-structure/adr/README.md` | `<chosen-folder>/adr/README.md` |
-| `../../shared/doc-structure/reference/README.md` | `<chosen-folder>/reference/README.md` |
-| `../../shared/doc-structure/working-notes/README.md` | `<chosen-folder>/working-notes/README.md` |
+```
+node "${CLAUDE_PLUGIN_ROOT}/scripts/copy-doc-structure.js" <chosen-folder>
+```
 
-For each target, if it already exists:
+The script copies only missing files — it never overwrites — and prints a JSON report:
 
-- If its content is byte-identical to the source, skip silently — the structure is already in place.
-- Otherwise, show what's there briefly and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**.
+- `written` — files it created. The common greenfield case: all six, nothing routed through context.
+- `skipped_identical` — targets already byte-identical to the canonical source. Nothing to do.
+- `conflicts` — targets that exist and **differ**. For each, Read it, show what's there briefly, and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**. On overwrite, Read the source (`../../shared/doc-structure/<path>` relative to this skill) and Write it to the target.
 
 Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of the playbook's guardrails.
 

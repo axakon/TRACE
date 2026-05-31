@@ -2,6 +2,17 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.14.0] - 2026-05-31
+
+### Changed
+- **`init` copies the canonical doc structure with one call instead of six Read+Write pairs.** Phase 3 previously read each of the six `shared/doc-structure/` READMEs into the agent's context and wrote each back out — ~290 lines round-tripped through context for a copy the agent never needs to reason about. It now invokes a new `scripts/copy-doc-structure.js` (Node, cross-platform like the other hook helpers) that copies only missing files and prints a JSON report of `written` / `skipped_identical` / `conflicts`. The greenfield case (no docs folder yet) writes all six with zero content through context; only genuine `conflicts` — a target that exists and differs — still route through the Read + `AskUserQuestion` overwrite path. `init` gains `Bash(node *)` in `allowed-tools`, matching `distil`'s existing use of the same pattern.
+
+## [0.13.0] - 2026-05-29
+
+### Changed
+- **`commit-message` and `pr-description` no longer ask how to place their output.** Both skills dropped the final `AskUserQuestion` placement menu (Copy from chat / Write to a file / Apply to PR) that interrupted with a clipboard-style prompt. They now print the drafted text in a fenced block and act on the original request: when the developer only asked for the text, they stop; when the developer asked the agent to perform the commit or open/update the PR, the agent carries it out in its normal flow using the drafted content. `pr-description`'s "How to verify" inclusion is now a skill judgment (skip for trivial/refactor, include for behavioural/bugfix/user-facing) rather than an `AskUserQuestion`.
+- **Removed the self-contradicting "never commit / never push / never open a PR" lines.** They fought the skills' own perform-the-action trigger — a developer who said "commit this" or "open a PR" would get a draft followed by a refusal. The rule is now "match the request": draft-only when the text was requested, perform the action when it was. Commit and PR creation run through the agent's normal permission flow — neither `git commit`/`git push` nor placement tools were added to `allowed-tools`, so nothing new is pre-approved. `AskUserQuestion` is dropped from both skills' `allowed-tools` since it is no longer used.
+
 ## [0.12.0] - 2026-05-28
 
 ### Added
