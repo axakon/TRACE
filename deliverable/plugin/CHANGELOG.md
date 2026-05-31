@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.15.0] - 2026-05-31
+
+### Changed
+- **`distil` reserves the AGENTS.md Gotchas section for scope-wide gotchas.** Previously any criterion-4 "non-obvious gotcha" tended to land in AGENTS.md Gotchas because the Phase 4 routing rule sent a candidate there whenever it "extends something already there" — and an AGENTS.md almost always already has a Gotchas section. Over time that grew the section unboundedly with subsystem-specific detail. The routing rule now gates the AGENTS.md target on the gotcha's *nature*, decided up front: a gotcha that would catch out work anywhere in the scope goes to AGENTS.md Gotchas; one confined to a single area routes to that area's `system/<topic>.md` instead. No length check or triage — the reason something stays out of Gotchas is that it is local, not that the section got long. The Gotchas definition in `agents-md-rules.md` and the `agents-md-setup` Section 5 blurb gain the same "scope-wide" framing so both skills hold one bar.
+
 ## [0.14.0] - 2026-05-31
 
 ### Changed

@@ -60,7 +60,7 @@ First decide **what kind of knowledge** the candidate is:
 
 Then pick the file:
 
-- **Update the scope's `AGENTS.md`** if the candidate corrects or extends something already there (most often: the Gotchas section or an outdated Stack/Commands entry).
+- **Update the scope's `AGENTS.md`** if the candidate corrects an outdated entry there (Stack/Commands), or is a *scope-wide* gotcha — one that would catch out work anywhere in the scope. A gotcha confined to one area routes to that area's `system/<topic>.md` instead.
 - **Update an existing context file** if the scope's durable-context folder already has a file covering the affected area — at its existing path, whether that's `<docs-folder>/system/<topic>.md`, `<docs-folder>/architecture/<topic>.md`, or `<docs-folder>/<topic>.md` (legacy). Do not migrate the file's location as part of the update.
 - **Create a new descriptive file** at `<docs-folder>/system/<topic>.md` if no existing file fits and the candidate is substantial enough to warrant its own file.
 - **Create a new prescriptive file** at `<docs-folder>/architecture/<topic>.md` only if the candidate is clearly a MUST/operational rule, `<docs-folder>/architecture/` already exists, and no existing architecture file covers the area. Use RFC 2119 voice (MUST / MUST NOT / SHOULD) and cite the source (an ADR, a contract, an incident) for each rule.

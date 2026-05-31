@@ -10,7 +10,7 @@ An `AGENTS.md` has exactly five sections, in this order:
 2. **Stack** — the key pieces only: framework, language/runtime, styling approach, data layer, package manager. Not the icon library. Not dev tooling unless it affects how the agent should work (e.g. a monorepo tool).
 3. **Directory index** — a short table or list mapping top-level directories (and select subdirectories) to what they contain. Enough for the agent to know where to start looking. Not a full file tree.
 4. **Commands** — how to run, test, build, lint, and any other commands the agent is likely to need. Only include commands that aren't obvious from the project type. A standard `npm start` in a Node project doesn't need listing; a `pnpm --filter @app/api test:integration` does.
-5. **Gotchas** — non-obvious things that only come from human experience in the project. Configuration quirks, implicit dependencies between modules, values that look arbitrary but aren't, things that break silently. This section has the highest value-per-word of anything in the file.
+5. **Gotchas** — non-obvious, *scope-wide* things that only come from human experience in the project. Configuration quirks, implicit dependencies between modules, values that look arbitrary but aren't, things that break silently. A gotcha confined to one subsystem belongs in that subsystem's context file, not here. This section has the highest value-per-word of anything in the file.
 
 ## Length
 

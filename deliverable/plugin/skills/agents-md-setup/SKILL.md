@@ -123,7 +123,7 @@ Read the script definitions (`package.json` scripts, `Makefile` targets, `justfi
 
 **Section 5 — Gotchas**
 
-_Non-obvious things that come from human experience: configuration quirks, implicit dependencies, values that look arbitrary but aren't, things that break silently. Highest value-per-word in the file._
+_Non-obvious, scope-wide things that come from human experience: configuration quirks, implicit dependencies, values that look arbitrary but aren't, things that break silently. A gotcha confined to one subsystem belongs in that subsystem's context file. Highest value-per-word in the file._
 
 You have nothing to propose from the repo here. Ask the developer to draw on lived experience — has anything broken silently, are there values that look arbitrary but have a reason, has anything caught a new developer off guard? If they have nothing concrete, omit the section. Do not press or pad with speculation.
 
