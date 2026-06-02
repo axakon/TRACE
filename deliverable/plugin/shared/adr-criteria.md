@@ -1,6 +1,6 @@
 # When a decision warrants an ADR
 
-An ADR records one *architecturally significant* decision (Nygard's term): the choice, its context, and its consequences. It is immutable — a later change of course is a new ADR that supersedes it. The bar is high; most durable knowledge is distil-tier, not an ADR.
+An ADR records one *architecturally significant* decision (Nygard's term): the choice, its context, and its consequences. It is immutable — a later change of course is a new ADR that supersedes it. The bar is high; most durable knowledge is distil-tier, not an ADR. Significant is not the same as architectural, and costly-to-reverse is not the same as architectural — gate on the dimensions below, not on how consequential or hard-to-undo the choice feels.
 
 ## Hard gate — architectural significance
 

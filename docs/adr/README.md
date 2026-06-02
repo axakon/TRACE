@@ -40,14 +40,21 @@ When superseding a shipped ADR:
 
 ## When to write one
 
-Write an ADR when a decision has consequences a future contributor would want to know about — typically:
+Write an ADR only for an *architecturally significant* decision — one affecting the system's structure, a non-functional characteristic (performance, security, scalability…), a foundational dependency, a public interface, or a construction technique reused across the codebase. The test is not "is this significant?" but "is this *architectural*?" — its implications are scattered system-wide, not localized to one feature.
 
-- A structural choice (folder layout, module boundaries, naming convention).
-- A library, framework, or service selected over alternatives.
-- A constraint accepted (latency budget, supported platforms, data retention).
+Typical cases:
+
+- A module or service boundary, or a structural convention the whole codebase follows.
+- A library, framework, or platform chosen over real alternatives.
+- A constraint accepted system-wide (latency budget, supported platforms, data retention).
 - A pattern declared canonical for a recurring problem.
 
-Do not write one for trivial choices (variable names, formatting), tactical decisions reversed within days, or anything fully captured by the code itself.
+Not an ADR:
+
+- A choice localized to one feature or module, even if durable and non-obvious → `/playbook:distil`.
+- A gotcha or constraint to respect (a footgun, an ordering requirement) → a distilled gotcha.
+- A conventional default, a trivial choice (naming, formatting), or anything the code already captures.
+- Costly-to-reverse on its own — time-consuming to change is not the same as architectural.
 
 ## Naming
 

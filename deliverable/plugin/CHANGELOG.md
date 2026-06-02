@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.17.0] - 2026-06-02
+
+### Changed
+- **Re-anchored the ADR suggestion bar on architectural significance, closing drift between the gate and the surfaces that advertise it.** The enforced gate (`adr-criteria.md`, applied by the `adr` skill's Phase 2 and `spec-workflow`'s Phase 5) already required Nygard architectural significance, but two suggestive surfaces had stayed looser and over-suggested ADRs for non-architectural decisions: the `adr/README.md` "When to write one" list gated on "a decision has consequences a future contributor would want to know about" and named "naming convention" as a typical case, and the `adr` skill's `when_to_use` framed the bar around "lasting consequences" / "not cheap to reverse." Both now re-anchor on the gate's own language — affects the system's structure, non-functional characteristics, dependencies, interfaces, or a reused construction technique — and carry the explicit "a choice localized to one feature or module is distil-tier, not an ADR" exclusion. `adr-criteria.md` gains a one-line discriminator in its intro: *significant is not the same as architectural, and costly-to-reverse is not the same as architectural*. Guidance and wording only — the gate logic, the template, and the skill flow are unchanged.
+
 ## [0.16.0] - 2026-06-02
 
 ### Changed
