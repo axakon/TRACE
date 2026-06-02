@@ -1,5 +1,7 @@
 # Open questions
 
+> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+
 Design decisions deferred during initial implementation. Each entry: the question, what we know, what we deferred, and what a future pass should reconsider.
 
 This file is for plugin maintainers, not consumers. Excluded from distribution via `.gitattributes`.

@@ -20,7 +20,7 @@ docs/
 ├── architecture/   ← PRESCRIPTIVE — what the system MUST do (updated as rules change)
 ├── adr/            ← HISTORICAL   — discrete decisions (append-only)
 ├── reference/      ← HISTORICAL   — stabilized rationale (append-only)
-└── working-notes/  ← HISTORICAL   — raw research substrate (in motion until promoted)
+└── working-notes/  ← HISTORICAL   — research substrate; not authoritative until promoted
 ```
 
 | Folder | Category | Holds | Update semantics |

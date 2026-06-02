@@ -110,7 +110,7 @@ Then append the docs-folder row plus the layout sub-block below, so an agent rea
 ├── architecture/   ← what the system must do (updated when rules change)
 ├── adr/            ← architecture decisions (immutable once shipped)
 ├── reference/      ← long-form rationale (append-only)
-└── working-notes/  ← active research, in motion until promoted
+└── working-notes/  ← research; NOT authoritative — rules live in architecture/ + adr/
 ````
 
 The sub-block mirrors the Layout in `<docs-folder>/README.md` so an agent picks up routing — "research → working-notes/", "rules → architecture/" — without reading another file. Substitute the actual `<docs-folder>` path in both the table row and the tree (e.g., `docs/` or `documentation/`). Default to keeping the block; the developer can trim or replace it in their `ok`/change reply.
@@ -165,7 +165,7 @@ Go section by section with the developer, applying the interview mechanics above
 
 If a section that should exist is missing (e.g. no Gotchas but the developer has some when prompted), propose adding it using the create-flow template. If a section doesn't belong (e.g. "Future plans"), point it out and offer to remove it — handle both in that section's conversational confirm.
 
-For the directory index specifically, check whether the scope's durable-context folder is listed *with* the sub-folder layout block (the ASCII tree showing `system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`). Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If the row is missing entirely, or only the older single `<docs-folder>/` row exists without the layout sub-block, propose adding the full block from create-flow Section 3; default to adding it. An AGENTS.md written before this version of the playbook landed should be brought up to date this way.
+For the directory index specifically, check whether the scope's durable-context folder is listed *with* the sub-folder layout block (the ASCII tree showing `system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`). Resolve the docs-folder candidate using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). If the row is missing entirely, or only the older single `<docs-folder>/` row exists without the layout sub-block, propose adding the full block from create-flow Section 3; default to adding it. An AGENTS.md written before this version of the playbook landed should be brought up to date this way. If the block exists but its `working-notes/` line still reads as a plain label (e.g. "active research, in motion until promoted") rather than stating non-authority, upgrade that line to the create-flow wording (`← research; NOT authoritative — rules live in architecture/ + adr/`).
 
 ### Phase 3: Self-review
 

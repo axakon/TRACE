@@ -48,7 +48,7 @@ docs/
 ├── architecture/   ← what the system must do (updated when rules change)
 ├── adr/            ← architecture decisions (immutable once shipped)
 ├── reference/      ← long-form rationale (append-only)
-└── working-notes/  ← active research, in motion until promoted
+└── working-notes/  ← research; NOT authoritative — rules live in architecture/ + adr/
 ```
 
 ## Commands

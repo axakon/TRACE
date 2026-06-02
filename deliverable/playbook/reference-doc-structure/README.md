@@ -52,7 +52,7 @@ The READMEs are intended to be copied without edits. They are written as convent
 | [`docs/architecture/`](docs/architecture/) | Prescriptive | Operational rules in MUST voice + the structural overview. | Updated as rules change. |
 | [`docs/adr/`](docs/adr/) | Historical | Immutable decisions with consequences. | Append-only; supersede once shipped. |
 | [`docs/reference/`](docs/reference/) | Historical | Long-form rationale promoted from stabilized working notes. | Append-only; revised deliberately. |
-| [`docs/working-notes/`](docs/working-notes/) | Historical | Raw research substrate. Where ideas live while still moving. | In motion until promoted. |
+| [`docs/working-notes/`](docs/working-notes/) | Historical | Raw research substrate; not authoritative until promoted. | In motion until promoted. |
 
 The full convention each folder enforces — what goes there, what doesn't, lifecycle — lives in its own README. Open the folder to read it.
 

@@ -2,12 +2,20 @@
 
 Your thinking while it's still in motion. Rough notes, half-formed opinions, ideas you're not sure about yet — they live here, not in `reference/` or `adr/`. When an idea finally settles, you move the substance into one of those.
 
+**Nothing in this folder is authoritative.** A note is a thinking tool, not a rule — even one that looks fully resolved. Binding rules live in `architecture/` and `adr/`; until a note's substance is promoted there, it carries no authority.
+
 ## What a note looks like
 
-- One markdown file per topic, kebab-case filename, no date prefix (git history is the date).
-- A `Status:` header at the top: `Research note`, `Stabilizing`, or `Promoted`.
-- A `Resolved` section that grows as questions get answered.
+Every note opens with a non-authority banner, right under the title:
+
+> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+
+Then:
+
+- A `Status:` header: `Research note`, `Stabilizing`, or `Promoted`.
+- A `Resolved` section that grows as questions get answered — "resolved" means worked through *within this note*, not promoted into a rule.
 - An `Open questions` section, even if it's empty.
+- One markdown file per topic, kebab-case filename, no date prefix (git history is the date).
 - Whatever prose, bullets, or half-finished arguments help the author think.
 
 ## What does NOT go here

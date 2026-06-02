@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.16.0] - 2026-06-02
+
+### Changed
+- **Working notes now carry an explicit "not authoritative" signal at three levels, so a note's own "Resolved / no open questions" cues can't be read as settled truth.** An agent working in a TRACE repo had treated a note's `Resolved` section as decided fact because the in-note "this is resolved" cue overrode the folder-level "just research" framing. The fix layers the same rule — *a working note is never authoritative; binding rules live in `architecture/` and `adr/`* — at three distances so no single in-note cue can win: (1) the AGENTS.md directory-index line `agents-md-setup` writes (and now repairs on existing files) changed from a descriptive label to a rule — `working-notes/ ← research; NOT authoritative — rules live in architecture/ + adr/` — since it is the only signal loaded into an adopter's context every turn; (2) `working-notes/README.md` gained an imperative "nothing here is binding" statement and now prescribes a one-line non-authority banner as every note's first line, the only layer that survives a note read in isolation; (3) `Resolved` keeps its name but the README clarifies it means resolved *within the note*, not promoted into a rule. The parent doc-structure READMEs had their working-notes one-liner aligned to the same wording. Convention and wording only — no new hook, no ADR.
+
 ## [0.15.0] - 2026-05-31
 
 ### Changed

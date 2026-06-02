@@ -1,5 +1,7 @@
 # AI Workflow Approaches — Research Notes
 
+> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+
 ## The core tension
 
 Most AI playbooks fail by trying to govern everything upfront. The overhead becomes larger than the gain. The approaches below share a common thread: **start with conventions, not bureaucracy**. Let the structure emerge from real work.
