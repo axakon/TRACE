@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.18.0] - 2026-06-10
+
+### Added
+- **`agents-md-setup` accepts a `--yes` / `-y` flag for non-interactive generation.** Passing `--yes` (alongside or instead of the optional `[path]`) skips the section-by-section interview — no `AskUserQuestion`, no per-section confirms — and builds the file from Phase 1 reconnaissance alone, accepting the skill's own inferred proposals before writing straight to disk. Inferable sections (What is this, Stack, Directory index, Commands) keep their proposed content and the package manager is read from the lock file rather than asked; the two sections with no repo signal — Gotchas and the Section 2 production-system probe — are omitted, and the skill says so after writing so the developer can add them when reviewing the file on disk. Applies to both the create and review-and-update paths.
+
 ## [0.17.0] - 2026-06-02
 
 ### Changed

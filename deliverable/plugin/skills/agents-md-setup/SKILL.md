@@ -2,7 +2,7 @@
 name: agents-md-setup
 description: Set up or review the project's AGENTS.md through an interactive interview with the developer
 when_to_use: When a developer opens a project without an AGENTS.md, asks about project setup or conventions, or wants to update an existing AGENTS.md
-argument-hint: [path]
+argument-hint: [path] [--yes]
 allowed-tools: Glob Read Edit Write AskUserQuestion
 ---
 
@@ -17,7 +17,7 @@ Before you write anything, read these supporting files:
 - [example-output.md](./example-output.md) — a concrete example of a well-formed AGENTS.md
 - [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) — how to find the scope's durable-context folder for the directory index
 
-Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `$ARGUMENTS` if given, otherwise cwd. Everywhere this skill says "the repo root" or "the root", read it as the resolved scope root: Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside it.
+Parse `$ARGUMENTS` first: a `--yes` (or `-y`) token anywhere turns on **non-interactive mode** (below); the remaining token, if any, is the `[path]`. Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) from that remaining token if given, otherwise cwd. Everywhere this skill says "the repo root" or "the root", read it as the resolved scope root: Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside it.
 
 Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per this plugin's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
 
@@ -58,6 +58,16 @@ Before presenting any draft:
 
 Fix any violations before showing the draft.
 
+## Non-interactive mode (`--yes`)
+
+When `--yes` (or `-y`) is set, skip the interview entirely — no `AskUserQuestion`, no per-section confirms, no waiting for replies. Build every section from Phase 1 reconnaissance alone, accepting your own inferred proposals, in both paths:
+
+- **Inferable sections** (What is this, Stack, Directory index, Commands) — keep the content you proposed.
+- **Package manager** — take it from the lock file or manifest instead of asking.
+- **Gotchas** and the **Section 2 production-system probe** — omit them; no repo signal exists to infer them from.
+
+Run the Self-review, then write per Phase 5 without the Phase 4 approval step. After writing, tell the developer the file was generated non-interactively, name any omitted section (Gotchas), and note that re-running without `--yes` adds the experience-based context.
+
 ---
 
 ## Create from scratch (when AGENTS.md does not exist)
@@ -74,6 +84,8 @@ Gather what you can from the repo before asking anything. Use Read and Glob — 
 Do not show the developer your findings yet; this is preparation for the interview.
 
 ### Phase 2: Interview — five sections, one at a time
+
+In non-interactive mode, don't run the interview — assemble all five sections from Phase 1 and go to Phase 3 (see Non-interactive mode).
 
 Work through the sections in order, one at a time, applying the interview mechanics above. Don't present multiple sections at once or ask the developer to "review this draft" mid-interview. Close each section with the conversational confirm (`ok` / change / skip) — no per-section chip.
 
@@ -133,6 +145,8 @@ Apply the **Self-review** checklist above.
 
 ### Phase 4: Present and confirm
 
+In non-interactive mode, skip this phase — go straight to Phase 5 (see Non-interactive mode).
+
 Show the complete assembled draft (all sections in order). Call `AskUserQuestion`: **Write to disk / Edit / Discard**. If they pick Edit, ask what to change in chat, apply, re-present, and ask again. Do not write the file until they pick **Write to disk**.
 
 ### Phase 5: Write to disk
@@ -157,6 +171,8 @@ Also check whether a sibling `CLAUDE.md` forwarder exists at the root. If it doe
 
 ### Phase 2: Walk through each section
 
+In non-interactive mode, don't walk through with the developer — apply every inferred correction yourself and go to Phase 3 (see Non-interactive mode).
+
 Go section by section with the developer, applying the interview mechanics above. For each section:
 1. Use the same header + italic-blurb opener as the create flow.
 2. Quote what the section currently says.
@@ -172,6 +188,8 @@ For the directory index specifically, check whether the scope's durable-context 
 Apply the **Self-review** checklist above to the updated version.
 
 ### Phase 4: Present changes
+
+In non-interactive mode, skip this phase — go straight to Phase 5 (see Non-interactive mode).
 
 Show what changed — a before/after diff or a clean updated version, whichever is clearer. Call `AskUserQuestion`: **Apply changes / Edit further / Discard**. Do not modify the file until they pick **Apply changes**.
 
