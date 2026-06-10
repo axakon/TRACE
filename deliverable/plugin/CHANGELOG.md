@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.18.1] - 2026-06-10
+
+### Fixed
+- **Documented the `agents-md-setup --yes` flag in the plugin README.** The 0.18.0 feature shipped without updating the Usage section, which still described the skill as interview-only. The "Day one" usage block now shows the `--yes` / `-y` non-interactive invocation, names what it omits (Gotchas, the Section 2 production-system probe), and notes that it combines with the `[path]` argument and applies in review-and-update mode too. Docs only — no skill or behaviour change.
+
 ## [0.18.0] - 2026-06-10
 
 ### Added

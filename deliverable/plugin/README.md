@@ -105,6 +105,14 @@ Configures the scope: which folder will hold the project's distilled durable con
 
 Walks you through the five sections one at a time: what the project is, the stack, where things live, commands, and gotchas. The skill reads the repo first and only asks about what it can't infer. Output is a concise `AGENTS.md` at the repo root plus a sibling one-line `CLAUDE.md` forwarder (so Claude Code's native discovery still finds the context). If you ran `/playbook:init` first, the directory index automatically points at the docs folder you chose. If an `AGENTS.md` already exists, the same skill switches into review-and-update mode. A pre-existing root `CLAUDE.md` with content (from an earlier plugin version, or hand-written) is treated as not-yet-set-up — the skill creates `AGENTS.md` fresh and overwrites the old `CLAUDE.md` with the forwarder.
 
+To skip the interview, pass `--yes` (or `-y`):
+
+```
+/playbook:agents-md-setup --yes
+```
+
+The skill builds every section from what it can read and writes straight to disk, omitting only Gotchas and the Section 2 production-system probe (which have no repo signal) — review the landed file and add those yourself. It combines with the path argument, e.g. `/playbook:agents-md-setup packages/api --yes`, and applies in review-and-update mode too (every inferred correction is applied without asking).
+
 ### Day one (optional) — seed starter docs for an existing codebase
 
 ```
