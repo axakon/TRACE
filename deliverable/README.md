@@ -1,95 +1,125 @@
 # Adopting TRACE in your repository
 
-This walkthrough is the operational guide for setting up TRACE in a project. A human can read it to understand what gets created; an AI agent reads it to execute the setup step by step.
+Three steps: **install the plugin → run `/playbook:init` → run `/playbook:agents-md-setup`**.
 
-The working directory throughout is **the user's target project**. No clone of TRACE is needed: this file can be followed directly from GitHub, and the canonical doc structure ships inside the plugin installed in step 1.
+No clone of TRACE is needed. This file can be followed directly from GitHub. The doc structure and plugin skills ship inside the plugin you install in step 1.
 
-Three steps, in order: **install the plugin → run `/playbook:init` → run `/playbook:agents-md-setup`**. After step 3, the walkthrough stops. Anything beyond that is the plugin's job or the user's.
+> **If you are an AI agent:** before doing anything, confirm the working directory is the user's target project — the cwd must NOT contain `deliverable/playbook/` at its root. If it does, stop and tell the user to `cd` to their project. Also confirm the user explicitly wants to set up TRACE here before making any changes.
 
 ---
 
-## Preconditions
+## Prerequisites
 
-Before starting, an agent following this walkthrough must verify both:
-
-1. **The working directory is the user's target project**, not TRACE itself. Check: the cwd does NOT contain `deliverable/playbook/` at its root. If it does, stop and tell the user to `cd` to their project.
-2. **The user has confirmed they want to set up TRACE in this project.** A bare "look at TRACE" prompt is not consent; ask explicitly: "Set up TRACE in `<cwd>`? It will install the playbook plugin, create a `docs/` tree, and write a root `AGENTS.md`."
-
-Only proceed once both hold.
+- Claude Code is installed and open in the target project.
+- You have permission to edit `.claude/settings.json` (project scope) or `~/.claude/settings.json` (user scope).
 
 ---
 
 ## Step 1 — Install the plugin
 
-### Done when
+### The quick way (inside Claude Code)
 
-- A `settings.json` file at the chosen scope contains the `extraKnownMarketplaces` and `enabledPlugins` entries for the playbook plugin.
-- The user has been told to run `/reload-plugins` (or restart Claude Code) to activate the plugin.
+Run these two slash commands in Claude Code, then reload:
 
-### Agent instructions
+```
+/plugin marketplace add axakon/TRACE
+/plugin install playbook@ai-playbook
+/reload-plugins
+```
 
-1. **Ask the user which scope** to install at:
-   - **Project scope (default)** — writes to `<cwd>/.claude/settings.json`. Commits to the repo; collaborators are prompted to install when they trust the folder. Recommended for team adoption.
-   - **User scope** — writes to `~/.claude/settings.json`. Available across all the user's projects, not committed.
-2. **Write the install snippet** to the chosen `settings.json`. If the file already exists, merge into the existing JSON (add the keys without removing other settings); do not overwrite. The snippet:
+That's it. Skip to [Step 2](#step-2--run-playbookinit).
 
-   ```json
-   {
-     "extraKnownMarketplaces": {
-       "ai-playbook": {
-         "source": { "source": "github", "repo": "axakon/TRACE" }
-       }
-     },
-     "enabledPlugins": { "playbook@ai-playbook": true }
-   }
-   ```
+### Choosing a scope
 
-   Use the marketplace identifier exactly as published: `axakon/TRACE`. (Local-path sources are not supported by Claude Code's marketplace mechanism — the install always goes through GitHub.)
-3. **Tell the user** what was written, and instruct them to run `/reload-plugins` to activate the plugin commands. If they prefer, a Claude Code restart works too. The agent cannot invoke `/reload-plugins` itself — it is a user-issued slash command.
-4. Once the user confirms the plugin reloaded, proceed to step 2. If reloading fails or the commands don't appear, troubleshoot before continuing.
+By default, `/plugin install` installs at **user scope** (`~/.claude/settings.json`) — the plugin is available across all your projects but isn't committed to the repo.
+
+For **team adoption**, install at project scope so collaborators get the plugin when they trust the folder:
+
+```
+/plugin marketplace add axakon/TRACE --scope project
+/plugin install playbook@ai-playbook --scope project
+/reload-plugins
+```
+
+### Manual install (editing settings.json directly)
+
+If the slash commands aren't available, add this to `.claude/settings.json` (project scope) or `~/.claude/settings.json` (user scope). Merge into the existing JSON — don't replace the whole file.
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "ai-playbook": {
+      "source": { "source": "github", "repo": "axakon/TRACE" }
+    }
+  },
+  "enabledPlugins": { "playbook@ai-playbook": true }
+}
+```
+
+Then run `/reload-plugins` or restart Claude Code to activate.
+
+### Verify
+
+After reloading, the `/playbook:` skills should be available. Type `/playbook` and check that tab-completion shows options like `/playbook:init`.
 
 ---
 
 ## Step 2 — Run `/playbook:init`
 
-### Done when
+**Run `/playbook:init` and follow the prompts.**
 
-- A `docs/` tree exists at the project root (or whichever folder the user picked) with the six canonical README files: `docs/README.md`, `docs/system/README.md`, `docs/architecture/README.md`, `docs/adr/README.md`, `docs/reference/README.md`, `docs/working-notes/README.md`.
-- The chosen folder carries a marker `AGENTS.md` + one-line `CLAUDE.md` forwarder.
-- `<cwd>/.claude/.playbook/config.json` records the chosen folder.
-- Nothing else has been authored. In particular `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, and a root `AGENTS.md` are **not** created here.
+The skill asks where durable context should live (default: `docs/`), then creates six canonical README files in that folder:
 
-### Agent instructions
+```
+docs/README.md
+docs/system/README.md
+docs/architecture/README.md
+docs/adr/README.md
+docs/reference/README.md
+docs/working-notes/README.md
+```
 
-1. **Tell the user to run `/playbook:init`.** Wait for them to do it. The skill is interactive — it asks where durable context should live (defaulting to `docs/`), copies the six canonical READMEs from the plugin bundle into that folder, and persists the choice. The agent cannot invoke it — it is a user-issued slash command.
-2. **After the user confirms `/playbook:init` finished**, verify the six READMEs exist at the expected paths and that `.claude/.playbook/config.json` was written. If anything is off, flag it to the user rather than silently patching.
-3. **Do not pre-author** `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or a root `AGENTS.md`. Those need real content drawn from the user's project; fabricating them would violate TRACE's "never pre-author" guardrail. The root `AGENTS.md` is created in step 3 via `/playbook:agents-md-setup`; the other two appear when the user has real architecture or a first decision to record.
+It also writes `.claude/.playbook/config.json` to remember the chosen folder.
 
----
-
-## Step 3 — Author AGENTS.md and hand off
-
-### Done when
-
-- `<cwd>/AGENTS.md` exists with real content describing the project, produced by the plugin's `/playbook:agents-md-setup` skill.
-- `<cwd>/CLAUDE.md` exists as a one-line forwarder: `See @AGENTS.md for more information.` (also produced by the skill.)
-- The user knows the next optional skill (`/playbook:scaffold-docs`) and the agent has stopped.
-
-### Agent instructions
-
-1. **Tell the user to run `/playbook:agents-md-setup`.** Wait for them to do it. The skill is an interactive interview that produces a canonical `AGENTS.md` at the project root, plus a one-line `CLAUDE.md` forwarder so Claude Code's native discovery still finds it. The agent cannot invoke it — it is a user-issued slash command, and it expects a fresh skill-loaded context. Do not try to substitute for it.
-2. **After the user confirms `/playbook:agents-md-setup` finished**, verify both files exist at the project root: `AGENTS.md` (full content from the interview) and `CLAUDE.md` (one line: `See @AGENTS.md for more information.`). If something is off — e.g., the skill produced a `CLAUDE.md` with content instead of a forwarder — flag it to the user rather than silently patching; that's a plugin bug worth surfacing.
-3. **Suggest `/playbook:scaffold-docs` as optional.** Tell the user: if their project already has code, this skill scans for signals (a migrations folder, an auth library, an HTTP framework, …) and proposes a short list of starter system-state docs to create under `docs/system/`. It's a one-time bootstrap — not necessary, but useful on a project that has code but little documentation.
-4. **Stop.** Do not invent further steps. The remaining plugin skills (`/playbook:spec-workflow`, `/playbook:adr`, `/playbook:distil`) come into play during ongoing work, not at setup.
-5. Tell the user setup is complete and summarize what's been created:
-   - `<cwd>/.claude/settings.json` (or `~/.claude/settings.json`) with the plugin install.
-   - `<cwd>/docs/` tree with the six canonical READMEs and a marker `AGENTS.md` + `CLAUDE.md` forwarder.
-   - `<cwd>/AGENTS.md` (canonical project context) + `<cwd>/CLAUDE.md` (forwarder).
+> **Note:** Do not pre-author `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or a root `AGENTS.md` at this stage. Those need real content from your project. The root `AGENTS.md` is created in step 3.
 
 ---
 
-## When something goes wrong
+## Step 3 — Run `/playbook:agents-md-setup`
 
-If a step's "Done when" cannot be satisfied — plugin won't reload in step 1, `/playbook:init` not available in step 2, `agents-md-setup` not available in step 3 — **stop and report to the user**. Do not fabricate state, do not skip ahead, do not retry blindly. The user can resolve and resume.
+**Run `/playbook:agents-md-setup` and follow the prompts.**
 
-If you are an agent and you reach a question this walkthrough does not answer, ask the user rather than guessing. The walkthrough is deliberately narrow; if something is missing, that's worth surfacing.
+The skill interviews you about your project and produces two files at the repo root:
+
+- `AGENTS.md` — canonical project context for AI agents (conventions, architecture, gotchas).
+- `CLAUDE.md` — a one-line forwarder: `See @AGENTS.md for more information.`
+
+Once both files exist, setup is complete.
+
+### What's optional next
+
+`/playbook:scaffold-docs` is a one-time bootstrap for projects that already have code but little documentation. It scans for signals (auth libraries, migration folders, HTTP frameworks, …) and proposes a short list of starter docs to create under `docs/system/`. Run it if useful — it's not required.
+
+The remaining skills (`/playbook:spec-workflow`, `/playbook:adr`, `/playbook:distil`) come into play during ongoing work, not at setup.
+
+---
+
+## What got created
+
+| Path | What it is |
+|---|---|
+| `.claude/settings.json` or `~/.claude/settings.json` | Plugin install |
+| `docs/` (six READMEs) | Canonical doc structure |
+| `.claude/.playbook/config.json` | Plugin config (chosen docs folder) |
+| `AGENTS.md` | Project context for AI agents |
+| `CLAUDE.md` | One-line forwarder to AGENTS.md |
+
+---
+
+## Troubleshooting
+
+**Plugin commands don't appear after `/reload-plugins`:** confirm the marketplace entry and `enabledPlugins` key are both present in the same `settings.json`. A typo in the marketplace name is the most common cause.
+
+**`/playbook:init` or `/playbook:agents-md-setup` not available:** the plugin didn't load. Check that you ran `/reload-plugins` after editing settings, and that the JSON is valid (no trailing commas, balanced braces).
+
+**Step fails for any other reason:** stop and report to the user. Do not skip ahead or fabricate state. The user can resolve and resume from where it stopped.
