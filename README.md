@@ -1,5 +1,7 @@
 # TRACE
 
+![TRACE](trace-ascii.png)
+
 A playbook for AI-first software development. Adopt it in your repository to get a documentation structure, an opinionated plugin, and a set of conventions that keep an AI agent productive across a project's lifetime — without the process tax that usually comes with "AI governance."
 
 Adopting TRACE in a fresh repo takes a few minutes and produces:
