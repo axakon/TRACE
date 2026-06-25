@@ -2,6 +2,11 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.19.0] - 2026-06-26
+
+### Added
+- **`knowledge-map` skill + a SessionStart cross-scope doc catalog.** A new `scripts/build-catalog.js` walks the git-root tree, finds every TRACE scope (a directory with its own `AGENTS.md`, excluding durable-context markers), and emits a compact map of what each scope's docs folder documents — `system/` and `architecture/` topic filenames plus `adr/` titles, with a `(superseded by NNNN)` flag. The map is injected at session start (launch scope and org root ordered first, the launch scope marked) so cross-service docs and binding ADRs are visible before the agent acts; the `knowledge-map` skill re-runs the same script on demand (`--mode=text`), optionally scoped to a subtree. It addresses agents missing knowledge that exists in a sibling service or the org root — a discovery problem, not a search-quality one. The catalog is ephemeral (never written to disk, no churn, no stale file) and reads **only** resolved durable-context folders (config `docs_folder`, else `docs/`) — never globs arbitrary `.md`; the tree walk skips `node_modules`, dot-dirs, and build/VCS folders. No embeddings, no committed index. See TRACE [ADR 0002](https://github.com/axakon/TRACE/blob/main/docs/adr/0002-knowledge-map-cross-scope-doc-catalog.md) for the rationale.
+
 ## [0.18.1] - 2026-06-10
 
 ### Fixed

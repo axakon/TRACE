@@ -4,7 +4,7 @@ This file is for agents working on the `playbook` plugin itself (repo: `ai-playb
 
 ## What is this
 
-Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships eight skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `pr-description`, `commit-message`) plus shared instructions, hooks, and a bundled MCP server.
+Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships nine skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `pr-description`, `commit-message`, `knowledge-map`) plus shared instructions, hooks, and a bundled MCP server.
 
 The original design intent lives in `ai-playbook-research.md` at the repo root.
 
@@ -24,8 +24,8 @@ The original design intent lives in `ai-playbook-research.md` at the repo root.
 | `<repo-root>/.claude-plugin/marketplace.json` | Marketplace catalog at the **repo root** (not inside this plugin folder), so the repo is installable via `/plugin marketplace add axakon/TRACE`. Claude Code only finds marketplace catalogs at the repo root — putting it under `deliverable/plugin/.claude-plugin/` broke discovery. The catalog lists the single `playbook` plugin with `"source": "./deliverable/plugin"`. Marketplace name is `ai-playbook`; consumers install `playbook@ai-playbook` |
 | `skills/<skill-name>/SKILL.md` | Skill entry point; supporting files (templates, rules) live alongside the SKILL.md |
 | `shared/` | Cross-skill content: authoring rules, distillation criteria, text injected by hooks. `docs-folder-resolution.md` is the single source of truth for how a scope's durable-context folder is resolved — `init`, `agents-md-setup`, and `distil` all reference it instead of carrying their own copy. Keep it that way; the precedence used to be duplicated across all three and drifted |
-| `scripts/` | Hook helper scripts, all Node.js for cross-platform support. `inject.js` is a generic file-to-additionalContext emitter that also expands `${VAR}` env-var placeholders in the file contents. `set-sentinel.js` and `check-sentinel.js` implement the soft auto-trigger for `/distil` (see Gotchas) |
-| `hooks/hooks.json` | Plugin-level hooks: SessionStart context7 injection, PostToolUse Write/Edit/MultiEdit sentinel writer, UserPromptSubmit sentinel-reading reminder |
+| `scripts/` | Hook helper scripts, all Node.js for cross-platform support. `inject.js` is a generic file-to-additionalContext emitter that also expands `${VAR}` env-var placeholders in the file contents. `set-sentinel.js` and `check-sentinel.js` implement the soft auto-trigger for `/distil` (see Gotchas). `build-catalog.js` generates the cross-scope knowledge map (SessionStart hook + `knowledge-map` skill) — walks the git-root tree for every scope's docs folder and emits a `system/`+`architecture/`+`adr/` catalog; never globs arbitrary `.md` |
+| `hooks/hooks.json` | Plugin-level hooks: SessionStart context7 injection + knowledge-map catalog injection, PostToolUse Write/Edit/MultiEdit sentinel writer, UserPromptSubmit sentinel-reading reminder |
 | `.mcp.json` | Bundled MCP server config (Context7, disabled by default) |
 | `ai-playbook-research.md` | The original research note. Source of intent, not source of truth (see Gotchas) |
 | `open-questions.md` | Design decisions deferred during implementation, with context for the next pass |

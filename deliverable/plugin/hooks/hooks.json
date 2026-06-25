@@ -8,6 +8,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/inject.js\" \"${CLAUDE_PLUGIN_ROOT}/shared/context7-instructions.md\" SessionStart",
             "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/build-catalog.js\"",
+            "timeout": 15
           }
         ]
       }

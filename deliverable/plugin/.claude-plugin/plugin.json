@@ -1,7 +1,7 @@
 {
   "name": "playbook",
-  "version": "0.18.1",
-  "description": "Consultancy playbook for AI-assisted development. Automates durable-context setup, AGENTS.md authoring, starter-doc scaffolding, spec-driven workflows, architecture decision records, and context distillation.",
+  "version": "0.19.0",
+  "description": "Consultancy playbook for AI-assisted development. Automates durable-context setup, AGENTS.md authoring, starter-doc scaffolding, spec-driven workflows, architecture decision records, context distillation, and cross-scope knowledge maps.",
   "author": {
     "name": "byBrick Tech"
   }
