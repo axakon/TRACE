@@ -15,7 +15,7 @@ Get the changed-file list before reading diff content — don't pull the whole d
 
 1. **Uncommitted changes** — `git status --short` and `git diff HEAD --stat`. If present, those files are the scope.
 2. **Recent commits** — if the tree is clean, `git log -5 --oneline` and `git diff HEAD~1 HEAD --stat` (further back if the developer gave a range).
-3. **No git** — ask the developer to describe what changed.
+3. **No git** — if the git commands fail (`git` not installed, or the folder isn't a repository), don't stop on the error: ask the developer to describe what changed and evaluate from their answer.
 
 Then read the diff only for files worth evaluating, one or a few at a time: `git diff HEAD -- <path>`. Prioritise config, security-sensitive paths, new files, and structural changes (added/removed exports, schema changes). Skip lockfiles, generated output, and formatting-only churn.
 
@@ -84,7 +84,13 @@ Work through the candidates one at a time — present, get one approval, write, 
 
 3. **On confirm:** if the target durable-context folder isn't playbook-marked yet (missing, or no `AGENTS.md` with the playbook heading), write the marker first: `<scope>/<docs-folder>/AGENTS.md` from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs), plus a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the one-line forwarder `See @AGENTS.md for more information.`. If the folder already holds hand-written docs, tell the developer the marker pair lands alongside them. Then write the candidate's addition.
 
-## Phase 6: Clear the distillation-pending sentinel
+## Phase 6: Verify and clear the distillation-pending sentinel
+
+If this run wrote files, run the structure validator and repair anything the writes introduced (a broken relative link, a misplaced file) before finishing:
+
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check`
+
+Pre-existing findings unrelated to this run are not yours to fix here — mention `/playbook:doctor` and move on.
 
 Once this run reaches a clean conclusion — candidates written, or a no-op from Phase 2 — clear the sentinel:
 

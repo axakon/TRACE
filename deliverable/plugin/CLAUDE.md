@@ -4,9 +4,9 @@ This file is for agents working on the `playbook` plugin itself (repo: `ai-playb
 
 ## What is this
 
-Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships eight skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `pr-description`, `commit-message`) plus shared instructions, hooks, and a bundled MCP server.
+Source repository for the `playbook` Claude Code plugin (repo name: `ai-playbook`): a consultancy playbook for AI-assisted development. The plugin ships nine skills (`init`, `agents-md-setup`, `scaffold-docs`, `spec-workflow`, `adr`, `distil`, `doctor`, `pr-description`, `commit-message`) plus shared instructions, hooks, and a bundled MCP server.
 
-The original design intent lives in `ai-playbook-research.md` at the repo root.
+The original design intent lives in [`docs/working-notes/ai-playbook-research.md`](../../docs/working-notes/ai-playbook-research.md) in the TRACE repo.
 
 ## Stack
 
@@ -24,11 +24,11 @@ The original design intent lives in `ai-playbook-research.md` at the repo root.
 | `<repo-root>/.claude-plugin/marketplace.json` | Marketplace catalog at the **repo root** (not inside this plugin folder), so the repo is installable via `/plugin marketplace add axakon/TRACE`. Claude Code only finds marketplace catalogs at the repo root — putting it under `deliverable/plugin/.claude-plugin/` broke discovery. The catalog lists the single `playbook` plugin with `"source": "./deliverable/plugin"`. Marketplace name is `ai-playbook`; consumers install `playbook@ai-playbook` |
 | `skills/<skill-name>/SKILL.md` | Skill entry point; supporting files (templates, rules) live alongside the SKILL.md |
 | `shared/` | Cross-skill content: authoring rules, distillation criteria, text injected by hooks. `docs-folder-resolution.md` is the single source of truth for how a scope's durable-context folder is resolved — `init`, `agents-md-setup`, and `distil` all reference it instead of carrying their own copy. Keep it that way; the precedence used to be duplicated across all three and drifted |
-| `scripts/` | Hook helper scripts, all Node.js for cross-platform support. `inject.js` is a generic file-to-additionalContext emitter that also expands `${VAR}` env-var placeholders in the file contents. `set-sentinel.js` and `check-sentinel.js` implement the soft auto-trigger for `/distil` (see Gotchas) |
+| `scripts/` | Hook and skill helper scripts, all Node.js for cross-platform support. `inject.js` is a generic file-to-additionalContext emitter that also expands `${VAR}` env-var placeholders in the file contents. `set-sentinel.js` and `check-sentinel.js` implement the soft auto-trigger for `/distil` (see Gotchas). `doctor.js` (check/refs/migrate) is the deterministic convention validator behind `/playbook:doctor`; it detects and renames, but never rewrites ADR references — that judgment stays in the skill |
 | `hooks/hooks.json` | Plugin-level hooks: SessionStart context7 injection, PostToolUse Write/Edit/MultiEdit sentinel writer, UserPromptSubmit sentinel-reading reminder |
 | `.mcp.json` | Bundled MCP server config (Context7, disabled by default) |
-| `ai-playbook-research.md` | The original research note. Source of intent, not source of truth (see Gotchas) |
-| `open-questions.md` | Design decisions deferred during implementation, with context for the next pass |
+| `../../docs/working-notes/ai-playbook-research.md` | The original research note (in the TRACE repo, not this plugin folder). Source of intent, not source of truth (see Gotchas) |
+| `../../docs/working-notes/open-questions.md` | Design decisions deferred during implementation, with context for the next pass (in the TRACE repo, not this plugin folder) |
 
 ## Commands
 
@@ -64,7 +64,7 @@ Skill bodies are read by both Claude and humans, and once a skill loads its full
 
 - **The plugin is content-only.** No code is compiled or tested. The "verification" of changes is manual end-to-end invocation. There is no CI to catch a broken hook script or a malformed `plugin.json` — broken changes will only surface when a developer installs the plugin.
 
-- **The `/distil` auto-trigger is a sentinel pattern, not a forced invocation.** No hook output field invokes a skill, so `/distil` cannot be called directly by the plugin. Instead, `set-sentinel.js` (PostToolUse) writes `.claude/.playbook/distillation-pending` after each Write/Edit/MultiEdit, and `check-sentinel.js` (UserPromptSubmit) reads it to inject a reminder via `additionalContext`. The agent is told to surface `/playbook:distil` only when the developer's current message reads as "wrapping up". `/distil` clears the sentinel as its final phase. The state directory is self-gitignored. Past attempts to use the `Stop` hook for this failed because Stop cannot inject `additionalContext` and cannot invoke skills — see [open-questions.md](open-questions.md) for the trade-space.
+- **The `/distil` auto-trigger is a sentinel pattern, not a forced invocation.** No hook output field invokes a skill, so `/distil` cannot be called directly by the plugin. Instead, `set-sentinel.js` (PostToolUse) writes `.claude/.playbook/distillation-pending` after each Write/Edit/MultiEdit — unless the edited file is documentation (markdown-family extension or a `.claude/` path, judged from `tool_input.file_path`; an unidentifiable path falls through to setting the sentinel) — and `check-sentinel.js` (UserPromptSubmit) reads it to inject a reminder via `additionalContext`. The agent is told to surface `/playbook:distil` only when the developer's current message reads as "wrapping up". `/distil` clears the sentinel as its final phase. The state directory is self-gitignored. Past attempts to use the `Stop` hook for this failed because Stop cannot inject `additionalContext` and cannot invoke skills — see [open-questions.md](../../docs/working-notes/open-questions.md) for the trade-space.
 
 - **AGENTS.md is canonical; CLAUDE.md is only a forwarder.** At every level — root project context, per-folder durable-context marker — `AGENTS.md` holds the content and a sibling `CLAUDE.md` contains exactly `See @AGENTS.md for more information.`. The plugin enforces this: `agents-md-setup` writes both files; `init`, `distil`, and `scaffold-docs` write both files when marking a durable-context folder; scope detection looks only for `AGENTS.md` (an `AGENTS.md`-less directory with a `CLAUDE.md` is treated as not-yet-set-up, even if the `CLAUDE.md` has real content from an earlier plugin version or hand-written). The convention reason: `AGENTS.md` is the multi-tool standard (Cursor, Codex, and Claude Code all read it); `CLAUDE.md` exists for Claude Code's native discovery only. Do not partially revert this in any skill — they all assume the same rule.
 

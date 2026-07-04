@@ -40,6 +40,8 @@ Show concisely what you found. Then call `AskUserQuestion` with up to four optio
 - **Create or use `docs/`** — the playbook default.
 - **Type a custom path** — for `claude-context/`, `internal/docs/`, etc.
 
+Validate the choice before continuing: if a *file* (not a directory) already exists at the chosen path, or at any of the five sub-paths (`system`, `architecture`, `adr`, `reference`, `working-notes`), say what's in the way and re-ask — don't proceed into Phase 3 with a path that can't hold the structure.
+
 If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: the playbook's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second `AskUserQuestion`.
 
 ## Phase 3: Copy the canonical doc structure
@@ -55,6 +57,7 @@ The script copies only missing files — it never overwrites — and prints a JS
 - `written` — files it created. The common greenfield case: all six, nothing routed through context.
 - `skipped_identical` — targets already byte-identical to the canonical source. Nothing to do.
 - `conflicts` — targets that exist and **differ**. For each, Read it, show what's there briefly, and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**. On overwrite, Read the source (`../../shared/doc-structure/<path>` relative to this skill) and Write it to the target.
+- `errors` — paths the script could not write (e.g. a file sitting where a directory is needed). Show each path and message to the developer and stop; they resolve the obstruction, then re-run `/playbook:init` — re-running is safe, already-written files are skipped.
 
 Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of the playbook's guardrails.
 

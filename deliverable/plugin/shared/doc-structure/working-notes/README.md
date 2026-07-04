@@ -8,7 +8,7 @@ Your thinking while it's still in motion. Rough notes, half-formed opinions, ide
 
 Every note opens with a non-authority banner, right under the title:
 
-> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+> **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
 
 Then:
 

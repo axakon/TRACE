@@ -55,7 +55,7 @@ For each chosen topic, take a quick look to confirm what the repo evidences (DB 
 - A one-line note: "Operational rules in MUST voice; cite the source (ADR, contract, incident) for each."
 - A `## Still to document` list of 2–4 MUST-rule prompts: "What MUST be true about token expiry?", "What MUST be validated at the trust boundary?". Do not invent rules — the developer fills these.
 
-Apply [authoring-rules.md](../../shared/authoring-rules.md): state confirmed facts as facts; put everything uncertain under prompts. No speculation.
+Apply [authoring-rules.md](../../shared/authoring-rules.md): state confirmed facts as facts; put everything uncertain under prompts. No speculation. [example-scaffold-output.md](./example-scaffold-output.md) shows the target shape and length for both kinds of file.
 
 Show the developer the scaffolded files.
 

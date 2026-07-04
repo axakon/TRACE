@@ -32,7 +32,7 @@ Use the Glob tool to list `<docs-folder>/adr/*.md`. The next number is the highe
 
 ## Phase 4: Draft the ADR
 
-Fill the [adr-template.md](./adr-template.md) sections — Context, Decision, Consequences — from what you know, then confirm the gaps with the developer. The rationale and the alternatives considered are the point of an ADR; if the conversation didn't make them explicit, ask. Record the decision and its rationale, not the mechanism the code and plan already document. Apply [authoring-rules.md](../../shared/authoring-rules.md): plain prose, only what was actually decided, no padding.
+Fill the [adr-template.md](./adr-template.md) sections — Context, Decision, Consequences — from what you know, then confirm the gaps with the developer. [example-adr.md](./example-adr.md) shows the target depth: a few sentences per section, alternatives as prose inside Context. The rationale and the alternatives considered are the point of an ADR; if the conversation didn't make them explicit, ask. Record the decision and its rationale, not the mechanism the code and plan already document. Apply [authoring-rules.md](../../shared/authoring-rules.md): plain prose, only what was actually decided, no padding.
 
 Choose a kebab-case `<short-title>` slug. The filename is `<NNNN>-<short-title>.md`.
 

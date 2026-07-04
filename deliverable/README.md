@@ -100,7 +100,21 @@ Once both files exist, setup is complete.
 
 `/playbook:scaffold-docs` is a one-time bootstrap for projects that already have code but little documentation. It scans for signals (auth libraries, migration folders, HTTP frameworks, …) and proposes a short list of starter docs to create under `docs/system/`. Run it if useful — it's not required.
 
-The remaining skills (`/playbook:spec-workflow`, `/playbook:adr`, `/playbook:distil`) come into play during ongoing work, not at setup.
+---
+
+## Working day-to-day
+
+Setup is done; the remaining skills come into play as you work. Each one explains itself when invoked — these paragraphs only tell you *when* to reach for it. (The full playbook phases will cover the day-to-day loop in depth once authored.)
+
+**`/playbook:spec-workflow`** — invoke when starting substantial work: a new feature, a refactor across multiple files, anything with acceptance criteria you can't hold in your head. It interviews you to an approved plan with explicit acceptance criteria, implements against it, and verifies before handing off. Small contained edits don't need it — just do those directly.
+
+**`/playbook:adr`** — invoke when an architecturally significant decision has been made: one affecting the system's structure, a non-functional characteristic, a foundational dependency, a public interface, or a construction technique used across the codebase. It records the decision as a short immutable record in `docs/adr/`. `spec-workflow` offers it automatically at handoff when a planning decision qualifies.
+
+**`/playbook:distil`** — invoke when wrapping up a piece of work (the plugin also reminds the agent to suggest it when edits have accumulated). It reads what changed, checks whether anything durable was learned — a new convention, a security boundary, a gotcha — and proposes updates to `AGENTS.md` or the docs folder. Most runs capture nothing; that's expected.
+
+**`/playbook:pr-description`** and **`/playbook:commit-message`** — ask for them explicitly ("write the PR description", "draft a commit message") or ask the agent to commit / open the PR; the agent uses them to draft the text in the playbook's standard shape.
+
+**`/playbook:doctor`** — invoke after merges, before releases, or whenever the docs structure feels off. A deterministic script validates the scope against the playbook's conventions (structure, marker pairs, ADR numbering and immutability, note banners, relative links) and the skill guides the fixes — including resolving ADR number collisions when two branches minted the same number.
 
 ---
 

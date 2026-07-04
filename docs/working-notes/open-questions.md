@@ -1,6 +1,8 @@
 # Open questions
 
-> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+> **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+
+Status: Research note
 
 Design decisions deferred during initial implementation. Each entry: the question, what we know, what we deferred, and what a future pass should reconsider.
 
@@ -10,7 +12,7 @@ This file is for plugin maintainers, not consumers. Excluded from distribution v
 
 **Status:** Soft sentinel pattern is implemented. Open question is whether to escalate.
 
-**Current mechanism.** A PostToolUse hook on `Write|Edit|MultiEdit` writes a per-project sentinel at `.claude/.playbook/distillation-pending`. A UserPromptSubmit hook reads the sentinel and injects an `additionalContext` reminder telling the agent to surface `/playbook:distil` when the developer's current message indicates work is wrapping up. `/distil` clears the sentinel in its final phase. See the Gotcha in [CLAUDE.md](CLAUDE.md) for the full pattern.
+**Current mechanism.** A PostToolUse hook on `Write|Edit|MultiEdit` writes a per-project sentinel at `.claude/.playbook/distillation-pending`. A UserPromptSubmit hook reads the sentinel and injects an `additionalContext` reminder telling the agent to surface `/playbook:distil` when the developer's current message indicates work is wrapping up. `/distil` clears the sentinel in its final phase. See the Gotcha in [the plugin's CLAUDE.md](../../deliverable/plugin/CLAUDE.md) for the full pattern.
 
 **Why it's not stronger.** Hook outputs cannot invoke a skill, slash command, or tool. The available primitives are `additionalContext` injection and `decision: "block"`. We chose injection because:
 
@@ -29,7 +31,7 @@ This file is for plugin maintainers, not consumers. Excluded from distribution v
 - Whether the soft reminder is actually heeded in practice. If agents routinely ignore it and edits accumulate without distillation, escalate to PostToolBatch or Stop.
 - Whether a future hook event lets a plugin invoke a skill directly. If so, the trade-space changes — block-and-invoke becomes feasible without the `disable-model-invocation` flip.
 - Whether the sentinel granularity should change. Per-project (current) is the simplest; per-task granularity would be more precise but requires inferring task boundaries.
-- **False positives on documentation work (seen in testing, 0.5.1).** The sentinel fires on any `Write|Edit|MultiEdit`, so editing the playbook's own outputs — CLAUDE.md, the docs folder, ADRs — tripped a distil suggestion even though there's nothing to distil *from* writing docs. Fixed softly in 0.5.1 by tightening `distillation-pending-reminder.md` to skip the suggestion when recent edits were only documentation. A deterministic alternative — make `set-sentinel.js` path-aware so doc edits never set the sentinel — was rejected: it needs the hook to read `config.json` and resolve the docs folder per scope (logic a trivial hook shouldn't carry), and it still wouldn't cover mixed code+doc sessions, so the reminder fix is needed regardless.
+- **False positives on documentation work (seen in testing, 0.5.1).** The sentinel fires on any `Write|Edit|MultiEdit`, so editing the playbook's own outputs — CLAUDE.md, the docs folder, ADRs — tripped a distil suggestion even though there's nothing to distil *from* writing docs. Fixed softly in 0.5.1 by tightening `distillation-pending-reminder.md` to skip the suggestion when recent edits were only documentation. A deterministic alternative — make `set-sentinel.js` path-aware so doc edits never set the sentinel — was rejected: it needs the hook to read `config.json` and resolve the docs folder per scope (logic a trivial hook shouldn't carry), and it still wouldn't cover mixed code+doc sessions, so the reminder fix is needed regardless. Revisited in 0.19.0 with a simpler filter that sidesteps that objection: the hook now skips setting the sentinel when the edited file is markdown-family (`.md`, `.mdx`, `.rst`, …) or under `.claude/`, judged from the hook's `tool_input.file_path` alone — no config reading, no docs-folder resolution. The reminder-side code-or-config check stays, since it still covers mixed code+doc sessions where a code edit legitimately set the sentinel.
 - **The sentinel is on probation.** It's the softest, least-proven mechanism in the plugin and it mis-fired on its first real outing. One clean fix is fine; if false positives keep recurring, remove the sentinel entirely (the `set`/`check`/`clear` scripts, the two hooks, distil's clear phase) rather than patching further — distil is invocable any time and `spec-workflow` already hands off to it, so the loop survives. Same call we made on the change-spec: drop machinery that doesn't earn its keep.
 
 ## Mirror distilled content into `.claude/rules/` for native discoverability

@@ -1,6 +1,6 @@
 # Working Note: What Goes in AGENTS.md (v0)
 
-> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+> **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
 
 > **Status:** Research note, not the deliverable.
 > Synthesized from HumanLayer, AI Hero, Augment, Factory, Datadog, OpenAI Harness Engineering, Mitchell Hashimoto, Anthropic, and the Datadog/Datadog-frontend monorepo writeup.

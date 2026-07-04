@@ -1,6 +1,6 @@
 # Working Note: Proposed Documentation Structure (v0)
 
-> ⚠️ **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
+> **Working note — not authoritative.** Binding rules live in `architecture/` and `adr/`. Nothing here is a rule until it's promoted — however settled it reads.
 
 > **Status:** Promoted — substance lifted into [ADR 0001](../adr/0001-three-categories-of-project-docs.md) and the reference-doc-structure deliverable on 2026-05-25. This note is now historical substrate; the three-category framing (descriptive / prescriptive / historical) replaces the structure proposed below. Kept frozen for the reasoning trail.
 > Synthesized from the discourse scan (HumanLayer, Augment, AI Hero, Mitchell Hashimoto, OpenAI Harness Engineering, Matthew Groff, arc42, Stack Overflow, Thoughtworks).

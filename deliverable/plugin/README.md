@@ -2,7 +2,7 @@
 
 A Claude Code plugin that gives a small, opinionated workflow for AI-assisted development. The premise: a single well-maintained `AGENTS.md` at the repo root (with a one-line `CLAUDE.md` forwarder for Claude Code's native discovery) plus a small set of distilled-context files in the project's docs folder beats elaborate process documentation, and a thorough up-front plan with explicit acceptance criteria is the right governance for substantial work — not a meeting.
 
-The plugin contains eight skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, recording the decisions behind them, keeping the permanent context current as work happens, and drafting PR descriptions in a predictable shape for reviewers.
+The plugin contains nine skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, recording the decisions behind them, keeping the permanent context current as work happens, and drafting PR descriptions in a predictable shape for reviewers.
 
 ## Installation
 
@@ -83,7 +83,7 @@ The whole playbook is built from a handful of moving parts. This section names e
 
 - **ADR (architecture decision record).** An immutable, numbered record of a single significant decision — the choice, its context, and its consequences — in `<docs-folder>/adr/`. Where distilled context is *living* and records the resulting convention ("what to do now"), an ADR is *immutable* and records the rationale ("why this, over the alternatives"). A later change of course is a new ADR that supersedes the old one, never an edit. `spec-workflow` offers one at handoff when a planning decision warrants it; you can also record one directly with `/playbook:adr`.
 
-- **The sentinel.** A small marker file at `.claude/.playbook/distillation-pending`. Claude Code hooks can inject text into the agent's context but **cannot invoke a skill**, so the plugin can't auto-run `/playbook:distil`. Instead: a `PostToolUse` hook drops the sentinel after any edit, and a `UserPromptSubmit` hook reads it and reminds the agent to *suggest* distillation when your message reads as "wrapping up." `distil` clears the sentinel when it finishes. It is a soft, developer-gated nudge — never an automatic action. The directory is self-gitignored.
+- **The sentinel.** A small marker file at `.claude/.playbook/distillation-pending`. Claude Code hooks can inject text into the agent's context but **cannot invoke a skill**, so the plugin can't auto-run `/playbook:distil`. Instead: a `PostToolUse` hook drops the sentinel after any code or config edit (documentation files and `.claude/` paths don't count — there's nothing to distil from writing docs), and a `UserPromptSubmit` hook reads it and reminds the agent to *suggest* distillation when your message reads as "wrapping up." `distil` clears the sentinel when it finishes. It is a soft, developer-gated nudge — never an automatic action. The directory is self-gitignored.
 
 - **Super-repo.** An optional hierarchy where a parent repo carries shared context and each sub-repo carries its own. Supported out of the box; see [Super-repo and monorepo setups](#super-repo-and-monorepo-setups).
 
@@ -137,7 +137,7 @@ At handoff, if the work settled a real architectural decision, the skill offers 
 
 ### Doing small work — the direct path
 
-Just edit. Use Claude however you usually do. The plugin still helps: after every `Write`, `Edit`, or `MultiEdit`, the sentinel is set, and on your next prompt the agent gets a soft reminder to surface `/playbook:distil` if you're wrapping up. Nothing fires automatically.
+Just edit. Use Claude however you usually do. The plugin still helps: after every code or config edit, the sentinel is set, and on your next prompt the agent gets a soft reminder to surface `/playbook:distil` if you're wrapping up. Nothing fires automatically.
 
 ### Closing the loop — distillation
 
@@ -146,6 +146,16 @@ Just edit. Use Claude however you usually do. The plugin still helps: after ever
 ```
 
 Reads the recent changes (uncommitted diff first, recent commits if the tree is clean), evaluates them against five criteria — new conventions, security boundaries, durable design choices, non-obvious gotchas, corrections to existing context — and proposes updates to either `AGENTS.md` or a file in the scope's docs folder. You're asked where each addition should land; nothing is written until you approve. If nothing qualifies, the skill says so and stops — a turn that produces no distillation is the common case, not a failure. After a successful run it clears the sentinel.
+
+### Keeping the structure honest — doctor
+
+```
+/playbook:doctor
+```
+
+Runs a deterministic validator over the scope and reports every convention violation: missing canonical READMEs or marker pairs, a root `AGENTS.md` outside its spec, ADR filename/numbering problems, shipped ADRs edited beyond a supersession banner, working notes missing their non-authority banner, and relative links that don't resolve. Fixes are applied automatically when the right fix is unambiguous — every change lands as an uncommitted edit, so `git diff` is your review. You're asked only about the genuinely uncertain cases (batched into one question) and anything that would overwrite content you wrote; record-level problems (an edited shipped ADR) are reported with a recommendation, never auto-fixed.
+
+Its speciality is the **ADR number collision** — two merged branches each minted the same next number. The skill renumbers one file mechanically (the one that shipped first keeps the number), then inventories *every* reference to the old number across the repo (code comments, docs, supersession banners) and resolves each by reading it: a comment written before the merge means one specific decision, and only context tells which. Confident resolutions apply directly; ambiguous ones come back to you. References are never bulk-rewritten.
 
 ## Skills
 
@@ -157,6 +167,7 @@ Reads the recent changes (uncommitted diff first, recent commits if the tree is 
 | `/playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
 | `/playbook:adr` | A significant architectural decision was made and should be recorded immutably | User or agent (offered by `spec-workflow`) |
 | `/playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
+| `/playbook:doctor` | Validate the scope against the playbook's conventions and guide fixes — after merges, before releases, or when the structure feels off | User only |
 | `/playbook:pr-description` | Drafting a PR description or squash-merge commit message in the playbook's *What / Approach / Updated context* shape | User or agent |
 | `/playbook:commit-message` | Drafting a single commit's message in the playbook's *What changed / Approach* shape (leaner than the PR template) | User or agent |
 
@@ -167,7 +178,7 @@ The plugin installs three hooks that run automatically:
 | Event | Behaviour |
 |---|---|
 | `SessionStart` | Injects an instruction telling the agent to use Context7 for up-to-date library docs when the MCP server is enabled. Harmless when disabled. |
-| `PostToolUse` on `Write\|Edit\|MultiEdit` | Sets the distillation sentinel so the next user prompt carries a reminder. |
+| `PostToolUse` on `Write\|Edit\|MultiEdit` | Sets the distillation sentinel so the next user prompt carries a reminder. Documentation edits (markdown-family files, `.claude/` paths) are skipped. |
 | `UserPromptSubmit` | Reads the sentinel; if present, injects the reminder text into the agent's context. |
 
 ## Files the plugin creates in your project
@@ -213,4 +224,4 @@ Five principles drive the design. Each maps to a specific piece of the plugin th
 | **Humans at handoffs, not throughout.** Constant approval gates train developers to rubber-stamp. Surfacing the right moments preserves judgment where it matters. | `spec-workflow` pauses at three explicit gates — scope, plan, verification. `distil` confirms every routing decision before writing. No silent writes anywhere; no nagging in between. |
 | **Permanent context grows by distillation, not accumulation.** Docs that pile up uncurated go stale; knowledge never captured stays in heads. | After substantial work, `distil` evaluates the change against five criteria and proposes updates to the permanent context. For direct-path work, the sentinel surfaces `/playbook:distil` at the right moment so direct edits aren't silently exempt. |
 
-The plugin is small on purpose: eight skills and three plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.
+The plugin is small on purpose: nine skills and three plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.

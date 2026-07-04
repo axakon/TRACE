@@ -10,11 +10,13 @@
 //   - skipped_identical target already byte-identical to source
 //   - conflicts         target exists and differs; left untouched for the
 //                       skill to resolve (Read + AskUserQuestion)
+//   - errors           target could not be written (e.g. a file exists where
+//                      a directory is needed); { path, message } entries
 //
 // Usage: node copy-doc-structure.js <target-folder>
 //
 // Prints a JSON report to stdout:
-//   { "written": [...], "skipped_identical": [...], "conflicts": [...] }
+//   { "written": [...], "skipped_identical": [...], "conflicts": [...], "errors": [...] }
 // Paths in the report are relative to <target-folder>.
 //
 // Exits 1 with a stderr message if the target argument is missing or the
@@ -46,23 +48,27 @@ function walk(dir) {
   return out;
 }
 
-const report = { written: [], skipped_identical: [], conflicts: [] };
+const report = { written: [], skipped_identical: [], conflicts: [], errors: [] };
 
 for (const srcFile of walk(srcRoot)) {
   const rel = path.relative(srcRoot, srcFile);
   const destFile = path.join(target, rel);
 
-  if (!fs.existsSync(destFile)) {
-    fs.mkdirSync(path.dirname(destFile), { recursive: true });
-    fs.copyFileSync(srcFile, destFile);
-    report.written.push(rel);
-    continue;
-  }
+  try {
+    if (!fs.existsSync(destFile)) {
+      fs.mkdirSync(path.dirname(destFile), { recursive: true });
+      fs.copyFileSync(srcFile, destFile);
+      report.written.push(rel);
+      continue;
+    }
 
-  const srcBuf = fs.readFileSync(srcFile);
-  const destBuf = fs.readFileSync(destFile);
-  if (srcBuf.equals(destBuf)) report.skipped_identical.push(rel);
-  else report.conflicts.push(rel);
+    const srcBuf = fs.readFileSync(srcFile);
+    const destBuf = fs.readFileSync(destFile);
+    if (srcBuf.equals(destBuf)) report.skipped_identical.push(rel);
+    else report.conflicts.push(rel);
+  } catch (err) {
+    report.errors.push({ path: rel, message: err.message });
+  }
 }
 
 process.stdout.write(JSON.stringify(report));

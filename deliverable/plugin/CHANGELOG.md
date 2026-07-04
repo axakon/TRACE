@@ -2,6 +2,31 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.20.0] - 2026-07-04
+
+### Added
+- **`doctor` skill and `scripts/doctor.js` — a deterministic validator for the playbook's own conventions.** `node doctor.js check [scope]` reports, as JSON: missing canonical READMEs and marker pairs (AGENTS.md marker + CLAUDE.md forwarder, at the root and the docs folder), the root AGENTS.md against its spec (five sections, 50–150 lines, ≤40 per section), ADR filename pattern and strictly-sequential numbering, number collisions, shipped ADRs edited beyond a supersession banner (via git, skipped gracefully without it), working notes missing the non-authority banner or `Status:` header, and relative markdown links that don't resolve (fenced/inline code excluded). Findings are data — the script exits 0 and the skill decides what to do.
+- **ADR number-collision resolution, split between script and judgment.** When two merged branches minted the same ADR number, `doctor.js migrate <file> <NNNN>` renames one file and rewrites its title heading, then returns `references_to_old_number` — every mention of the old number across the scope (code comments, docs, other ADRs, supersession banners) with file, line, and text. `doctor.js refs <NNNN>` runs the same inventory standalone. The script never rewrites references: each one was written before the merge and means one specific decision, so `/playbook:doctor` reads each reference in context and resolves it — applying confident resolutions directly and batching only the genuinely ambiguous ones (supersession banners chief among them) into a single question.
+- **`/playbook:doctor`** wraps the validator: triages the report and fixes findings by class — missing forwarders/markers, canonical READMEs (via `copy-doc-structure.js`), note banners, and moved-link repairs apply automatically, since every fix is an uncommitted edit reviewable with `git diff`. The developer is asked only when the right fix is genuinely uncertain or would overwrite hand-written content, batched into one question. AGENTS.md spec problems route to `/playbook:agents-md-setup`; numbering gaps and post-ship ADR edits are reported with a recommendation, never auto-fixed.
+
+### Changed
+- **`distil` verifies its own writes.** Phase 6 runs `doctor.js check` when the run wrote files and repairs anything the run itself introduced; pre-existing findings are mentioned, not fixed.
+- **Forwarder check tolerates backticks.** `See @AGENTS.md for more information.` and its backticked variant are both accepted as the CLAUDE.md forwarder.
+
+## [0.19.0] - 2026-07-04
+
+### Added
+- **Worked examples for ADRs and scaffolded topic files.** `agents-md-setup` had `example-output.md` to calibrate depth; the other writing skills relied on templates and rules alone. The `adr` skill gains `example-adr.md` (a fictional Meridian-API decision showing the target length: a few sentences per section, alternatives as prose inside Context) and `scaffold-docs` gains `example-scaffold-output.md` (one descriptive `system/` file and the prescriptive `architecture/security.md` stub, showing that confirmed-facts-plus-prompts and nothing more is the correct shape). Both are referenced from their skill's Phase 4 as references, not templates to copy.
+
+### Changed
+- **Documentation edits no longer set the distillation sentinel.** `set-sentinel.js` now reads `tool_input.file_path` from the hook payload and exits without writing the sentinel when the edited file is markdown-family (`.md`, `.mdx`, `.markdown`, `.rst`, `.adoc`, `.txt`) or under a `.claude/` path — the deterministic half of the false-positive fix that 0.5.1 made on the reminder side. No config reading or docs-folder resolution in the hook; an unidentifiable path falls through to setting the sentinel as before. The reminder-side code-or-config check stays, covering mixed code+doc sessions where a code edit legitimately set the marker.
+- **`init` validates the chosen docs path before laying down structure.** Phase 2 now checks that no *file* sits at the chosen path or at any of the five sub-paths (`system`, `architecture`, `adr`, `reference`, `working-notes`) and re-asks instead of proceeding into a copy that can't succeed.
+- **`distil`'s no-git branch is explicit about failing commands.** Phase 1 now says to treat failing git commands (`git` not installed, folder not a repository) as the no-git case — ask the developer to describe what changed — rather than stopping on the error.
+- **Working-note banner de-emojified.** The non-authority banner prescribed by `doc-structure/working-notes/README.md` opened with a ⚠️, contradicting `authoring-rules.md`'s "No emojis" — adopters following the template violated the rule. The banner is now plain bold text; the rule stands unqualified.
+
+### Fixed
+- **`copy-doc-structure.js` reports write failures instead of crashing.** A file sitting where a directory is needed (e.g. a file named `system` at the target) made the script die on `mkdirSync` with a raw Node error, leaving `init` without a report. Failures are now caught per-file into an `errors` array (`{ path, message }`) in the JSON report, other files still copy, and `init`'s Phase 3 tells the developer what blocked the write and stops; re-running after resolving is safe since already-written files are skipped.
+
 ## [0.18.1] - 2026-06-10
 
 ### Fixed
