@@ -22,6 +22,8 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check <scope-root>
 
 The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
 
+**Monorepos:** when the scope contains nested scopes (project-level `AGENTS.md` files under the root), add `--all` — the script discovers every scope and returns one report per scope (`scope_rel` names each). Triage and fix per scope; the phases below apply to each in turn.
+
 ## Phase 2: Triage the report
 
 Clean report (`ok: true`, no warnings): say so in one line and stop.
@@ -42,7 +44,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 
    The script renames the file, rewrites its own title heading, and returns `references_to_old_number` — every place in the scope (code comments, docs, other ADRs, supersession banners) that mentions the old number, with file, line, and the line's text.
 
-3. **Resolve each reference by reading it.** For every entry, open enough surrounding context to judge which decision the reference means, then split by confidence:
+3. **Resolve each reference by reading it.** Every scope numbers its own ADRs, so first check each entry's `nearest_scope`: a reference whose nearest scope differs from the collided ADR's scope refers to *that* scope's own sequence — leave it unchanged; it isn't part of this collision. For the rest, open enough surrounding context to judge which decision the reference means, then split by confidence:
    - **Confident** — the line names the slug or filename, or the surrounding context plainly matches one decision's subject and not the other's. Apply directly: leave it (means the keeper) or rewrite to the new number/filename (means the renumbered one).
    - **Uncertain** — the context fits both decisions, or there's no context to read. Collect these and ask once, quoting each line with your best guess. A `> Superseded by <old-number>.` banner is always in this bucket unless the superseding ADR's own text names its target — pointing it at the wrong decision silently corrupts the record.
 

@@ -4,11 +4,16 @@
 //
 // Subcommands:
 //   check   [scope-root]                 full validation report
-//   refs    <NNNN> [scope-root]          every reference to ADR <NNNN> across the scope
+//   check --all [root]                   discover every scope (dir with a
+//                                        non-marker AGENTS.md) under root and
+//                                        report per scope — for monorepos
+//   refs    <NNNN> [scope-root]          every reference to ADR <NNNN> across the
+//                                        scope, each attributed to its nearest scope
 //   migrate <adr-file> <NNNN> [scope]    renumber one ADR file to a free number,
 //                                        then report all references to the OLD number
 //
-// Options: --docs <folder>  override docs-folder resolution (relative to scope)
+// Options: --docs <folder>  override docs-folder resolution (relative to scope;
+//                           single-scope check only)
 //
 // All output is a single JSON object on stdout. The script only detects and
 // performs mechanical renames — it never rewrites references to an ADR number;
@@ -324,8 +329,17 @@ function checkAdrs(scope, docs, report) {
     const log = git(scope, ['log', '--diff-filter=A', '--format=%H', '--', relPath]);
     if (!log || !log.trim()) continue; // never committed — still a draft, free to edit
     const addCommit = log.trim().split('\n').pop();
-    const original = git(scope, ['show', `${addCommit}:${relPath}`]);
-    if (original === null) continue;
+    // The ./ prefix makes the pathspec cwd-relative; without it git resolves
+    // the path against the repo root, which silently breaks for a scope that
+    // is a subdirectory of its repository (monorepo sub-project).
+    const original = git(scope, ['show', `${addCommit}:./${relPath}`]);
+    if (original === null) {
+      report.skipped.push({
+        check: 'adr-immutability',
+        reason: `could not read the first committed version of ${relPath}`,
+      });
+      continue;
+    }
     const current = readText(path.join(adrDir, file));
     if (current === null) continue;
     if (stripSupersessionBanners(original) !== stripSupersessionBanners(current)) {
@@ -445,6 +459,32 @@ function collectAllFiles(dir, out) {
   }
 }
 
+// A scope root is a directory with its own AGENTS.md — excluding the
+// durable-context marker, whose AGENTS.md marks a docs folder, not a scope.
+function isScopeRoot(dir) {
+  const agents = readText(path.join(dir, 'AGENTS.md'));
+  return agents !== null && firstHeading(agents) !== MARKER_HEADING;
+}
+
+// Closest ancestor scope root of a file, bounded by the scan root. In a
+// monorepo every scope numbers its own ADRs, so "ADR 0003" is only meaningful
+// relative to the nearest scope of the file that says it.
+function nearestScope(scanRoot, file, cache) {
+  const chain = [];
+  let dir = path.dirname(file);
+  let found = scanRoot;
+  for (;;) {
+    if (cache.has(dir)) { found = cache.get(dir); break; }
+    chain.push(dir);
+    if (dir === scanRoot || isScopeRoot(dir)) { found = dir === scanRoot ? scanRoot : dir; break; }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  for (const d of chain) cache.set(d, found);
+  return found;
+}
+
 // Every place the scope mentions ADR <number>: "ADR 0007" / "adr-0007" /
 // "ADR #7" prose forms, plus filename forms like "0007-some-slug.md".
 function findAdrReferences(scope, number, docs) {
@@ -455,6 +495,7 @@ function findAdrReferences(scope, number, docs) {
 
   const files = [];
   collectAllFiles(scope, files);
+  const scopeCache = new Map();
 
   const refs = [];
   for (const file of files) {
@@ -475,6 +516,7 @@ function findAdrReferences(scope, number, docs) {
             file: rel(scope, file),
             line: i + 1,
             text: line.trim().slice(0, 200),
+            nearest_scope: rel(scope, nearestScope(scope, file, scopeCache)) || '.',
             inside_adr_folder: docs ? file.startsWith(path.join(docs, 'adr') + path.sep) : false,
           });
           break; // one entry per line per pattern is enough
@@ -538,26 +580,13 @@ function migrate(scope, docs, fileArg, toNumber) {
     old_number: fromNumber,
     new_number: toNumber,
     references_to_old_number: references,
-    note: 'References were NOT rewritten. Each one must be reviewed: does it mean the ADR that kept the old number, or the renumbered one?',
+    note: 'References were NOT rewritten. Each one must be reviewed: does it mean the ADR that kept the old number, or the renumbered one? A reference whose nearest_scope differs from the migrated ADR\'s scope refers to that scope\'s own sequence — leave it alone.',
   };
 }
 
-// --------------------------------------------------------------------- main
+// --------------------------------------------------------------------- check
 
-const argv = process.argv.slice(2);
-const docsFlag = argv.indexOf('--docs');
-let docsOverride = null;
-if (docsFlag !== -1) {
-  docsOverride = argv[docsFlag + 1];
-  if (!docsOverride) fail('--docs requires a folder argument');
-  argv.splice(docsFlag, 2);
-}
-
-const command = argv[0] || 'check';
-
-if (command === 'check') {
-  const scope = path.resolve(argv[1] || '.');
-  if (!isDir(scope)) fail(`scope root is not a directory: ${scope}`);
+function runCheck(scope, docsOverride) {
   const docs = resolveDocsFolder(scope, docsOverride);
 
   const report = {
@@ -582,7 +611,66 @@ if (command === 'check') {
   report.ok = report.errors.length === 0;
   report.summary.errors = report.errors.length;
   report.summary.warnings = report.warnings.length;
-  process.stdout.write(JSON.stringify(report, null, 2));
+  return report;
+}
+
+// Every scope root under (and including) the given root — for monorepos where
+// TRACE is adopted at the root and at project level.
+function discoverScopes(root) {
+  const scopes = [];
+  (function walk(dir) {
+    if (isScopeRoot(dir)) scopes.push(dir);
+    let entries = [];
+    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+      if (SKIP_DIRS.has(entry.name) || entry.name === '.claude') continue;
+      walk(path.join(dir, entry.name));
+    }
+  })(root);
+  return scopes.length ? scopes : [root];
+}
+
+// --------------------------------------------------------------------- main
+
+const argv = process.argv.slice(2);
+const docsFlag = argv.indexOf('--docs');
+let docsOverride = null;
+if (docsFlag !== -1) {
+  docsOverride = argv[docsFlag + 1];
+  if (!docsOverride) fail('--docs requires a folder argument');
+  argv.splice(docsFlag, 2);
+}
+const allFlag = argv.indexOf('--all');
+let checkAll = false;
+if (allFlag !== -1) {
+  checkAll = true;
+  argv.splice(allFlag, 1);
+}
+
+const command = argv[0] || 'check';
+
+if (command === 'check') {
+  const root = path.resolve(argv[1] || '.');
+  if (!isDir(root)) fail(`scope root is not a directory: ${root}`);
+
+  if (checkAll) {
+    // Per-scope resolution only — a --docs override can't apply to every scope.
+    const reports = discoverScopes(root).map((s) => {
+      const r = runCheck(s, null);
+      r.scope_rel = rel(root, s) || '.';
+      return r;
+    });
+    process.stdout.write(JSON.stringify({
+      root,
+      ok: reports.every((r) => r.ok),
+      scope_count: reports.length,
+      scopes: reports,
+    }, null, 2));
+    process.exit(0);
+  }
+
+  process.stdout.write(JSON.stringify(runCheck(root, docsOverride), null, 2));
   process.exit(0);
 }
 

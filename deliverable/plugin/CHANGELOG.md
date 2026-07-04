@@ -2,6 +2,15 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.21.0] - 2026-07-04
+
+### Fixed
+- **The ADR immutability check now works for monorepo sub-scopes.** `git show <commit>:<path>` resolves the path against the repository root, so for a scope that is a subdirectory of its repo (TRACE adopted at project level inside a monorepo) the comparison silently failed and reported nothing — an edited shipped ADR in `services/api` passed as clean, with no `skipped` entry either. The pathspec is now cwd-relative (`:./<path>`), and when the first committed version genuinely can't be read the report says so per file in `skipped` instead of staying silent.
+
+### Added
+- **`doctor.js check --all` sweeps every scope in a monorepo.** Discovers each directory under the root carrying its own AGENTS.md (the durable-context marker doesn't count — that AGENTS.md marks a docs folder, not a scope), runs the full check per scope, and returns one JSON with per-scope reports (`scope_rel` per scope, rollup `ok`). Per-scope docs-folder resolution applies; `--docs` remains single-scope only.
+- **ADR reference inventories carry `nearest_scope`.** Every scope numbers its own ADRs from 0001, so in a monorepo "ADR 0003" is only meaningful relative to the nearest scope of the file that says it. `refs` and `migrate` now attribute each hit by walking up to the closest non-marker AGENTS.md directory, and `/playbook:doctor`'s collision flow leaves references belonging to a different scope's sequence unchanged by default instead of treating them as candidates.
+
 ## [0.20.0] - 2026-07-04
 
 ### Added
