@@ -157,7 +157,7 @@ Runs a deterministic validator over the scope and reports every convention viola
 
 Its speciality is the **ADR number collision** — two merged branches each minted the same next number. The skill renumbers one file mechanically (the one that shipped first keeps the number), then inventories *every* reference to the old number across the repo (code comments, docs, supersession banners) and resolves each by reading it: a comment written before the merge means one specific decision, and only context tells which. Confident resolutions apply directly; ambiguous ones come back to you. References are never bulk-rewritten.
 
-In a monorepo where the playbook is adopted at the root *and* at project level, `check --all` discovers every scope (each directory with its own `AGENTS.md`) and reports per scope in one pass. Since each scope numbers its own ADRs, reference inventories attribute every hit to its nearest scope, and collision resolution leaves cross-scope references alone.
+In a monorepo where the playbook is adopted at the root *and* at project level, `check --all` discovers every scope (each directory with its own `AGENTS.md`) and reports per scope in one pass. Only playbook-adopted scopes are validated: a bare-`AGENTS.md` scope with no config or marked docs folder (thin context for a tooling or infra sub-project) is listed as `context_only` rather than failed, and an `AGENTS.md` inside another scope's docs tree (a folder guide) is never treated as a scope at all. Since each scope numbers its own ADRs, reference inventories attribute every hit to its nearest scope, and collision resolution leaves cross-scope references alone.
 
 ## Skills
 

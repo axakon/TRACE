@@ -22,7 +22,7 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check <scope-root>
 
 The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
 
-**Monorepos:** when the scope contains nested scopes (project-level `AGENTS.md` files under the root), add `--all` — the script discovers every scope and returns one report per scope (`scope_rel` names each). Triage and fix per scope; the phases below apply to each in turn.
+**Monorepos:** when the scope contains nested scopes (project-level `AGENTS.md` files under the root), add `--all` — the script discovers every scope and returns one report per playbook-adopted scope (`scope_rel` names each). Triage and fix per scope; the phases below apply to each in turn. Two things `--all` deliberately does not validate: an `AGENTS.md` inside another scope's docs folder is docs content (a folder guide), never a scope; and a scope with a bare `AGENTS.md` but no playbook config or marked docs folder comes back under `context_only` — mention those as information ("run `/playbook:init <scope>` if it should carry the tree"), since adopting a scope is a decision, not a repair.
 
 ## Phase 2: Triage the report
 

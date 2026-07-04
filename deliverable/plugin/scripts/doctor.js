@@ -233,9 +233,12 @@ function checkAgentsMd(scope, report) {
 }
 
 function stripSupersessionBanners(content) {
+  // Any blockquote line that starts "Superseded by" is a supersession banner
+  // — humans write variants of the canonical "> Superseded by NNNN." form,
+  // and flagging those as post-ship edits is a false positive.
   return content
     .split('\n')
-    .filter((line) => !/^>\s*Superseded by \d{4}\.\s*$/.test(line.trim()))
+    .filter((line) => !/^>\s*superseded by\b/i.test(line.trim()))
     .map((line) => line.replace(/\s+$/, ''))
     .join('\n')
     .replace(/\n+$/, '');
@@ -466,23 +469,19 @@ function isScopeRoot(dir) {
   return agents !== null && firstHeading(agents) !== MARKER_HEADING;
 }
 
-// Closest ancestor scope root of a file, bounded by the scan root. In a
-// monorepo every scope numbers its own ADRs, so "ADR 0003" is only meaningful
-// relative to the nearest scope of the file that says it.
-function nearestScope(scanRoot, file, cache) {
-  const chain = [];
+// Deepest discovered scope containing the file; the scan root when none does.
+// Uses the same discovery semantics as check --all, so an AGENTS.md that is
+// docs-tree content (a folder guide inside another scope's docs folder) never
+// claims references.
+function nearestScopeFromSet(scanRoot, file, scopeSet) {
   let dir = path.dirname(file);
-  let found = scanRoot;
   for (;;) {
-    if (cache.has(dir)) { found = cache.get(dir); break; }
-    chain.push(dir);
-    if (dir === scanRoot || isScopeRoot(dir)) { found = dir === scanRoot ? scanRoot : dir; break; }
+    if (scopeSet.has(dir)) return dir;
+    if (dir === scanRoot) return scanRoot;
     const parent = path.dirname(dir);
-    if (parent === dir) break;
+    if (parent === dir) return scanRoot;
     dir = parent;
   }
-  for (const d of chain) cache.set(d, found);
-  return found;
 }
 
 // Every place the scope mentions ADR <number>: "ADR 0007" / "adr-0007" /
@@ -495,7 +494,7 @@ function findAdrReferences(scope, number, docs) {
 
   const files = [];
   collectAllFiles(scope, files);
-  const scopeCache = new Map();
+  const scopeSet = new Set(discoverScopes(scope));
 
   const refs = [];
   for (const file of files) {
@@ -516,7 +515,7 @@ function findAdrReferences(scope, number, docs) {
             file: rel(scope, file),
             line: i + 1,
             text: line.trim().slice(0, 200),
-            nearest_scope: rel(scope, nearestScope(scope, file, scopeCache)) || '.',
+            nearest_scope: rel(scope, nearestScopeFromSet(scope, file, scopeSet)) || '.',
             inside_adr_folder: docs ? file.startsWith(path.join(docs, 'adr') + path.sep) : false,
           });
           break; // one entry per line per pattern is enough
@@ -615,20 +614,44 @@ function runCheck(scope, docsOverride) {
 }
 
 // Every scope root under (and including) the given root — for monorepos where
-// TRACE is adopted at the root and at project level.
+// TRACE is adopted at the root and at project level. A scope's own docs folder
+// is never descended into: an AGENTS.md in there is docs-tree content (a
+// folder guide, a customer brief), not a project scope.
 function discoverScopes(root) {
   const scopes = [];
-  (function walk(dir) {
-    if (isScopeRoot(dir)) scopes.push(dir);
+  (function walk(dir, docsToSkip) {
+    let skip = docsToSkip;
+    if (isScopeRoot(dir)) {
+      scopes.push(dir);
+      skip = resolveDocsFolder(dir, null);
+    }
     let entries = [];
     try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
       if (SKIP_DIRS.has(entry.name) || entry.name === '.claude') continue;
-      walk(path.join(dir, entry.name));
+      const full = path.join(dir, entry.name);
+      if (full === skip) continue;
+      walk(full, skip);
     }
-  })(root);
+  })(root, null);
   return scopes.length ? scopes : [root];
+}
+
+// A scope has adopted the playbook when init persisted a config or the
+// resolved docs folder carries the playbook marker. A bare AGENTS.md without
+// either is context-only — legitimate, but not expected to hold the canonical
+// tree or meet the project-root AGENTS.md spec.
+function isAdopted(scope) {
+  const config = readText(path.join(scope, '.claude', '.playbook', 'config.json'));
+  if (config) {
+    try {
+      const parsed = JSON.parse(config);
+      if (parsed && typeof parsed.docs_folder === 'string' && parsed.docs_folder) return true;
+    } catch { /* fall through */ }
+  }
+  const marker = readText(path.join(resolveDocsFolder(scope, null), 'AGENTS.md'));
+  return marker !== null && firstHeading(marker) === MARKER_HEADING;
 }
 
 // --------------------------------------------------------------------- main
@@ -656,16 +679,35 @@ if (command === 'check') {
 
   if (checkAll) {
     // Per-scope resolution only — a --docs override can't apply to every scope.
-    const reports = discoverScopes(root).map((s) => {
-      const r = runCheck(s, null);
-      r.scope_rel = rel(root, s) || '.';
-      return r;
-    });
+    // Only playbook-adopted scopes get the full check; a bare AGENTS.md scope
+    // is listed as context-only, since adopting it is a decision, not a repair.
+    const reports = [];
+    const contextOnly = [];
+    for (const s of discoverScopes(root)) {
+      if (isAdopted(s)) {
+        const r = runCheck(s, null);
+        r.scope_rel = rel(root, s) || '.';
+        reports.push(r);
+      } else {
+        contextOnly.push({
+          scope_rel: rel(root, s) || '.',
+          note: 'AGENTS.md context only — not playbook-adopted (no config, no marked docs folder). Run /playbook:init <scope> if it should carry the canonical tree.',
+        });
+      }
+    }
+    if (!reports.length) {
+      // Nothing adopted anywhere — fall back to a full check of the root so a
+      // fresh repo still gets actionable output.
+      const r = runCheck(root, null);
+      r.scope_rel = '.';
+      reports.push(r);
+    }
     process.stdout.write(JSON.stringify({
       root,
       ok: reports.every((r) => r.ok),
       scope_count: reports.length,
       scopes: reports,
+      context_only: contextOnly,
     }, null, 2));
     process.exit(0);
   }

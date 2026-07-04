@@ -2,6 +2,17 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.22.0] - 2026-07-04
+
+Driven by the first `check --all` run on a production monorepo: three classes of noise in the report were doctor design flaws, not repo problems.
+
+### Changed
+- **`check --all` validates only playbook-adopted scopes.** A directory with a bare `AGENTS.md` but no `.claude/.playbook/config.json` and no marked docs folder — thin context for a tooling or infra sub-project — was failed with "docs folder does not exist" plus AGENTS.md-spec warnings, applying the project-root standard to scopes that never opted in. Such scopes now come back under `context_only` with a note ("run `/playbook:init <scope>` if it should carry the canonical tree"): visible, not failed — adopting a scope is a decision, not a repair. If nothing under the root is adopted, `--all` falls back to a full check of the root so a fresh repo still gets actionable output.
+- **An `AGENTS.md` inside another scope's docs folder is never a scope.** Folder guides and format specs living under `docs/reference/…` were discovered as scopes needing their own canonical tree. Scope discovery no longer descends into an adopted scope's resolved docs folder, and reference inventories (`refs`/`migrate` `nearest_scope`) use the same discovery semantics, so docs-content AGENTS.md files neither fail checks nor claim ADR references.
+
+### Fixed
+- **Supersession-banner variants no longer trip the immutability check.** Normalization only stripped the canonical `> Superseded by NNNN.` form, so a hand-written variant (`> Superseded by 0031 (see …)`) counted as a post-ship edit and produced a false warning. Any blockquote line beginning "Superseded by" is now treated as a banner.
+
 ## [0.21.0] - 2026-07-04
 
 ### Fixed
