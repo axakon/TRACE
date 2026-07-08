@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "plan-viewer",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "deliverable/plugin/scripts/plan-server.js",
+        "--plans-dir",
+        "deliverable/plugin/viewer/fixtures"
+      ],
+      "port": 7526
+    }
+  ]
+}

@@ -11,7 +11,7 @@ A playbook for AI-first software development. This repo is the workspace where t
 Writing tooling only:
 
 - Markdown, GitHub-flavored. Mermaid for diagrams, inline in the doc that uses them.
-- No build system, no package manager, no tests. Plain files, plain Git.
+- No build system, no package manager, no tests. Plain files, plain Git. One exception: the plugin's plan-viewer bundle under `deliverable/plugin/viewer/` has an npm build — rules in `deliverable/plugin/CLAUDE.md`.
 - The plugin under `deliverable/plugin/` ships small Node.js scripts; working on the plugin has its own rules in `deliverable/plugin/CLAUDE.md`.
 
 ## Directory index

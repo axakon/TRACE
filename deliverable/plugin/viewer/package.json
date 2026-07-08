@@ -1,0 +1,13 @@
+{
+  "name": "playbook-plan-viewer",
+  "private": true,
+  "description": "Browser bundle for the playbook plan viewer. Built on the maintainer machine; dist/viewer.bundle.js is committed so consumers never run a build.",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --format=iife --global-name=PlanViewer --outfile=dist/viewer.bundle.js"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "marked": "18.0.5",
+    "mermaid": "11.16.0"
+  }
+}

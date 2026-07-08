@@ -41,6 +41,18 @@ Run the interview like this:
 
 When you have enough, produce the plan inside plan mode and present it for approval (via ExitPlanMode). Do not edit any files before the plan is approved.
 
+**Open with core user stories.** Right after the plan's context, add a `## Core user stories` section: one bullet per outcome, phrased `As a <role>, I want <capability>, so that <consequence>`. For internal work the role is still real — a developer, an on-call engineer, a CI pipeline. Tie each acceptance criterion back to a story; a criterion no story needs is scope creep, a story no criterion verifies is unfinished planning. Skip the section only when the change has no behavioural outcome at all (pure rename, dependency bump).
+
+**Diagram the structure, prose the intent.** Where the shape of the change carries the meaning, put a mermaid diagram in the plan instead of describing the shape in sentences:
+
+- The journey behind a user story — how the role interacts with the system → `sequenceDiagram` with the role as an `actor`
+- Control flow with branches, retries, or failure paths → `flowchart`
+- Calls crossing services, processes, or actors → `sequenceDiagram`
+- A lifecycle or status field gaining/changing states → `stateDiagram-v2`
+- Data-model or schema changes touching several entities → `erDiagram`
+
+Prefer the user-journey sequence diagram when a story spans more than one interaction — it shows what the role experiences, not just what the code does. Skip the diagram when the change is linear or single-file — a diagram restating a bullet list is noise.
+
 ## Phase 3: Implement against the plan
 
 Once the developer approves the plan, implement the work. The approved plan is the contract — refer back to its acceptance criteria as you go. If implementation reveals something the plan didn't anticipate (a constraint, a missing dependency, a wrong assumption), pause and discuss with the developer; re-agree the plan before continuing.
