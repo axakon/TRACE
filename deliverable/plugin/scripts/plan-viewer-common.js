@@ -26,9 +26,9 @@ function normDir(p) {
 }
 
 // Probe one port. Resolves to:
-//   { status: 'ours', plansDir }  — a plan-viewer server answered
-//   { status: 'free' }            — nothing is listening
-//   { status: 'other' }           — something else owns the port
+//   { status: 'ours', plansDir, epicsDir }  — a playbook-viewer server answered
+//   { status: 'free' }                      — nothing is listening
+//   { status: 'other' }                     — something else owns the port
 function probe(port) {
   return new Promise((resolve) => {
     const req = http.get({ host: '127.0.0.1', port, path: '/api/info', timeout: 500 }, (res) => {
@@ -38,7 +38,7 @@ function probe(port) {
         try {
           const info = JSON.parse(body);
           if (info.service === SERVICE) {
-            return resolve({ status: 'ours', plansDir: info.plansDir });
+            return resolve({ status: 'ours', plansDir: info.plansDir, epicsDir: info.epicsDir });
           }
         } catch {}
         resolve({ status: 'other' });
@@ -55,14 +55,15 @@ function probe(port) {
 }
 
 // Walk BASE_PORT..BASE_PORT+MAX_PORTS-1. Returns the first port that either
-// already runs a server for `plansDir` ({ running: true }) or is free to
-// start one on ({ running: false }); null when the whole range is taken.
-async function findServer(plansDir) {
-  const target = normDir(plansDir);
+// already runs a server whose `field` (plansDir or epicsDir) matches `dir`
+// ({ running: true }) or is free to start one on ({ running: false });
+// null when the whole range is taken.
+async function findServer(dir, field = 'plansDir') {
+  const target = normDir(dir);
   for (let i = 0; i < MAX_PORTS; i++) {
     const port = BASE_PORT + i;
     const result = await probe(port);
-    if (result.status === 'ours' && normDir(result.plansDir || '') === target) {
+    if (result.status === 'ours' && normDir(result[field] || '') === target) {
       return { port, running: true };
     }
     if (result.status === 'free') {

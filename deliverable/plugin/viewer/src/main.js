@@ -150,7 +150,7 @@ function wrapRange(range, id) {
   return wrapped;
 }
 
-export function initAnnotations({ contentEl, toolbarEl, slug }) {
+export function initAnnotations({ contentEl, toolbarEl, slug, kind = 'plan' }) {
   const marks = []; // { id, text, comment }
   let nextId = 1;
 
@@ -330,7 +330,7 @@ export function initAnnotations({ contentEl, toolbarEl, slug }) {
   function buildPrompt() {
     const h1 = contentEl.querySelector('h1');
     const title = h1 ? h1.textContent.trim() : slug;
-    const parts = [`Revise the plan "${title}". Requested changes:`];
+    const parts = [`Revise the ${kind} "${title}". Requested changes:`];
     orderedMarks().forEach((m, i) => {
       if (m.type === 'story') {
         const story = `As a ${m.role || '<role>'}, I want ${m.want || '<capability>'}, so that ${m.outcome || '<outcome>'}.`;

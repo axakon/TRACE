@@ -1,9 +1,10 @@
 #!/usr/bin/env node
-// Localhost HTTP server that renders Claude Code plan files with the committed
-// viewer bundle. Node built-ins only; the markdown/mermaid rendering happens
-// client-side in dist/viewer.bundle.js.
+// Localhost HTTP server for the playbook viewer: renders Claude Code plan
+// files and epic boards (~/.claude/epics) with the committed viewer bundle.
+// Node built-ins only; markdown/mermaid rendering happens client-side in
+// dist/viewer.bundle.js.
 //
-// Usage: node plan-server.js [--port N] [--plans-dir DIR]
+// Usage: node plan-server.js [--port N] [--plans-dir DIR] [--epics-dir DIR]
 // Env:   PLAYBOOK_PLAN_VIEWER_PORT overrides the default port.
 
 'use strict';
@@ -16,15 +17,19 @@ const os = require('os');
 const BUNDLE_PATH = path.join(__dirname, '..', 'viewer', 'dist', 'viewer.bundle.js');
 const DEFAULT_PORT = 7526; // "PLAN" on a phone keypad
 const DEFAULT_PLANS_DIR = path.join(os.homedir(), '.claude', 'plans');
+const DEFAULT_EPICS_DIR = path.join(os.homedir(), '.claude', 'epics');
+const STATUSES = ['todo', 'in-progress', 'done'];
 
 function parseArgs(argv) {
   const opts = {
     port: Number(process.env.PLAYBOOK_PLAN_VIEWER_PORT) || DEFAULT_PORT,
     plansDir: DEFAULT_PLANS_DIR,
+    epicsDir: DEFAULT_EPICS_DIR,
   };
   for (let i = 2; i < argv.length; i++) {
     if (argv[i] === '--port' && argv[i + 1]) opts.port = Number(argv[++i]);
     else if (argv[i] === '--plans-dir' && argv[i + 1]) opts.plansDir = path.resolve(argv[++i]);
+    else if (argv[i] === '--epics-dir' && argv[i + 1]) opts.epicsDir = path.resolve(argv[++i]);
   }
   return opts;
 }
@@ -75,6 +80,134 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;');
 }
 
+// --- Epics -----------------------------------------------------------------
+// Tickets carry minimal YAML frontmatter per the epic-workflow contract:
+// status (todo | in-progress | done) and depends_on (list of ticket numbers).
+// Frontmatter is authoritative; epic.md's board table is a regenerated view.
+
+const FM_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
+const TICKET_FILE_RE = /^(\d{3})-[A-Za-z0-9._-]+\.md$/;
+
+function parseTicket(raw) {
+  const m = raw.match(FM_RE);
+  let status = 'todo';
+  let dependsOn = [];
+  if (m) {
+    for (const line of m[1].split(/\r?\n/)) {
+      const s = line.match(/^status:\s*(.+?)\s*$/);
+      if (s) status = s[1];
+      const d = line.match(/^depends_on:\s*\[(.*)\]\s*$/);
+      if (d) {
+        dependsOn = d[1]
+          .split(',')
+          .map((x) => x.trim().replace(/^["']|["']$/g, ''))
+          .filter(Boolean);
+      }
+    }
+  }
+  if (!STATUSES.includes(status)) status = 'todo';
+  return { status, dependsOn, body: m ? raw.slice(m[0].length) : raw };
+}
+
+function firstHeading(markdown, fallback) {
+  const line = markdown.split('\n').find((l) => l.startsWith('# '));
+  return line ? line.slice(2).replace(/^\d{3}\.\s*/, '').trim() : fallback;
+}
+
+function readEpic(epicsDir, slug) {
+  const dir = path.join(epicsDir, slug);
+  let epicRaw, epicStat;
+  try {
+    epicRaw = fs.readFileSync(path.join(dir, 'epic.md'), 'utf8');
+    epicStat = fs.statSync(path.join(dir, 'epic.md'));
+  } catch {
+    return null;
+  }
+  const tickets = [];
+  let maxMtime = epicStat.mtimeMs;
+  let files = [];
+  try {
+    files = fs.readdirSync(path.join(dir, 'tickets'));
+  } catch {}
+  for (const f of files.sort()) {
+    const m = f.match(TICKET_FILE_RE);
+    if (!m) continue;
+    let raw, stat;
+    try {
+      raw = fs.readFileSync(path.join(dir, 'tickets', f), 'utf8');
+      stat = fs.statSync(path.join(dir, 'tickets', f));
+    } catch {
+      continue;
+    }
+    const parsed = parseTicket(raw);
+    maxMtime = Math.max(maxMtime, stat.mtimeMs);
+    tickets.push({
+      nnn: m[1],
+      file: f,
+      title: firstHeading(parsed.body, f),
+      status: parsed.status,
+      dependsOn: parsed.dependsOn,
+      body: parsed.body,
+    });
+  }
+  return {
+    slug,
+    title: firstHeading(epicRaw, slug),
+    markdown: epicRaw,
+    mtimeMs: maxMtime,
+    tickets,
+  };
+}
+
+function listEpics(epicsDir) {
+  let entries = [];
+  try {
+    entries = fs.readdirSync(epicsDir);
+  } catch {
+    return [];
+  }
+  return entries
+    .filter((e) => SLUG_RE.test(e))
+    .map((slug) => readEpic(epicsDir, slug))
+    .filter(Boolean)
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+}
+
+function writeTicketStatus(epicsDir, slug, nnn, newStatus) {
+  const epic = readEpic(epicsDir, slug);
+  if (!epic) return null;
+  const ticket = epic.tickets.find((t) => t.nnn === nnn);
+  if (!ticket) return null;
+  const file = path.join(epicsDir, slug, 'tickets', ticket.file);
+  const raw = fs.readFileSync(file, 'utf8');
+  const m = raw.match(FM_RE);
+  if (!m) return null;
+  const fm = m[1]
+    .split(/\r?\n/)
+    .map((l) => (/^status:/.test(l) ? `status: ${newStatus}` : l))
+    .join('\n');
+  fs.writeFileSync(file, `---\n${fm}\n---\n` + raw.slice(m[0].length));
+  regenerateBoardTable(epicsDir, slug);
+  return readEpic(epicsDir, slug);
+}
+
+function regenerateBoardTable(epicsDir, slug) {
+  const epic = readEpic(epicsDir, slug);
+  if (!epic) return;
+  const file = path.join(epicsDir, slug, 'epic.md');
+  const table = [
+    '| # | Ticket | Status |',
+    '|---|--------|--------|',
+    ...epic.tickets.map((t) => `| ${t.nnn} | ${t.title} | ${t.status} |`),
+  ].join('\n');
+  const raw = epic.markdown;
+  const re = /(^|\n)(## Board[^\n]*\n)[\s\S]*?(?=\n## |\n# |$)/;
+  const next = re.test(raw)
+    ? raw.replace(re, `$1$2\n${table}\n`)
+    : `${raw.trimEnd()}\n\n## Board\n\n${table}\n`;
+  fs.writeFileSync(file, next);
+}
+
 // Dark palette, defined once and applied two ways: via prefers-color-scheme
 // when no explicit choice is made, and via [data-theme="dark"] when the
 // toggle forces it.
@@ -82,7 +215,7 @@ const DARK_VARS = `
     color-scheme: dark;
     --bg: #0d1117; --fg: #f0f6fc; --muted: #9198a1; --border: #3d444d;
     --code-bg: #151b23; --inline-code-bg: rgba(129,139,152,.25);
-    --accent: #4493f8;
+    --accent: #4493f8; --ok: #3fb950; --danger: #f85149;
     --pill-bg: #121d2f; --pill-fg: #4493f8;
     --card-bg: rgba(129,139,152,.09);
     --row-alt: rgba(129,139,152,.09);
@@ -97,7 +230,7 @@ const PAGE_CSS = `
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --bg: #ffffff; --fg: #1f2328; --muted: #59636e; --border: #d1d9e0;
     --code-bg: #f6f8fa; --inline-code-bg: rgba(129,139,152,.2);
-    --accent: #0969da;
+    --accent: #0969da; --ok: #1a7f37; --danger: #d1242f;
     --pill-bg: #ddf4ff; --pill-fg: #0969da;
     --card-bg: rgba(129,139,152,.06);
     --row-alt: rgba(129,139,152,.08);
@@ -131,7 +264,20 @@ const PAGE_CSS = `
   blockquote { border-left: 4px solid var(--border); margin-left: 0; padding-left: 1em; color: var(--muted); }
   a { color: var(--accent); }
   .meta { color: var(--muted); font-size: .85rem; margin-bottom: 2rem; }
-  .page-tools { float: right; display: flex; gap: .4em; position: relative; }
+  .topnav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.4rem; padding-bottom: .6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-links { display: flex; gap: 1.2em; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-weight: 600; font-size: .95rem;
+    padding-bottom: .55rem; margin-bottom: -.66rem;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a.active { color: var(--fg); border-bottom-color: var(--accent); }
+  .page-tools { display: flex; gap: .4em; position: relative; }
   .theme-toggle {
     font: inherit; font-size: 1em; line-height: 1; cursor: pointer;
     padding: .1em .4em;
@@ -207,6 +353,32 @@ const PAGE_CSS = `
     border-bottom: 1px dashed var(--note-accent); padding: 0 .15em;
   }
   .draft-field:empty::before { content: attr(data-placeholder); opacity: .55; }
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+  .board-col {
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: .6rem .7rem; background: var(--card-bg); min-height: 4rem;
+  }
+  .board-col > h3 { margin: .1em 0 .6em; font-size: .95rem; color: var(--muted); }
+  .board-col.col-in-progress > h3 { color: var(--accent); }
+  .board-col.col-done > h3 { color: var(--ok); }
+  .tcard {
+    border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); padding: .5em .7em; margin-bottom: .6em;
+  }
+  .tcard .tnum { color: var(--muted); font-size: .8em; margin-right: .4em; }
+  .tcard a.tlink { color: inherit; text-decoration: none; font-weight: 600; }
+  .tcard a.tlink:hover { color: var(--accent); }
+  .chips { margin-top: .35em; display: flex; flex-wrap: wrap; gap: .35em; }
+  .chip {
+    font-size: .75em; border: 1px solid var(--border); border-radius: 999px;
+    padding: .05em .6em; color: var(--muted);
+  }
+  .chip.blocked { border-color: var(--danger); color: var(--danger); }
+  .tcard .actions { margin-top: .45em; display: flex; flex-wrap: wrap; gap: .7em; font-size: .8em; }
+  .tcard .actions a { cursor: pointer; }
+  .ticket-actions { display: flex; gap: 1em; margin: 1rem 0 2rem; font-size: .9rem; }
+  .ticket-actions a { cursor: pointer; }
+  @media (max-width: 900px) { .board { grid-template-columns: 1fr; } }
 `;
 
 // Cog-wheel settings: font size, line height, font family. Applied as CSS
@@ -299,37 +471,19 @@ const THEME_SCRIPT = `
 `;
 
 function planPage(slug) {
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plan: ${escapeHtml(slug)}</title>
-<style>${PAGE_CSS}</style>
-</head>
-<body>
-<main>
-  <div class="meta">
-    <span class="page-tools">
-      <button id="theme-toggle" class="theme-toggle" title="Toggle light/dark">◐</button>
-      <button id="settings-toggle" class="theme-toggle" title="Settings">⚙</button>
-      <div id="settings-panel" class="settings-panel" hidden></div>
-    </span>
-    <a href="/">← all plans</a> · <span id="status">loading…</span><span id="rev-toolbar"></span>
-  </div>
-  <div id="content"></div>
-</main>
-<script>${THEME_SCRIPT}</script>
-<script>${SETTINGS_SCRIPT}</script>
-<script src="/assets/viewer.js"></script>
-<script>
+  return pageShell({
+    title: `Plan: ${slug}`,
+    active: 'plans',
+    metaInner: `<span id="status">loading…</span><span id="rev-toolbar"></span>`,
+    bodyInner: `<div id="content"></div>`,
+    script: `
 (() => {
   const slug = ${JSON.stringify(slug)};
   let lastMtime = 0;
   PlanViewer.initAnnotations({
     contentEl: document.getElementById('content'),
     toolbarEl: document.getElementById('rev-toolbar'),
-    slug,
+    slug: slug,
   });
   async function refresh(force) {
     try {
@@ -349,10 +503,8 @@ function planPage(slug) {
   document.addEventListener('theme-changed', () => refresh(true));
   refresh();
   setInterval(() => refresh(), 1500);
-})();
-</script>
-</body>
-</html>`;
+})();`,
+  });
 }
 
 function indexPage(plans) {
@@ -363,30 +515,255 @@ function indexPage(plans) {
         `<span class="slug">${escapeHtml(p.slug)}</span></li>`
     )
     .join('\n');
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plans</title>
-<style>${PAGE_CSS}</style>
-</head>
-<body>
-<main>
-  <div class="meta">
+  return pageShell({
+    title: 'Plans',
+    active: 'plans',
+    bodyInner: `<h1>Plans</h1>
+  <ul class="plan-list">${items || '<li>No plans found.</li>'}</ul>`,
+  });
+}
+
+function navHtml(active) {
+  const link = (href, label, key) =>
+    `<a href="${href}"${active === key ? ' class="active"' : ''}>${label}</a>`;
+  return `<nav class="topnav">
+    <span class="nav-links">
+      ${link('/', 'Plans', 'plans')}
+      ${link('/epics', 'Epics', 'epics')}
+    </span>
     <span class="page-tools">
       <button id="theme-toggle" class="theme-toggle" title="Toggle light/dark">◐</button>
       <button id="settings-toggle" class="theme-toggle" title="Settings">⚙</button>
       <div id="settings-panel" class="settings-panel" hidden></div>
     </span>
-  </div>
-  <h1>Plans</h1>
-  <ul class="plan-list">${items || '<li>No plans found.</li>'}</ul>
+  </nav>`;
+}
+
+function pageShell({ title, active, metaInner, bodyInner, script }) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escapeHtml(title)}</title>
+<style>${PAGE_CSS}</style>
+</head>
+<body>
+<main>
+  ${navHtml(active)}
+  ${metaInner ? `<div class="meta">${metaInner}</div>` : ''}
+  ${bodyInner}
 </main>
 <script>${THEME_SCRIPT}</script>
 <script>${SETTINGS_SCRIPT}</script>
+<script src="/assets/viewer.js"></script>
+<script>${script || ''}</script>
 </body>
 </html>`;
+}
+
+// Shared clipboard helper for epic pages (same contract as the plan page:
+// trusted-click clipboard write, execCommand fallback, __lastCopyOk debug).
+const EPIC_PAGE_HELPERS = `
+async function copyText(text, link) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; }
+  catch {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.append(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch {}
+    ta.remove();
+  }
+  window.__lastCopyOk = ok;
+  window.__lastCopiedText = text;
+  const orig = link.textContent;
+  link.textContent = ok ? 'copied ✓' : 'copy failed — see console';
+  if (!ok) console.log(text);
+  setTimeout(() => (link.textContent = orig), 1500);
+}
+function seedFor(epic, t) {
+  return 'Use /playbook:spec-workflow on this ticket from epic "' + epic.title + '":\\n\\n' + t.body.trim() + '\\n';
+}
+async function postStatus(apiBase, slug, nnn, status) {
+  await fetch(apiBase + slug + '/ticket/' + nnn + '/status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: status }),
+  });
+}
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text) e.textContent = text;
+  return e;
+}
+`;
+
+function epicsIndexPage(epics) {
+  const items = epics
+    .map((e) => {
+      const counts = ['todo', 'in-progress', 'done']
+        .map((s) => `${e.tickets.filter((t) => t.status === s).length} ${s}`)
+        .join(' · ');
+      return `<li><a href="/epic/${encodeURIComponent(e.slug)}">${escapeHtml(e.title)}</a><span class="slug">${counts}</span></li>`;
+    })
+    .join('\n');
+  return pageShell({
+    title: 'Epics',
+    active: 'epics',
+    bodyInner: `<h1>Epics</h1>
+  <ul class="plan-list">${items || '<li>No epics found.</li>'}</ul>`,
+  });
+}
+
+function epicPage(slug, preview) {
+  const apiBase = preview ? '/api/epic-preview/' : '/api/epic/';
+  const pageBase = preview ? '/epic-preview/' : '/epic/';
+  return pageShell({
+    title: `Epic: ${slug}${preview ? ' (preview)' : ''}`,
+    active: 'epics',
+    metaInner: `${preview ? '<span class="chip blocked">PREVIEW — not written to epics yet</span> · ' : ''}<span id="status">loading…</span><span id="rev-toolbar"></span>`,
+    bodyInner: `<div id="board" class="board"></div>
+  <div id="content"></div>`,
+    script: `
+${EPIC_PAGE_HELPERS}
+(() => {
+  const slug = ${JSON.stringify(slug)};
+  const apiBase = ${JSON.stringify(apiBase)};
+  const pageBase = ${JSON.stringify(pageBase)};
+  let lastMtime = 0;
+  PlanViewer.initAnnotations({
+    contentEl: document.getElementById('content'),
+    toolbarEl: document.getElementById('rev-toolbar'),
+    slug: slug,
+    kind: 'epic',
+  });
+
+  function renderBoard(epic) {
+    const board = document.getElementById('board');
+    board.replaceChildren();
+    for (const status of ['todo', 'in-progress', 'done']) {
+      const inCol = epic.tickets.filter((t) => t.status === status);
+      const col = el('div', 'board-col col-' + status);
+      col.append(el('h3', null, status + ' (' + inCol.length + ')'));
+      for (const t of inCol) {
+        const card = el('div', 'tcard');
+        const head = el('div');
+        head.append(el('span', 'tnum', t.nnn));
+        const link = el('a', 'tlink', t.title);
+        link.href = pageBase + slug + '/ticket/' + t.nnn;
+        head.append(link);
+        card.append(head);
+        if (t.dependsOn.length) {
+          const chips = el('div', 'chips');
+          for (const d of t.dependsOn) {
+            const dep = epic.tickets.find((x) => x.nnn === d);
+            const blocking = dep && dep.status !== 'done';
+            chips.append(el('span', 'chip' + (blocking ? ' blocked' : ''), (blocking ? 'blocked by ' : 'after ') + d));
+          }
+          card.append(chips);
+        }
+        const actions = el('div', 'actions');
+        for (const s of ['todo', 'in-progress', 'done']) {
+          if (s === t.status) continue;
+          const a = el('a', null, '→ ' + s);
+          a.addEventListener('click', async () => { await postStatus(apiBase, slug, t.nnn, s); refresh(true); });
+          actions.append(a);
+        }
+        const cp = el('a', null, 'copy seed');
+        cp.addEventListener('click', () => copyText(seedFor(epic, t), cp));
+        actions.append(cp);
+        card.append(actions);
+        col.append(card);
+      }
+      board.append(col);
+    }
+  }
+
+  async function refresh(force) {
+    try {
+      const res = await fetch(apiBase + slug);
+      if (!res.ok) { document.getElementById('status').textContent = 'epic not found'; return; }
+      const epic = await res.json();
+      if (force || epic.mtimeMs !== lastMtime) {
+        lastMtime = epic.mtimeMs;
+        renderBoard(epic);
+        await PlanViewer.render(epic.markdown, document.getElementById('content'));
+        document.getElementById('status').textContent =
+          'updated ' + new Date(epic.mtimeMs).toLocaleTimeString();
+      }
+    } catch {
+      document.getElementById('status').textContent = 'server unreachable';
+    }
+  }
+  document.addEventListener('theme-changed', () => refresh(true));
+  refresh();
+  setInterval(() => refresh(), 1500);
+})();`,
+  });
+}
+
+function ticketPage(slug, nnn, preview) {
+  const apiBase = preview ? '/api/epic-preview/' : '/api/epic/';
+  const pageBase = preview ? '/epic-preview/' : '/epic/';
+  return pageShell({
+    title: `Ticket ${nnn}${preview ? ' (preview)' : ''}`,
+    active: 'epics',
+    metaInner: `<a href="${pageBase}${encodeURIComponent(slug)}">← board</a>${preview ? ' · <span class="chip blocked">PREVIEW</span>' : ''} · <span id="status">loading…</span><span id="rev-toolbar"></span>`,
+    bodyInner: `<div id="ticket-actions" class="ticket-actions"></div>
+  <div id="content"></div>`,
+    script: `
+${EPIC_PAGE_HELPERS}
+(() => {
+  const slug = ${JSON.stringify(slug)};
+  const nnn = ${JSON.stringify(nnn)};
+  const apiBase = ${JSON.stringify(apiBase)};
+  let lastMtime = 0;
+  PlanViewer.initAnnotations({
+    contentEl: document.getElementById('content'),
+    toolbarEl: document.getElementById('rev-toolbar'),
+    slug: slug,
+    kind: 'ticket',
+  });
+
+  function renderActions(epic, t) {
+    const bar = document.getElementById('ticket-actions');
+    bar.replaceChildren(el('span', 'chip', t.status));
+    for (const s of ['todo', 'in-progress', 'done']) {
+      if (s === t.status) continue;
+      const a = el('a', null, '→ ' + s);
+      a.addEventListener('click', async () => { await postStatus(apiBase, slug, nnn, s); refresh(true); });
+      bar.append(a);
+    }
+    const cp = el('a', null, 'copy seed');
+    cp.addEventListener('click', () => copyText(seedFor(epic, t), cp));
+    bar.append(cp);
+  }
+
+  async function refresh(force) {
+    try {
+      const res = await fetch(apiBase + slug);
+      if (!res.ok) { document.getElementById('status').textContent = 'epic not found'; return; }
+      const epic = await res.json();
+      const t = epic.tickets.find((x) => x.nnn === nnn);
+      if (!t) { document.getElementById('status').textContent = 'ticket not found'; return; }
+      if (force || epic.mtimeMs !== lastMtime) {
+        lastMtime = epic.mtimeMs;
+        renderActions(epic, t);
+        await PlanViewer.render(t.body, document.getElementById('content'));
+        document.getElementById('status').textContent =
+          'updated ' + new Date(epic.mtimeMs).toLocaleTimeString();
+      }
+    } catch {
+      document.getElementById('status').textContent = 'server unreachable';
+    }
+  }
+  document.addEventListener('theme-changed', () => refresh(true));
+  refresh();
+  setInterval(() => refresh(), 1500);
+})();`,
+  });
 }
 
 function send(res, status, body, type) {
@@ -397,10 +774,26 @@ function send(res, status, body, type) {
   res.end(body);
 }
 
-function main() {
-  const { port, plansDir } = parseArgs(process.argv);
+function readBody(req) {
+  return new Promise((resolve) => {
+    let data = '';
+    req.on('data', (c) => (data += c));
+    req.on('end', () => resolve(data));
+  });
+}
 
-  const server = http.createServer((req, res) => {
+function main() {
+  const { port, plansDir, epicsDir } = parseArgs(process.argv);
+
+  const server = http.createServer(async (req, res) => {
+    try {
+      await route(req, res);
+    } catch {
+      send(res, 500, 'internal error', 'text/plain');
+    }
+  });
+
+  async function route(req, res) {
     const url = new URL(req.url, `http://127.0.0.1:${port}`);
     const parts = url.pathname.split('/').filter(Boolean);
 
@@ -412,9 +805,64 @@ function main() {
       return send(
         res,
         200,
-        JSON.stringify({ service: 'playbook-plan-viewer', plansDir, pid: process.pid }),
+        JSON.stringify({ service: 'playbook-plan-viewer', plansDir, epicsDir, pid: process.pid }),
         'application/json'
       );
+    }
+
+    if (url.pathname === '/epics') {
+      return send(res, 200, epicsIndexPage(listEpics(epicsDir)), 'text/html; charset=utf-8');
+    }
+
+    // Epic pages: /epic/<slug>[/ticket/<nnn>] and the /epic-preview/ variants,
+    // which read from <epicsDir>/.preview — the staging area epic-workflow
+    // writes drafts into before the developer confirms.
+    if ((parts[0] === 'epic' || parts[0] === 'epic-preview') && parts.length >= 2) {
+      const preview = parts[0] === 'epic-preview';
+      const root = preview ? path.join(epicsDir, '.preview') : epicsDir;
+      const slug = decodeURIComponent(parts[1]);
+      if (!SLUG_RE.test(slug) || !readEpic(root, slug)) {
+        return send(res, 404, 'epic not found', 'text/plain');
+      }
+      if (parts.length === 2) {
+        return send(res, 200, epicPage(slug, preview), 'text/html; charset=utf-8');
+      }
+      if (parts.length === 4 && parts[2] === 'ticket' && /^\d{3}$/.test(parts[3])) {
+        return send(res, 200, ticketPage(slug, parts[3], preview), 'text/html; charset=utf-8');
+      }
+      return send(res, 404, 'not found', 'text/plain');
+    }
+
+    if (parts[0] === 'api' && (parts[1] === 'epic' || parts[1] === 'epic-preview') && parts.length >= 3) {
+      const root = parts[1] === 'epic-preview' ? path.join(epicsDir, '.preview') : epicsDir;
+      const slug = decodeURIComponent(parts[2]);
+      if (!SLUG_RE.test(slug)) {
+        return send(res, 404, JSON.stringify({ error: 'not found' }), 'application/json');
+      }
+      if (parts.length === 3 && req.method === 'GET') {
+        const epic = readEpic(root, slug);
+        if (!epic) return send(res, 404, JSON.stringify({ error: 'not found' }), 'application/json');
+        return send(res, 200, JSON.stringify(epic), 'application/json');
+      }
+      if (
+        parts.length === 6 &&
+        parts[3] === 'ticket' &&
+        /^\d{3}$/.test(parts[4]) &&
+        parts[5] === 'status' &&
+        req.method === 'POST'
+      ) {
+        let status;
+        try {
+          status = JSON.parse(await readBody(req)).status;
+        } catch {}
+        if (!STATUSES.includes(status)) {
+          return send(res, 400, JSON.stringify({ error: 'invalid status' }), 'application/json');
+        }
+        const epic = writeTicketStatus(root, slug, parts[4], status);
+        if (!epic) return send(res, 404, JSON.stringify({ error: 'not found' }), 'application/json');
+        return send(res, 200, JSON.stringify(epic), 'application/json');
+      }
+      return send(res, 404, JSON.stringify({ error: 'not found' }), 'application/json');
     }
 
     if (url.pathname === '/assets/viewer.js') {
@@ -453,10 +901,12 @@ function main() {
     }
 
     send(res, 404, 'not found', 'text/plain');
-  });
+  }
 
   server.listen(port, '127.0.0.1', () => {
-    console.log(`plan viewer serving ${plansDir} at http://127.0.0.1:${port}/`);
+    console.log(
+      `playbook viewer serving plans:${plansDir} epics:${epicsDir} at http://127.0.0.1:${port}/`
+    );
   });
 
   server.on('error', (err) => {

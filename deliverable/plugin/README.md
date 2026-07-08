@@ -2,7 +2,7 @@
 
 A Claude Code plugin that gives a small, opinionated workflow for AI-assisted development. The premise: a single well-maintained `AGENTS.md` at the repo root (with a one-line `CLAUDE.md` forwarder for Claude Code's native discovery) plus a small set of distilled-context files in the project's docs folder beats elaborate process documentation, and a thorough up-front plan with explicit acceptance criteria is the right governance for substantial work — not a meeting.
 
-The plugin contains nine skills, three plugin-level hooks, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, recording the decisions behind them, keeping the permanent context current as work happens, and drafting PR descriptions in a predictable shape for reviewers.
+The plugin contains ten skills, five plugin-level hooks, a localhost viewer for plans and epic boards, and an optional bundled MCP server. Together they automate the parts of the workflow most often skipped: configuring where durable context lives, writing the initial context file, seeding starter docs for an existing codebase, planning substantial changes properly, breaking multi-phase features into spec-sized tickets, recording the decisions behind them, keeping the permanent context current as work happens, and drafting PR descriptions in a predictable shape for reviewers.
 
 ## Installation
 
@@ -135,6 +135,16 @@ Phase 1 confirms scope, so if the agent triggers the skill on borderline work yo
 
 At handoff, if the work settled a real architectural decision, the skill offers to record an **ADR** (it delegates to `/playbook:adr`). Most changes won't warrant one, so the offer only appears when the decision clears the bar. You can also record a decision made outside the spec path at any time with `/playbook:adr "short title"`.
 
+### Planning multi-phase work — epics
+
+```
+/playbook:epic-workflow
+```
+
+For work too large for one plan. The skill interviews at architecture altitude and produces an **epic** — core user stories plus mermaid diagrams carrying the shared intent — decomposed into **tickets**, each sized to seed one later `spec-workflow` run. The draft opens in the playbook viewer for review first (mark passages, attach comments, add missing stories, copy one combined revision prompt back into the session) and is written to `~/.claude/epics/<epic-slug>/` only when you confirm. Epics are personal work-staging on your machine, never repo artifacts.
+
+Reopening the skill — or using the viewer's kanban board directly — manages the epic: move tickets between todo / in-progress / done, add or split tickets as understanding evolves, and copy a ticket's seed into `/playbook:spec-workflow` when you pick it up. Ticket frontmatter is the source of truth; the board table in `epic.md` is a regenerated view.
+
 ### Doing small work — the direct path
 
 Just edit. Use Claude however you usually do. The plugin still helps: after every code or config edit, the sentinel is set, and on your next prompt the agent gets a soft reminder to surface `/playbook:distil` if you're wrapping up. Nothing fires automatically.
@@ -159,6 +169,15 @@ Its speciality is the **ADR number collision** — two merged branches each mint
 
 In a monorepo where the playbook is adopted at the root *and* at project level, `check --all` discovers every scope (each directory with its own `AGENTS.md`) and reports per scope in one pass. Only playbook-adopted scopes are validated: a bare-`AGENTS.md` scope with no config or marked docs folder (thin context for a tooling or infra sub-project) is listed as `context_only` rather than failed, and an `AGENTS.md` inside another scope's docs tree (a folder guide) is never treated as a scope at all. Since each scope numbers its own ADRs, reference inventories attribute every hit to its nearest scope, and collision resolution leaves cross-scope references alone.
 
+### Reviewing in the browser — the playbook viewer
+
+A localhost viewer renders plans and epics far better than the terminal: mermaid diagrams, styled user-story cards, tables, live reload, light/dark theme with a settings panel (font, size, line height). It's a Node built-ins server plus a committed browser bundle — consumers never run a build.
+
+- **Plans.** When a plan is presented for approval, a hook opens it in your browser automatically; after approval the agent knows the plan's URL. Select any text to attach an inline revision comment, add missing user stories with the **+** button on the stories section, then **Copy revision prompt** and paste it back into the session.
+- **Epics.** `/epics` lists your epics; each gets a kanban board (todo / in-progress / done, dependency chips) above the rendered epic. Moving a ticket rewrites its frontmatter and the epic's board table; **copy seed** formats a ticket for pasting into `/playbook:spec-workflow`. The same revision marks work on epic and ticket pages, and `epic-workflow` stages unconfirmed drafts at a `/epic-preview/` address for review before anything lands in `~/.claude/epics/`.
+
+Servers bind 127.0.0.1 only and walk ports 7526–7535, so several (real plans, fixtures, parallel sessions) coexist and identify each other via `/api/info`. Set `PLAYBOOK_PLAN_VIEWER=0` to disable the viewer hooks and scripts entirely.
+
 ## Skills
 
 | Command | When to use | Invocation |
@@ -167,6 +186,7 @@ In a monorepo where the playbook is adopted at the root *and* at project level, 
 | `/playbook:agents-md-setup` | Project has no `AGENTS.md`, or the existing one needs review | User or agent |
 | `/playbook:scaffold-docs` | Existing codebase with little or no documentation — suggest and seed starter topic docs | User only |
 | `/playbook:spec-workflow` | Work touches multiple files, introduces a new pattern, or has acceptance criteria you can't hold in your head | User or agent |
+| `/playbook:epic-workflow` | Work spans multiple phases or deliverables — create an epic of spec-sized tickets, then manage its board as work lands | User or agent |
 | `/playbook:adr` | A significant architectural decision was made and should be recorded immutably | User or agent (offered by `spec-workflow`) |
 | `/playbook:distil` | Recent changes may have produced durable knowledge worth capturing | User only |
 | `/playbook:doctor` | Validate the scope against the playbook's conventions and guide fixes — after merges, before releases, or when the structure feels off | User only |
@@ -175,13 +195,15 @@ In a monorepo where the playbook is adopted at the root *and* at project level, 
 
 ## Hooks
 
-The plugin installs three hooks that run automatically:
+The plugin installs five hooks that run automatically:
 
 | Event | Behaviour |
 |---|---|
 | `SessionStart` | Injects an instruction telling the agent to use Context7 for up-to-date library docs when the MCP server is enabled. Harmless when disabled. |
 | `PostToolUse` on `Write\|Edit\|MultiEdit` | Sets the distillation sentinel so the next user prompt carries a reminder. Documentation edits (markdown-family files, `.claude/` paths) are skipped. |
 | `UserPromptSubmit` | Reads the sentinel; if present, injects the reminder text into the agent's context. |
+| `PermissionRequest` on `ExitPlanMode` | Opens the presented plan in the playbook viewer while the approval dialog is up, starting the viewer server if needed. Exits silently when it can't. |
+| `PostToolUse` on `ExitPlanMode` | After approval, injects the plan's viewer URL so the agent can reference it later in the session. |
 
 ## Files the plugin creates in your project
 
@@ -195,6 +217,8 @@ The plugin installs three hooks that run automatically:
 | `.claude/.playbook/distillation-pending` | PostToolUse hook | The distillation sentinel; the directory is self-gitignored |
 
 The docs folder carries its own slim per-folder `AGENTS.md` describing what belongs there (with a sibling `CLAUDE.md` forwarder), and defaults to `docs/` so non-Claude developers find the durable knowledge under the familiar path.
+
+Epics are the one artifact deliberately **outside** your project: `epic-workflow` writes them to `~/.claude/epics/` in user space, so personal work-staging never lands in the repository.
 
 ## Super-repo and monorepo setups
 
@@ -226,4 +250,4 @@ Five principles drive the design. Each maps to a specific piece of the plugin th
 | **Humans at handoffs, not throughout.** Constant approval gates train developers to rubber-stamp. Surfacing the right moments preserves judgment where it matters. | `spec-workflow` pauses at three explicit gates — scope, plan, verification. `distil` confirms every routing decision before writing. No silent writes anywhere; no nagging in between. |
 | **Permanent context grows by distillation, not accumulation.** Docs that pile up uncurated go stale; knowledge never captured stays in heads. | After substantial work, `distil` evaluates the change against five criteria and proposes updates to the permanent context. For direct-path work, the sentinel surfaces `/playbook:distil` at the right moment so direct edits aren't silently exempt. |
 
-The plugin is small on purpose: nine skills and three plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.
+The plugin is small on purpose: ten skills and five plugin-level hooks. It automates the parts of the workflow tedious enough to be skipped — picking where durable context lives, writing the initial context, seeding starter docs for an existing codebase, planning substantial work with explicit acceptance criteria, recording the decision behind it, prompting for distillation at the right moment — and leaves every judgment call to the developer.

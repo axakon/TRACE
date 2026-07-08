@@ -2,6 +2,21 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.23.0] - 2026-07-08
+
+The playbook viewer release: plans and epics get a browser surface, and multi-phase work gets its own tier above specs.
+
+### Added
+- **The playbook viewer** — a localhost server (`scripts/plan-server.js`, Node built-ins only) rendering `~/.claude/plans` and `~/.claude/epics` through a committed browser bundle (marked + mermaid via esbuild — consumers never build; see ADR 0007). Mermaid diagrams, styled user-story cards, tables, live reload, light/dark toggle, and a settings panel (font, size, line height), all persisted per user. Servers bind 127.0.0.1, walk ports 7526–7535, and identify each other via `GET /api/info`, so fixture and real servers coexist.
+- **Plan review in the browser.** Two new hooks: `PermissionRequest` on `ExitPlanMode` opens the presented plan in the viewer while the approval dialog is up; `PostToolUse` injects the plan's URL after approval. Select text to attach inline revision comments, add missing user stories with a + button, and copy one combined revision prompt to paste back into the session. Marks re-anchor across live reloads; unmatched ones survive as orphans in the prompt.
+- **`epic-workflow` skill** — for work spanning multiple phases: an architecture-altitude interview produces an epic (core user stories, mermaid diagrams) decomposed into tickets, each sized to seed one later `spec-workflow` run. Epics live in user space at `~/.claude/epics/` (ADR 0008) with machine-readable ticket frontmatter (`status`, `depends_on`). Drafts stage at `~/.claude/epics/.preview/<slug>/` and open in the viewer for revision before anything is written; create and manage both end by opening the board (`scripts/epic-viewer-open.js`).
+- **Epic kanban board** in the viewer: todo / in-progress / done columns with dependency chips, click-to-move status (rewrites ticket frontmatter and regenerates the epic's board table), per-ticket **copy seed** for handoff into `spec-workflow`, ticket detail pages, and a top navbar for switching between plans and epics. Revision marks work on epic and ticket pages too.
+- **Story and diagram guidance in `spec-workflow`**: plans now open with a `## Core user stories` section tied to acceptance criteria, and carry mermaid diagrams where structure beats prose (user journeys as sequence diagrams, branching flows, state machines, schema changes).
+
+### Changed
+- `PLAYBOOK_PLAN_VIEWER=0` disables all viewer hooks and scripts.
+- Local plugin testing docs corrected: `--plugin-dir` takes the plugin root (`deliverable/plugin`), not the repo root.
+
 ## [0.22.0] - 2026-07-04
 
 Driven by the first `check --all` run on a production monorepo: three classes of noise in the report were doctor design flaws, not repo problems.

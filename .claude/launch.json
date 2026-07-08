@@ -7,7 +7,9 @@
       "runtimeArgs": [
         "deliverable/plugin/scripts/plan-server.js",
         "--plans-dir",
-        "deliverable/plugin/viewer/fixtures"
+        "deliverable/plugin/viewer/fixtures",
+        "--epics-dir",
+        "deliverable/plugin/viewer/fixtures/epics"
       ],
       "port": 7526
     }
