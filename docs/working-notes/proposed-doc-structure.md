@@ -244,7 +244,7 @@ These are the principles the structure encodes. Worth keeping visible.
 - **arc42 vs C4 vs neither.** Neither, wholesale. They are inspirational only. Borrow arc42's section list as a *checklist* of "have we thought about this?" (especially Solution Strategy and Cross-Cutting Concepts). Borrow C4's *levels of zoom* as discipline when drawing diagrams (don't mix levels). Don't adopt either framework as-is.
 - **Per-service vs per-repo ADRs.** Both. An ADR lives at the narrowest scope that fully contains the decision — service-local at the service, cross-cutting at the root. See "The structure is recursive" above.
 - **Tool neutrality below AGENTS.md.** We're opinionated for Claude Code in v0. Skills, sub-agents, and commands live in `.claude/`. Teams using other harnesses translate the contents into their tool's conventions. AGENTS.md is the only portable file; the rest is harness-specific by design.
-- **Folder structure for TRACE itself.** TRACE adopts the minimum dogfooded structure proposed here, plus a single-tree status-driven lifecycle (`docs/working-notes/` → `docs/reference/` → `docs/playbook/`), flat-numbered playbook files, and `onboarding/` at the repo root for v1 deliverable skills. See [ADR-0001](../adr/0001-folder-structure-self-feeding-loop.md).
+- **Folder structure for TRACE itself.** TRACE adopts the minimum dogfooded structure proposed here, plus a single-tree status-driven lifecycle (`docs/working-notes/` → `docs/reference/` → `docs/playbook/`), flat-numbered playbook files, and `onboarding/` at the repo root for v1 deliverable skills. See [ADR-0001](../adr/0001-three-categories-of-project-docs.md).
 
 ---
 

@@ -12,7 +12,7 @@ _Empty._
 
 - **[Context7](https://github.com/upstash/context7)** — pulls in current, version-specific docs for the libraries and frameworks you're using, so the agent works from the real API instead of guessing from memory.
 
-  > **Built into the playbook plugin** — bundled but disabled by default, so a fresh install ships it off. See [Enabling Context7](../plugin/README.md#bundled-mcp-servers) in the plugin README for the one-line setup.
+  > **Bundled with the `trace` core plugin** — disabled by default, so a fresh install ships it off. See [Bundled MCP server](../plugins/trace/README.md#bundled-mcp-server) for the one-line setup.
 
 ### Rules
 
@@ -28,7 +28,7 @@ _Empty._
 
 ### What does NOT go here
 
-- Skills, MCP servers, or rules authored by the TRACE project itself → those live in [`../plugin/`](../plugin/).
+- Skills, MCP servers, or rules authored by the TRACE project itself → those live in [`../plugins/`](../plugins/).
 - Long-form rationale for why a resource is recommended → keep entries terse here; if the argument is substantial, write a reference doc in [`../../docs/reference/`](../../docs/reference/) and link to it.
 - Forks or copies of upstream resources — only links. Adopters fetch directly from the source.
 

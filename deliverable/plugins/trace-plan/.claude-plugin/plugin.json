@@ -1,0 +1,14 @@
+{
+  "name": "trace-plan",
+  "version": "1.0.0",
+  "description": "TRACE planning add-on: drive substantial work through plan mode with explicit acceptance criteria, break multi-phase features into local epics, and review both in a browser viewer.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": ["planning", "spec", "epic", "kanban", "trace"],
+  "dependencies": [
+    { "name": "trace", "version": "^1.0.0" }
+  ]
+}

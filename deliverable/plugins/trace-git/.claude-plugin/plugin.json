@@ -1,0 +1,14 @@
+{
+  "name": "trace-git",
+  "version": "1.0.0",
+  "description": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": ["git", "commit", "pull-request", "trace"],
+  "dependencies": [
+    { "name": "trace", "version": "^1.0.0" }
+  ]
+}

@@ -24,7 +24,7 @@ If you're working in an area that has a file here, trust it. It's the most accur
 
 Files here are **updated as the code changes**. Unlike process docs (`adr/`, `working-notes/`, `reference/`) which are append-only or immutable, system docs track moving reality.
 
-- A change that introduces a new convention, security boundary, or pattern produces an update here — usually via `/playbook:distil` at the end of the change.
+- A change that introduces a new convention, security boundary, or pattern produces an update here — usually via `/trace:distil` at the end of the change.
 - A change that invalidates an existing file (the auth library swapped, the schema migrated) requires the file to be corrected in the same change. Stale system docs are worse than missing ones.
 - Files are not renamed when their topic narrows or broadens; instead, split or merge deliberately when the scope shifts.
 

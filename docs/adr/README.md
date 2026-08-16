@@ -51,7 +51,7 @@ Typical cases:
 
 Not an ADR:
 
-- A choice localized to one feature or module, even if durable and non-obvious → `/playbook:distil`.
+- A choice localized to one feature or module, even if durable and non-obvious → `/trace:distil`.
 - A gotcha or constraint to respect (a footgun, an ordering requirement) → a distilled gotcha.
 - A conventional default, a trivial choice (naming, formatting), or anything the code already captures.
 - Costly-to-reverse on its own — time-consuming to change is not the same as architectural.

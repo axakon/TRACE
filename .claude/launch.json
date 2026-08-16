@@ -5,11 +5,11 @@
       "name": "plan-viewer",
       "runtimeExecutable": "node",
       "runtimeArgs": [
-        "deliverable/plugin/scripts/plan-server.js",
+        "deliverable/plugins/trace-plan/scripts/plan-server.js",
         "--plans-dir",
-        "deliverable/plugin/viewer/fixtures",
+        "deliverable/plugins/trace-plan/viewer/fixtures",
         "--epics-dir",
-        "deliverable/plugin/viewer/fixtures/epics"
+        "deliverable/plugins/trace-plan/viewer/fixtures/epics"
       ],
       "port": 7526
     }

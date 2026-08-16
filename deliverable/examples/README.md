@@ -14,7 +14,7 @@ Projects where the TRACE framework has been applied. Each example shows the stru
 ## What does NOT go here
 
 - The playbook prose → [`../playbook/`](../playbook/). Its rationale → [`../../docs/`](../../docs/).
-- The plugin source → [`../plugin/`](../plugin/).
+- The plugin source → [`../plugins/`](../plugins/).
 - Third-party resources → [`../awesome-list/`](../awesome-list/).
 - Fictional or aspirational examples — only real applications.
 

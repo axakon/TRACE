@@ -1,13 +1,29 @@
 {
-  "name": "ai-playbook",
+  "name": "trace",
+  "description": "TRACE — durable context for AI-assisted development. A docs core plus opt-in planning and delivery add-ons.",
   "owner": {
     "name": "byBrick Tech"
   },
   "plugins": [
     {
-      "name": "playbook",
-      "source": "./deliverable/plugin",
-      "description": "Consultancy playbook for AI-assisted development. Automates durable-context setup, AGENTS.md authoring, starter-doc scaffolding, spec-driven workflows, architecture decision records, and context distillation."
+      "name": "trace",
+      "source": "./deliverable/plugins/trace",
+      "description": "TRACE core: durable context for AI-assisted development. Docs structure, AGENTS.md authoring, architecture decision records, context distillation, and a convention validator."
+    },
+    {
+      "name": "trace-plan",
+      "source": "./deliverable/plugins/trace-plan",
+      "description": "Planning add-on: spec-driven plan mode with acceptance criteria, local epics with a kanban board, and a browser viewer for both."
+    },
+    {
+      "name": "trace-git",
+      "source": "./deliverable/plugins/trace-git",
+      "description": "Delivery add-on: commit messages and PR descriptions in TRACE's What / Approach / Updated context shape."
+    },
+    {
+      "name": "trace-full",
+      "source": "./deliverable/plugins/trace-full",
+      "description": "Everything TRACE ships, behind one install: core plus the planning and delivery add-ons."
     }
   ]
 }

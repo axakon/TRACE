@@ -246,7 +246,7 @@ playbook-plugin/
 
 A few details worth being explicit about for implementation:
 
-- **Skill invocation is namespaced.** Plugin skills are invoked as `/<plugin-name>:<skill-name>`, so the distil command becomes something like `/playbook:distil`, not `/distil`. The exact prefix follows from the plugin's `name` field in the manifest.
+- **Skill invocation is namespaced.** Plugin skills are invoked as `/<plugin-name>:<skill-name>`, so the distil command becomes something like `/trace:distil`, not `/distil`. The exact prefix follows from the plugin's `name` field in the manifest.
 - **The `shared/` folder is not a standard plugin component directory.** The Claude Code plugin reference only formally specifies the standard component dirs (`skills/`, `agents/`, `hooks/`, etc.). A top-level `shared/` folder is fine — plugin paths just can't traverse outside the plugin root, and `shared/` is inside it — but the skills need to reference its files explicitly via `${CLAUDE_PLUGIN_ROOT}/shared/...`. They aren't auto-discovered.
 - **Per-folder CLAUDE.md files** (in the user's `.claude/context/` and `.claude/changes/`) are not part of the plugin. They're project content the skills create when they run, not configuration the plugin ships. The docs explicitly note that a `CLAUDE.md` at a plugin's own root is not loaded as project context — plugins contribute context through skills, not memory files.
 - **Versioning.** The plugin's `plugin.json` should set an explicit `version` field if updates should be deliberate (semver bumps). Leaving it unset means every commit to the plugin's git source is treated as a new version, which is fine for internal iteration but not for stable releases.
@@ -277,7 +277,7 @@ The `.claude/context/` and `.claude/changes/` folders don't exist yet. They're c
 
 **Spec path: adding rate limiting.**
 
-A week later, the developer needs to add rate limiting to the API. This touches multiple files (middleware, config, tests) and introduces a new dependency. They invoke `/playbook:spec-workflow`.
+A week later, the developer needs to add rate limiting to the API. This touches multiple files (middleware, config, tests) and introduces a new dependency. They invoke `/trace-plan:spec`.
 
 The skill enters plan mode. The `SubagentStart`-on-`Plan` hook injects the verbose-interview instruction. The agent asks: per-route or global? Per-IP or per-user? What's the response when limited? Should rate limit headers be exposed? What's the storage backend? The developer answers each in turn. The agent proposes a plan: token-bucket algorithm, Redis-backed (already in stack), per-user when authenticated and per-IP when not, configurable thresholds via environment variables, standard `X-RateLimit-*` headers.
 
@@ -285,7 +285,7 @@ The developer approves the plan. The `PostToolUse`-on-`ExitPlanMode` hook fires,
 
 The agent then implements against the spec. Tests pass. The change is verified against the acceptance criteria.
 
-Now distillation. The change introduced a new convention (rate limiting strategy) that future endpoints will need to follow. The developer triggers `/playbook:distil`. The agent reads the change-spec and the existing files in `.claude/context/` (which is currently empty — this is the first distillation on the project). It proposes creating a new file: `api-conventions.md`, containing the rate limiting policy in two sentences ("Authenticated routes: per-user, 100 req/min. Public routes: per-IP, 20 req/min. Configured in `config/rate-limits.js`.").
+Now distillation. The change introduced a new convention (rate limiting strategy) that future endpoints will need to follow. The developer triggers `/trace:distil`. The agent reads the change-spec and the existing files in `.claude/context/` (which is currently empty — this is the first distillation on the project). It proposes creating a new file: `api-conventions.md`, containing the rate limiting policy in two sentences ("Authenticated routes: per-user, 100 req/min. Public routes: per-IP, 20 req/min. Configured in `config/rate-limits.js`.").
 
 The developer is asked where this should land. They confirm the proposed file name. The content is written, applying the authoring rules (concise, only what can be confirmed from the change). The change-spec is removed.
 

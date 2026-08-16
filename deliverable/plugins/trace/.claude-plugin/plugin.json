@@ -1,0 +1,11 @@
+{
+  "name": "trace",
+  "version": "1.0.0",
+  "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, and validates the conventions.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": ["documentation", "agents-md", "adr", "context", "trace"]
+}

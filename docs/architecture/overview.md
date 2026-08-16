@@ -19,12 +19,12 @@ Brownfield is the default path; greenfield is handled as called-out variations w
 
 The repo is split in two:
 
-- **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugin/` (the Claude Code plugin), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
+- **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugins/` (the four Claude Code plugins), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
 - **`docs/`** — TRACE's own working docs, applying TRACE's conventions to itself. Working notes, reference rationale, ADRs, and the architecture overview you are reading now. The READMEs inside `docs/` are generic — describing the convention an adopter is following — so they double as templates.
 
 The reference layer (`docs/reference/`) holds the rationale behind every playbook step; each `deliverable/playbook/<phase>.md` links back to the reference doc(s) and ADR(s) that justify it.
 
-The v2 accelerator skills (skills that walk Claude through implementing the playbook itself) will live in `deliverable/plugin/` when authored.
+The v2 accelerator skills (skills that walk Claude through implementing the playbook itself) will live in `deliverable/plugins/` when authored.
 
 ## The self-feeding loop
 

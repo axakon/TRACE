@@ -1,120 +1,149 @@
-# Adopting TRACE in your repository
+# Setting up TRACE
 
-Three steps: **install the plugin → run `/playbook:init` → run `/playbook:agents-md-setup`**.
+Install the plugins, run two commands, done. About five minutes.
 
-No clone of TRACE is needed. This file can be followed directly from GitHub. The doc structure and plugin skills ship inside the plugin you install in step 1.
+> **Already using the `playbook` plugin?** Start with the [migration guide](MIGRATING.md) instead — this page is for fresh installs.
 
-> **If you are an AI agent:** before doing anything, confirm the working directory is the user's target project — the cwd must NOT contain `deliverable/playbook/` at its root. If it does, stop and tell the user to `cd` to their project. Also confirm the user explicitly wants to set up TRACE here before making any changes.
+> **AI agents:** confirm the working directory is the user's target project — its root must NOT contain `deliverable/playbook/`. If it does, stop and ask the user to `cd` to their project. Confirm they want TRACE set up here before changing anything.
 
----
-
-## Prerequisites
-
-- Claude Code is installed and open in the target project.
-- You have permission to edit `.claude/settings.json` (project scope) or `~/.claude/settings.json` (user scope).
+**You'll need:** Claude Code open in your project, Node.js 18+, and permission to edit `.claude/settings.json` (or `~/.claude/settings.json`).
 
 ---
 
-## Step 1 — Install the plugin
-
-### The quick way (inside Claude Code)
-
-Run these two slash commands in Claude Code, then reload:
+## 1. Install
 
 ```
 /plugin marketplace add axakon/TRACE
-/plugin install playbook@ai-playbook
+/plugin install trace-full@trace
 /reload-plugins
 ```
 
-That's it. Skip to [Step 2](#step-2--run-playbookinit).
+Type `/trace` — tab-completion should now show `/trace:init` and friends.
 
-### Choosing a scope
+<details>
+<summary><b>Installing only some of it</b></summary>
 
-By default, `/plugin install` installs at **user scope** (`~/.claude/settings.json`) — the plugin is available across all your projects but isn't committed to the repo.
+<br>
 
-For **team adoption**, install at project scope so collaborators get the plugin when they trust the folder:
+TRACE is four plugins. Every installed skill sits in your context window all session, so take what you'll use:
+
+| Install | You get | Skip if |
+|---|---|---|
+| `trace` | The core: docs structure, `AGENTS.md`, ADRs, distillation, validator | — everything depends on it |
+| `trace-plan` | Plan mode with acceptance criteria, epics, browser viewer | You have a planning workflow you like |
+| `trace-git` | Commit messages and PR descriptions | Your team uses Conventional Commits |
+| `trace-full` | All three | You'd rather choose |
+
+```
+/plugin install trace@trace          # core only
+/plugin install trace-plan@trace     # core + planning (core comes along)
+```
+
+Add or drop add-ons later without reinstalling anything.
+
+</details>
+
+<details>
+<summary><b>Installing for a whole team</b></summary>
+
+<br>
+
+`/plugin install` defaults to **user scope** — every project on your machine, not committed. For team adoption use project scope, which writes to the repo's `.claude/settings.json` so collaborators get prompted when they trust the folder:
 
 ```
 /plugin marketplace add axakon/TRACE --scope project
-/plugin install playbook@ai-playbook --scope project
-/reload-plugins
+/plugin install trace-full@trace --scope project
 ```
 
-### Manual install (editing settings.json directly)
+</details>
 
-If the slash commands aren't available, add this to `.claude/settings.json` (project scope) or `~/.claude/settings.json` (user scope). Merge into the existing JSON — don't replace the whole file.
+<details>
+<summary><b>Installing by hand</b></summary>
+
+<br>
+
+Merge this into `.claude/settings.json` (project) or `~/.claude/settings.json` (user) — don't replace the file:
 
 ```json
 {
   "extraKnownMarketplaces": {
-    "ai-playbook": {
+    "trace": {
       "source": { "source": "github", "repo": "axakon/TRACE" }
     }
   },
-  "enabledPlugins": { "playbook@ai-playbook": true }
+  "enabledPlugins": { "trace-full@trace": true }
 }
 ```
 
-Then run `/reload-plugins` or restart Claude Code to activate.
+Swap `trace-full@trace` for whichever plugin you want. Then `/reload-plugins`.
 
-### Verify
-
-After reloading, the `/playbook:` skills should be available. Type `/playbook` and check that tab-completion shows options like `/playbook:init`.
+</details>
 
 ---
 
-## Step 2 — Run `/playbook:init`
-
-**Run `/playbook:init` and follow the prompts.**
-
-The skill asks where durable context should live (default: `docs/`), then creates six canonical README files in that folder:
+## 2. Pick where context lives
 
 ```
-docs/README.md
-docs/system/README.md
-docs/architecture/README.md
-docs/adr/README.md
-docs/reference/README.md
-docs/working-notes/README.md
+/trace:init
 ```
 
-It also writes `.claude/.playbook/config.json` to remember the chosen folder.
+Asks where durable context should live — `docs/` by default — and creates the structure:
 
-> **Note:** Do not pre-author `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or a root `AGENTS.md` at this stage. Those need real content from your project. The root `AGENTS.md` is created in step 3.
+```
+docs/
+├── README.md
+├── system/         ← what the code does today
+├── architecture/   ← what it must do
+├── adr/            ← why decisions were made
+├── reference/      ← long-form rationale
+└── working-notes/  ← research, not authoritative
+```
 
----
+Your choice is remembered in `.claude/.trace/config.json`. Run it once per repo; safe to re-run to move the folder.
 
-## Step 3 — Run `/playbook:agents-md-setup`
-
-**Run `/playbook:agents-md-setup` and follow the prompts.**
-
-The skill interviews you about your project and produces two files at the repo root:
-
-- `AGENTS.md` — canonical project context for AI agents (conventions, architecture, gotchas).
-- `CLAUDE.md` — a one-line forwarder: `See @AGENTS.md for more information.`
-
-Once both files exist, setup is complete.
-
-### What's optional next
-
-`/playbook:scaffold-docs` is a one-time bootstrap for projects that already have code but little documentation. It scans for signals (auth libraries, migration folders, HTTP frameworks, …) and proposes a short list of starter docs to create under `docs/system/`. Run it if useful — it's not required.
+> Don't pre-fill these folders yet. They fill up from real work, not from templates.
 
 ---
 
-## Working day-to-day
+## 3. Write your AGENTS.md
 
-Setup is done; the remaining skills come into play as you work. Each one explains itself when invoked — these paragraphs only tell you *when* to reach for it. (The full playbook phases will cover the day-to-day loop in depth once authored.)
+```
+/trace:agents-md-setup
+```
 
-**`/playbook:spec-workflow`** — invoke when starting substantial work: a new feature, a refactor across multiple files, anything with acceptance criteria you can't hold in your head. It interviews you to an approved plan with explicit acceptance criteria, implements against it, and verifies before handing off. Small contained edits don't need it — just do those directly.
+Interviews you through five sections — what the project is, the stack, where things live, commands, gotchas — reading the repo first so it only asks what it can't work out. You get:
 
-**`/playbook:adr`** — invoke when an architecturally significant decision has been made: one affecting the system's structure, a non-functional characteristic, a foundational dependency, a public interface, or a construction technique used across the codebase. It records the decision as a short immutable record in `docs/adr/`. `spec-workflow` offers it automatically at handoff when a planning decision qualifies.
+- **`AGENTS.md`** — your project's context, read by Claude Code, Cursor, and Codex alike
+- **`CLAUDE.md`** — a one-line forwarder so Claude Code's own discovery finds it
 
-**`/playbook:distil`** — invoke when wrapping up a piece of work (the plugin also reminds the agent to suggest it when edits have accumulated). It reads what changed, checks whether anything durable was learned — a new convention, a security boundary, a gotcha — and proposes updates to `AGENTS.md` or the docs folder. Most runs capture nothing; that's expected.
+In a hurry? `/trace:agents-md-setup --yes` skips the interview and writes what it can infer. Review the result and fill in the gotchas yourself.
 
-**`/playbook:pr-description`** and **`/playbook:commit-message`** — ask for them explicitly ("write the PR description", "draft a commit message") or ask the agent to commit / open the PR; the agent uses them to draft the text in the playbook's standard shape.
+**Setup is done.**
 
-**`/playbook:doctor`** — invoke after merges, before releases, or whenever the docs structure feels off. A deterministic script validates the scope against the playbook's conventions (structure, marker pairs, ADR numbering and immutability, note banners, relative links) and the skill guides the fixes — including resolving ADR number collisions when two branches minted the same number.
+---
+
+## Optional: seed docs for an existing codebase
+
+```
+/trace:scaffold-docs
+```
+
+Worth running once on a project that has plenty of code and few docs. It looks for signals — a migrations folder, an ORM, an auth library, a frontend framework — and offers a short list of starter docs. You pick which to keep.
+
+---
+
+## Then, as you work
+
+| Command | Reach for it when |
+|---|---|
+| `/trace:distil` | You're wrapping up. It reads what changed and proposes capturing anything durable — a convention, a security boundary, a gotcha. Most runs find nothing; that's normal. |
+| `/trace:adr` | A decision shaped the system's structure, a dependency, or an interface. Records it immutably in `docs/adr/`. |
+| `/trace:doctor` | After a merge, before a release, or when the docs structure feels off. Validates and guides the fixes — including ADR number collisions from parallel branches. |
+| `/trace-plan:spec` | Starting substantial work. Interviews you to a plan with acceptance criteria, implements against it, verifies. Small edits don't need it. |
+| `/trace-plan:epic` | Work spans several phases. Produces spec-sized tickets on a kanban board. |
+| `/trace-git:commit-message`<br>`/trace-git:pr-description` | Writing up a change. Ask explicitly, or ask the agent to commit or open the PR. |
+
+Every skill explains itself when invoked. Nothing fires on its own — after code edits, TRACE quietly reminds the agent to *offer* `/trace:distil` when you sound like you're wrapping up.
 
 ---
 
@@ -122,18 +151,39 @@ Setup is done; the remaining skills come into play as you work. Each one explain
 
 | Path | What it is |
 |---|---|
-| `.claude/settings.json` or `~/.claude/settings.json` | Plugin install |
-| `docs/` (six READMEs) | Canonical doc structure |
-| `.claude/.playbook/config.json` | Plugin config (chosen docs folder) |
-| `AGENTS.md` | Project context for AI agents |
-| `CLAUDE.md` | One-line forwarder to AGENTS.md |
+| `AGENTS.md` | Your project's context for AI agents |
+| `CLAUDE.md` | One-line forwarder to `AGENTS.md` |
+| `docs/` | The doc structure, six READMEs explaining what belongs where |
+| `.claude/.trace/config.json` | Which folder you chose |
+| `.claude/settings.json` | The plugin install (project scope only) |
+
+---
+
+## Migrating from `playbook`
+
+Already on the pre-1.0 `playbook@ai-playbook` plugin? **→ [Migration guide](MIGRATING.md)**
+
+The short version, if you have a single user-scope install:
+
+```bash
+claude plugin uninstall playbook@ai-playbook
+claude plugin marketplace remove ai-playbook
+claude plugin marketplace add axakon/TRACE
+claude plugin install trace-full@trace
+```
+
+Restart Claude Code, then run `/trace:init` once per project. **Your files are untouched** — docs folder, `AGENTS.md`, and ADRs all stay exactly as they are.
+
+The [full guide](MIGRATING.md) covers the command renames, multi-scope installs, committed team config, and repo references. It's written as a runbook, so you can also point an agent at it and have it do the migration for you.
 
 ---
 
 ## Troubleshooting
 
-**Plugin commands don't appear after `/reload-plugins`:** confirm the marketplace entry and `enabledPlugins` key are both present in the same `settings.json`. A typo in the marketplace name is the most common cause.
+**No `/trace:` commands after reloading.** Check that the marketplace entry and `enabledPlugins` key are both in the *same* `settings.json`, and that the JSON is valid. A typo in the marketplace name is the usual culprit — it's `trace`, and the plugin ids are `trace@trace`, `trace-plan@trace`, `trace-git@trace`, `trace-full@trace`.
 
-**`/playbook:init` or `/playbook:agents-md-setup` not available:** the plugin didn't load. Check that you ran `/reload-plugins` after editing settings, and that the JSON is valid (no trailing commas, balanced braces).
+**Only some commands showed up.** You installed one plugin rather than the bundle. `/trace-plan:` and `/trace-git:` come from the add-ons — install those, or `trace-full@trace` for everything.
 
-**Step fails for any other reason:** stop and report to the user. Do not skip ahead or fabricate state. The user can resolve and resume from where it stopped.
+**Claude Code won't let you disable `trace`.** An add-on still depends on it. The error names them and gives you a command that disables the set in the right order.
+
+**Something else failed.** Stop and report it rather than skipping ahead. You can resolve and resume from where it stopped.

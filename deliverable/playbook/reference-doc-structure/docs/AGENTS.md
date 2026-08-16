@@ -20,20 +20,20 @@ Files in `system/` and `architecture/` are binding context — meant to be read 
 
 If a file scoped to your current area exists, treat its contents as binding. Rules in `architecture/` outrank training-data assumptions and general defaults; descriptions in `system/` outrank training-data assumptions about how the code is laid out. If multiple files seem related, read them all — files here are kept short specifically so reading several is cheap.
 
-## What `/playbook:distil` writes here
+## What `/trace:distil` writes here
 
-`/playbook:distil` routes each distilled candidate to one of two destinations based on what kind of knowledge it is:
+`/trace:distil` routes each distilled candidate to one of two destinations based on what kind of knowledge it is:
 
 - **Descriptive** (the default) → `system/<topic>.md`. Conventions in force, durable design choices, non-obvious gotchas, security boundaries observed in the code.
 - **Prescriptive** → `architecture/<topic>.md` (only if `architecture/` exists in the project). Operational rules in MUST voice — typically distilled from an ADR's consequence, an external contract, a compliance requirement, or a post-incident learning.
 
 New files always land under `system/` or `architecture/`. Files that already live at the folder root (from earlier versions of the plugin) are updated at their existing path — no forced migration.
 
-## What `/playbook:distil` does not write here
+## What `/trace:distil` does not write here
 
 - Implementation details that the code itself documents.
 - Information already in the root `AGENTS.md` (this folder supplements it, does not duplicate it).
-- Decision rationale and alternatives considered — those go in an immutable ADR under `adr/`, written by `/playbook:adr`. `system/` files record the *resulting convention*; `architecture/` files record the *resulting rule*; ADRs record *why it was chosen*.
+- Decision rationale and alternatives considered — those go in an immutable ADR under `adr/`, written by `/trace:adr`. `system/` files record the *resulting convention*; `architecture/` files record the *resulting rule*; ADRs record *why it was chosen*.
 - Long-form rationale — that's `reference/` (if the project uses it).
 - Aspirational or speculative content — only describe current state.
 

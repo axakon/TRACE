@@ -1,0 +1,12 @@
+{
+  "name": "trace-full",
+  "version": "1.0.0",
+  "description": "Everything TRACE ships, behind one install: the docs core plus the planning and delivery add-ons. Install this if you don't want to choose.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": ["trace", "bundle"],
+  "dependencies": ["trace", "trace-plan", "trace-git"]
+}
