@@ -56,7 +56,14 @@ git tag trace-full--v<version>
 
 ## Phase 4: Push and publish
 
-1. `git push origin main --follow-tags`
+1. Push the commit and the annotated repo tag, then the per-plugin tags **explicitly**:
+
+   ```
+   git push origin main --follow-tags
+   git push origin trace--v<version> trace-plan--v<version> trace-git--v<version> trace-full--v<version>
+   ```
+
+   `--follow-tags` pushes annotated tags only, so it carries `v<version>` and silently leaves every lightweight per-plugin tag behind — which is the one thing dependency resolution actually reads. Always run the second command, then confirm with `git ls-remote --tags origin | grep v<version>` that all five are on the remote.
 2. If `gh` is installed and authenticated: `gh release create v<version> --title "TRACE v<version>" --notes-file <notes-file>`. Otherwise say so — the annotated tag already carries the notes, and a GitHub Release can be created from it later.
 
 ## Phase 5: Close the loop
