@@ -7,7 +7,7 @@ allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(node *) Glo
 
 You are running the distillation step of the playbook: evaluate recent changes and propose capturing anything durable into the project's permanent context.
 
-Before doing anything, read [distillation-criteria.md](../../shared/distillation-criteria.md) (the bar for Phase 2) and [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) (folder lookup for Phase 3). Read [authoring-rules.md](../../shared/authoring-rules.md) later, in Phase 5, and only if you end up writing something.
+Before doing anything, read [distillation-criteria.md](../../shared/distillation-criteria.md) (the bar for Phase 2) and [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) (folder lookup for Phase 3). Read [authoring-rules.md](../../shared/authoring-rules.md) and [example-distillation.md](./example-distillation.md) later, in Phase 5, and only if you end up writing something.
 
 ## Phase 1: Determine what changed (cheaply first)
 
@@ -78,7 +78,7 @@ Work through the candidates one at a time — present, get one approval, write, 
    - **What** — a one-sentence summary of the observation.
    - **Why it qualifies** — which distillation criterion it meets.
    - **Proposed target** — the file (existing or new) and a brief reason; with multiple scopes, give the full path from the cwd (e.g. `services/api/docs/api-conventions.md`).
-   - **The drafted change** — the exact diff you propose. Follow [authoring-rules.md](../../shared/authoring-rules.md) (read it now): concise, only what's confirmed from the change, plain prose.
+   - **The drafted change** — the exact diff you propose. Read [authoring-rules.md](../../shared/authoring-rules.md) and [example-distillation.md](./example-distillation.md) now, and re-check the draft against both before showing it.
 
 2. **Ask once** with `AskUserQuestion`: **Confirm & write** / **Change location** / **Edit content** / **Skip**. Nothing is written until the developer confirms.
 

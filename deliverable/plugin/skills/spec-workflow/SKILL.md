@@ -39,9 +39,9 @@ Run the interview like this:
 - **Resolve the plan as a decision tree** — settle the choices that constrain others first.
 - **Probe once more** when an answer is thin. Don't produce a plan until the whole checklist above is answered.
 
-When you have enough, produce the plan inside plan mode and present it for approval (via ExitPlanMode). Do not edit any files before the plan is approved.
+When you have enough, read [authoring-rules.md](../../shared/authoring-rules.md), then produce the plan inside plan mode and present it for approval (via ExitPlanMode). Re-check the plan against the rules before presenting. Do not edit any files before the plan is approved.
 
-**Open with core user stories.** Right after the plan's context, add a `## Core user stories` section: one bullet per outcome, phrased `As a <role>, I want <capability>, so that <consequence>`. For internal work the role is still real — a developer, an on-call engineer, a CI pipeline. Tie each acceptance criterion back to a story; a criterion no story needs is scope creep, a story no criterion verifies is unfinished planning. Skip the section only when the change has no behavioural outcome at all (pure rename, dependency bump).
+**Open with core user stories.** Right after the plan's context, add a `## Core user stories` section: one bullet per outcome, phrased `As a <role>, I want <capability>, so that <consequence>` — e.g. "As an on-call engineer, I want the failed job's payload in the alert, so that I can retry it without opening the database." For internal work the role is still real — a developer, an on-call engineer, a CI pipeline. Tie each acceptance criterion back to a story; a criterion no story needs is scope creep, a story no criterion verifies is unfinished planning. Skip the section only when the change has no behavioural outcome at all (pure rename, dependency bump).
 
 **Diagram the structure, prose the intent.** Where the shape of the change carries the meaning, put a mermaid diagram in the plan instead of describing the shape in sentences:
 

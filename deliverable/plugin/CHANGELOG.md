@@ -2,6 +2,19 @@
 
 All notable changes to the `playbook` plugin are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in `.claude-plugin/plugin.json` with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
 
+## [0.24.0] - 2026-08-16
+
+Readability pass on generated content. Plans and epics carried no writing rules at all, and `distil` read the rules but had no worked example to calibrate against.
+
+### Added
+- **Worked examples for `distil` and `epic-workflow`** — `example-distillation.md` (a `system/` file, an AGENTS.md gotcha, a MUST-voice rule, plus a weak draft for contrast) and `example-epic.md` (a filled epic and ticket). Both skills had templates or rules but no specimen of the target length and tone. `distil` (Phase 5), `epic-workflow` (Phase 3), and `spec-workflow` (Phase 2) read the rules at draft time and re-check the draft before showing it.
+- **A weak Decision section and its rewrite** at the end of `example-adr.md` ("close the ADR-0005 read gap with new delegation-shaped, relationship-gated RPCs…"), showing how borrowed vocabulary reads once it is committed to an immutable file.
+
+### Changed
+- **`shared/authoring-rules.md` gained checkable language rules** — active voice with a named actor, every sentence needs a verb, one term per concept — plus four named patterns to avoid: an abstract noun where a fact belongs, an invented compound, an everyday word upgraded, and vocabulary borrowed from repo text. The previous Language section was three abstract bullets with no test attached. Listed words are illustrations of each pattern, not a checklist to extend; `architecture/` files keep RFC 2119 voice regardless.
+- **Codebase terms are for naming, not describing.** Real names (identifiers, filenames, flags, status values) are copied exactly; the repo's *describing* words are not approved vocabulary, because agents wrote most of that text and borrowing it recycles the jargon into each new file.
+- **The rules now cover plans, epics, and tickets.** Their scope line named a closed list that excluded all three, so `spec-workflow` and `epic-workflow` loaded no writing guidance. Both now read the file at draft time. The scope stays limited to files on disk — the plugin does not govern how the agent talks in the session.
+
 ## [0.23.0] - 2026-07-08
 
 The playbook viewer release: plans and epics get a browser surface, and multi-phase work gets its own tier above specs.
