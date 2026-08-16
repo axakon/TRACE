@@ -163,7 +163,7 @@ Every skill explains itself when invoked. Nothing fires on its own — after cod
 
 Already on the pre-1.0 `playbook@ai-playbook` plugin? **→ [Migration guide](MIGRATING.md)**
 
-The short version, if you have a single user-scope install:
+The short version, if you have a single user-scope install — **in this order**, because the old and new marketplace are the same repo and adding before removing does nothing:
 
 ```bash
 claude plugin uninstall playbook@ai-playbook

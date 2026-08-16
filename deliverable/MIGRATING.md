@@ -10,7 +10,7 @@ The `playbook@ai-playbook` plugin has been renamed and split into four: `trace`,
 
 ## The short version
 
-If you have a single user-scope install and no committed plugin config:
+If you have a single user-scope install and no committed plugin config, run these **in this order**:
 
 ```bash
 claude plugin uninstall playbook@ai-playbook
@@ -18,6 +18,8 @@ claude plugin marketplace remove ai-playbook
 claude plugin marketplace add axakon/TRACE
 claude plugin install trace-full@trace
 ```
+
+> **The order matters.** `ai-playbook` and `trace` are the *same GitHub repo*, and Claude Code keys a marketplace by its source. Add before removing and you get `Marketplace 'ai-playbook' already on disk` — nothing happens, because it's already registered under the old name. Remove first, then add, and it registers as `trace`.
 
 Restart Claude Code. Then in each project you use TRACE in, run `/trace:init` once — it moves `.claude/.playbook/config.json` to `.claude/.trace/` and cleans up.
 
@@ -122,10 +124,13 @@ Ask which plugins they want, using the [table above](#choosing-what-to-install).
 
 Do this **once per scope** found in Phase 0. Project scope acts on the current working directory's project, so a project-scope install in another repo has to be done from that repo — note it for the final report rather than trying to reach it from here.
 
+**The four steps must run in this order at each scope.** `ai-playbook` and `trace` are the same GitHub repo, and Claude Code keys a marketplace by its source — so adding before removing is a silent no-op (`Marketplace 'ai-playbook' already on disk`), and the plugins stay keyed `@ai-playbook`.
+
 User scope:
 
 ```bash
 claude plugin uninstall playbook@ai-playbook --scope user
+claude plugin marketplace remove ai-playbook --scope user
 claude plugin marketplace add axakon/TRACE --scope user
 claude plugin install trace-full@trace --scope user
 ```
@@ -134,17 +139,16 @@ Project scope (from inside that repo):
 
 ```bash
 claude plugin uninstall playbook@ai-playbook --scope project
+claude plugin marketplace remove ai-playbook --scope project
 claude plugin marketplace add axakon/TRACE --scope project
 claude plugin install trace-full@trace --scope project
 ```
 
-Once no scope references it any more, drop the old marketplace:
+Installing the bundle auto-installs `trace`, `trace-plan`, and `trace-git` — expect all four in `claude plugin list`.
 
-```bash
-claude plugin marketplace remove ai-playbook
-```
+**Verify the marketplace re-keyed.** `claude plugin marketplace list` should now show `trace`, not `ai-playbook`. If it still says `ai-playbook`, the remove didn't happen at that scope: the new plugins will still install, but as `trace-full@ai-playbook`, which works yet leaves the old name wired in permanently. Redo the remove/add pair at that scope.
 
-Omitting `--scope` on `marketplace remove` removes the declaration from every scope. Only do this after the last `playbook@ai-playbook` install is gone — check with `claude plugin list --json`.
+**If you only want the catalog refreshed** — for example a scope you can't re-key yet — `claude plugin marketplace update ai-playbook` re-fetches the catalog, and the four new plugins become installable as `<name>@ai-playbook`. Treat that as a stopgap, not the destination.
 
 ### Phase 3 — Move the per-scope config
 
@@ -237,7 +241,11 @@ claude plugin install playbook@ai-playbook
 
 **Both old and new commands appear.** An install of `playbook@ai-playbook` survives at a scope you haven't migrated. `claude plugin list --json` shows which.
 
+**`marketplace add axakon/TRACE` says "already on disk".** The old `ai-playbook` declaration points at the same repo, so there is nothing to add. Remove it at that scope first (`claude plugin marketplace remove ai-playbook --scope <scope>`), then add again.
+
 **`marketplace remove ai-playbook` fails.** A plugin from it is still installed. Uninstall at every scope first.
+
+**Commands install as `trace-full@ai-playbook`.** The marketplace kept its old settings key — the key in `settings.json` wins over the `name` in the repo's `marketplace.json`. Everything works, but redo the remove/add pair to get the `trace` key.
 
 **Claude Code refuses to uninstall or disable `trace`.** An add-on depends on it. The error names them and gives you a command that handles the set in the right order.
 
