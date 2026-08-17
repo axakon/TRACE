@@ -2,7 +2,7 @@
 
 Three fictional messages (the same Meridian API project as `trace`'s `agents-md-setup` and `adr` examples) showing the target length at three sizes. Use them as a reference, not templates to copy.
 
-Notice the calibration. Most commits look like the first one — a title and nothing else. The second adds a body because the title cannot carry the *why*. Only the third earns bullets, and it earns two, not five. Plain text throughout, wrapped at 72 characters, no markdown.
+Notice how short they are. Most commits look like the first one — a title and nothing else. The second adds a body because the title cannot carry the *why*. Only the third earns bullets, and it earns two, not five. Plain text throughout, wrapped at 72 characters, no markdown.
 
 ---
 
@@ -46,7 +46,7 @@ takes 200ms ran for several seconds during the worst bursts.
   clients, and one limit is easier to reason about than two.
 ```
 
-Two bullets, both of which survive the delete test. Remove the first and a reader may read the address key as an oversight rather than a constraint. Remove the second and the exemption looks forgotten.
+Two bullets, both of which survive the delete test. Remove the first and a reader may take the address key for an oversight rather than a constraint. Remove the second and it looks like nobody thought about requests that carry a session.
 
 Four more bullets were in the first draft and all four went. The request limit, the 429 status, and the `Retry-After` header are all visible in the diff. The fourth repeated a comment sitting directly above the counter, which is the most common way jargon reaches a commit message — paraphrasing a comment pulls the code's vocabulary into text written for someone reading `git log` a year later.
 

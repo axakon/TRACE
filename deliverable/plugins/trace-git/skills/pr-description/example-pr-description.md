@@ -2,7 +2,7 @@
 
 A fictional example (the same Meridian API project as `trace`'s `agents-md-setup` and `adr` examples) showing the target length and depth. Use it as a reference, not a template to copy — the template is in [SKILL.md](./SKILL.md).
 
-Notice the calibration. The whole description is 322 words over 33 lines, so it fits on one screen. Approach carries three bullets, not seven — three decisions survived the delete test and four did not, and the table further down shows which. Risks names two real items instead of padding to three. A reviewer who reads only the title and the first sentence already knows what the change does. If a draft runs past roughly one screen, cut whole bullets and whole sections, never the sentences inside the ones that stay.
+Notice how long it is, and how much it leaves out. The whole description is 322 words over 33 lines, so it fits on one screen. Approach carries three bullets, not seven — three decisions survived the delete test and four did not, and the table further down shows which. Risks names two real items instead of padding to three. A reviewer who reads only the title and the first sentence already knows what the change does. If a draft runs past roughly one screen, cut whole bullets and whole sections, never the sentences inside the ones that stay.
 
 Every sentence in the example is 25 words or fewer, and no phrase outside backticks is an invented compound. That is the standard the example exists to set, so it holds itself to it.
 

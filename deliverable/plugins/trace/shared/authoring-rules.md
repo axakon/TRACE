@@ -26,8 +26,9 @@ The sections below explain each one and cover the rest.
 - Quote a name without adopting the word. Write "`RetryStrategy` decides when to try again", not "the retry strategy is robust".
 - Use any word the developer writes in the conversation. If the developer rejects a word, treat it the same way for the rest of the conversation.
 - Never invent a hyphenated term, and never repeat one you read in the repo: "delegation-shaped", "relationship-gated", "frozen-corpus". If a hyphenated phrase is not a real name, write it out as a sentence. Keep noun clusters to two words — a hyphen does not buy a third.
+- Turn a verb wearing a coat back into a verb. A noun that follows "the" and ends in -ing, -tion, -ment, or -ance is usually an action with its actor hidden. Name the actor and use the verb. "One rule licensed the borrowing" becomes "one rule told the agent to take words from the repo". "The calibration" becomes "how long the text should be". This is the pattern the other rules here miss most often, because each word in the phrase is common on its own.
 
-Use the plain word, not the abstract or inflated one. Write make sure (not ensure), give (not provide), do (not perform), use (not utilize), help (not facilitate), text (not prose), screen (not surface), button (not affordance). Delete robust, seamless, holistic, and elegant rather than replacing them. For layer, mechanism, strategy, controller and precedent, name the actual thing instead — "the database layer" is PostgreSQL, "the accept guard" is the check that rejected the row.
+Use the plain word, not the abstract or inflated one. Write make sure (not ensure), give (not provide), do (not perform), use (not utilize), help (not facilitate), allow (not license), text (not prose), screen (not surface), button (not affordance). Delete robust, seamless, holistic, and elegant rather than replacing them. For layer, mechanism, strategy, controller and precedent, name the actual thing instead — "the database layer" is PostgreSQL, "the accept guard" is the check that rejected the row.
 
 ## Every sentence
 

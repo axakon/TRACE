@@ -49,4 +49,4 @@ Two files, layered. `shared/authoring-rules.md` sets which words are allowed and
 
 Two rules do most of the work. The **backtick test**: if a phrase can take backticks it is a real name and survives, and if it cannot, it is text and gets said in plain words. The **delete test**: remove a bullet and ask what the reviewer then gets wrong, and if the answer is nothing, the bullet was narrating the diff.
 
-Each skill also ships an example — [`example-pr-description.md`](skills/pr-description/example-pr-description.md) and [`example-commit-message.md`](skills/commit-message/example-commit-message.md). They carry the length calibration that no rule can state: the PR one shows a 322-word description on one screen, and the four Approach bullets a first draft had to lose to get there.
+Each skill also ships an example — [`example-pr-description.md`](skills/pr-description/example-pr-description.md) and [`example-commit-message.md`](skills/commit-message/example-commit-message.md). They show how long the text should be, which no rule can say on its own. The PR one is 322 words on one screen, and it lists the four Approach bullets a first draft had to lose to get there.

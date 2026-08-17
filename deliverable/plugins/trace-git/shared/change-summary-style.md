@@ -36,11 +36,12 @@ More than four bullets in a section usually means you are narrating. Re-run the 
 - Lead each bullet with the decision itself, not a comparison framing. Write `Token updates use PUT:` not `PUT over DELETE+POST:`. Rationale and rejected alternatives are supporting detail, not the headline.
 - **Write the lead-in in plain words, not in the code's words.** A column, a schema name, or a test fixture is not a decision. `The unique index now covers the role column too:` is a lead-in. `Role joins the active-delegation unique index:` is a stack of nouns the reader has to decode.
 - Aim for about 15 words of detail after the lead-in. That is a target, not a budget. If the point needs two sentences to stay true and readable, write two sentences — a bullet nobody can parse saves nothing.
-- The rendering — markdown `**bold**:` for PR bodies, plain `Lead-in — detail` for commit bodies — is set by the skill using this style.
+- Write the lead-in as markdown `**bold**:` in a PR body, and as plain `Lead-in — detail` in a commit body. The skill using this style says which.
 
 ## Before you emit
 
-Re-read [authoring-rules.md](./authoring-rules.md) and run both tests over the draft.
+Re-read [authoring-rules.md](./authoring-rules.md) and run all three tests over the draft. Two of them are easy to remember and the third is the one that gets missed, so run it last and run it slowly.
 
 - **Every phrase not already in backticks:** if it names something in the codebase but cannot itself take backticks, it is jargon. Rewrite it in plain words.
 - **Every bullet:** delete it and ask what the reviewer gets wrong. If nothing, leave it deleted.
+- **Every "the" followed by a word ending in -ing, -tion, -ment, or -ance:** that is an action with its actor hidden. Name the actor and use the verb. A draft can pass the first two tests and still be unreadable because of this one.

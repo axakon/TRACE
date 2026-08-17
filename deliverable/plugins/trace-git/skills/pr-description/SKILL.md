@@ -57,7 +57,7 @@ The "What is this" body is the *why*: the problem this change solves and the int
 
 ## Phase 3: Draft the "Approach" and "Risks / follow-ups"
 
-**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table is the calibration for this section. Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
+**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table shows how few bullets survive. Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
 
 **Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
 
