@@ -19,7 +19,7 @@ const REPO = path.resolve(__dirname, '..');
 const PLUGINS = path.join(REPO, 'deliverable', 'plugins');
 
 const TARGETS = [
-  { file: 'authoring-rules.md', from: 'trace', to: ['trace-plan'] },
+  { file: 'authoring-rules.md', from: 'trace', to: ['trace-plan', 'trace-git'] },
 ];
 
 const check = process.argv.includes('--check');

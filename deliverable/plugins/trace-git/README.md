@@ -37,6 +37,16 @@ Both trigger **only when you ask**. Wrapping up, saying "ship it", or pushing a 
 
 **"How to verify" is for the reviewer, not CI.** It asks for steps only a human can meaningfully take — staging behaviour, a UI flow, an output to eyeball. Restating "the tests pass" is explicitly excluded.
 
-**It can finish the job.** Ask for the text and you get the text. Ask the agent to open or update the PR and it carries that out with `gh`.
+**It can finish the job.** Ask for the text and you get the text. Ask the agent to open or update the PR and it carries that out with `gh` on GitHub or `glab` on GitLab.
 
-`gh` is optional — without it, the PR-number and apply-to-PR paths just become unavailable and base-branch inference falls back to git alone.
+Both CLIs are optional — without one, the PR-number and apply-to-PR paths just become unavailable and base-branch inference falls back to git alone.
+
+---
+
+## Writing rules
+
+Two files, layered. `shared/authoring-rules.md` sets which words are allowed and how a sentence is built — it is a synced copy of the file in [`trace/shared/`](../trace/shared/authoring-rules.md), so edit it there and run `node scripts/sync-shared.js` from the repo root. `shared/change-summary-style.md` adds only what is specific to a change summary and never restates a rule from the base file.
+
+Two rules do most of the work. The **backtick test**: if a phrase can take backticks it is a real name and survives, and if it cannot, it is text and gets said in plain words. The **delete test**: remove a bullet and ask what the reviewer then gets wrong, and if the answer is nothing, the bullet was narrating the diff.
+
+Each skill also ships an example — [`example-pr-description.md`](skills/pr-description/example-pr-description.md) and [`example-commit-message.md`](skills/commit-message/example-commit-message.md). They carry the length calibration that no rule can state: the PR one shows a 322-word description on one screen, and the four Approach bullets a first draft had to lose to get there.

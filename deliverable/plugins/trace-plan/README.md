@@ -82,6 +82,6 @@ The pre-1.0 `PLAYBOOK_PLAN_VIEWER` names are still honoured.
 
 ## Maintainer notes
 
-`shared/authoring-rules.md` is a synced copy of the file in [`trace/shared/`](../trace/shared/authoring-rules.md) — a plugin can't read outside its own directory once installed, so it has to exist in both. Edit the copy in `trace/`, then run `node scripts/sync-shared.js` from the repo root. The release preflight fails if they drift.
+`shared/authoring-rules.md` is a synced copy of the file in [`trace/shared/`](../trace/shared/authoring-rules.md) — a plugin can't read outside its own directory once installed, so it has to exist in each one that uses it (`trace-plan` and `trace-git`). Edit the copy in `trace/`, then run `node scripts/sync-shared.js` from the repo root. The release preflight fails if they drift.
 
 When `viewer/src/` changes, run `npm run build` in `viewer/` and commit the regenerated `dist/viewer.bundle.js` in the same change — a stale bundle ships silently.

@@ -3,12 +3,19 @@ name: pr-description
 description: Draft a PR description or squash-merge commit message in TRACE's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy. Use when the developer explicitly asks for a PR description, asks for the squash-merge message, or asks the agent to open a PR on their behalf.
 when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/trace:distil` or to no skill at all. For a single commit's message, use `/trace-git:commit-message` instead.
 argument-hint: [base-branch | PR#]
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Glob Read Write
+allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Bash(glab *) Glob Read Write
 ---
 
 You are drafting a PR description (or squash-merge commit message) in TRACE's standard format. The format is a shape, not a taxonomy — there are no required prefixes and no enum of types. The goal is a predictable structure a reviewer can scan: *why* this change, *what approach* was taken, *what permanent context* moved as a result.
 
-Writing style rules — title discipline, "write for a reader who lacks context", self-contained, skip-what-the-diff-makes-obvious, bold-lead-in bullets — live in [shared/change-summary-style.md](../../shared/change-summary-style.md). Read that file once at the start of the skill; this SKILL.md only covers what is PR-specific.
+Writing rules live in two shared files. Read both at the start of the skill, and re-read them in Phase 6 before you emit:
+
+- [shared/authoring-rules.md](../../shared/authoring-rules.md) — which words you may use, and how to write a sentence. The backtick test is the one that matters most here.
+- [shared/change-summary-style.md](../../shared/change-summary-style.md) — title discipline, self-contained, skip-what-the-diff-makes-obvious, bold-lead-in bullets.
+
+[example-pr-description.md](./example-pr-description.md) shows the target length and depth, and the bullets a first draft has to lose to get there. Read it in Phase 3, before you draft the Approach section.
+
+This SKILL.md only covers what is PR-specific.
 
 The output template — emit exactly this, dropping any optional section that is empty:
 
@@ -20,8 +27,8 @@ The output template — emit exactly this, dropping any optional section that is
 
 ## Approach
 {Bullets when there are 3+ distinct points; short prose (2–3 sentences) when it is one continuous thought.}
-- **{Decision / trade-off}:** {≤15 words}
-- **{Decision / trade-off}:** {≤15 words}
+- **{The decision, in plain words}:** {one sentence of detail, about 15 words}
+- **{The decision, in plain words}:** {one sentence of detail, about 15 words}
 
 ## Risks / follow-ups
 - **{Risk or deferred work}:** {what the reviewer or operator needs to know}
@@ -50,7 +57,7 @@ The "What is this" body is the *why*: the problem this change solves and the int
 
 ## Phase 3: Draft the "Approach" and "Risks / follow-ups"
 
-**Approach.** List only what isn't obvious from the diff: non-obvious decisions, rejected alternatives, deliberate omissions.
+**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table is the calibration for this section. Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
 
 **Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
 
@@ -73,14 +80,17 @@ If included, draft 1–3 short steps **a reviewer can meaningfully take** — st
 
 Exclude anything the developer or CI already covered: do not write "`go test ./...` passes", "lint is clean", "the build succeeds", or any restatement of CI. The reviewer is not re-running the dev's pre-flight. If the only verification is "CI passes", skip the section.
 
-## Phase 6: Output the description
+## Phase 6: Re-check, then output
 
-Output the full drafted body as plain text in a fenced block, then act on the original request:
+Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run both tests over the draft. The backtick test on every phrase that names something in the codebase: if the phrase cannot itself take backticks, rewrite it in plain words. The bullet test on every bullet: delete it and ask what the reviewer gets wrong, and if the answer is nothing, leave it deleted. Fix the draft before showing it — do not emit a draft and note the problems afterwards.
+
+Then output the full body as plain text in a fenced block, and act on the original request:
 
 - **Asked only for the description or squash-merge message** — stop here. The developer takes it from there.
 - **Asked you to open or update the PR** — carry it out in your normal flow using this body:
   - **New PR** — push the branch if needed, then `gh pr create` with the title and body.
   - **Existing PR** (`gh pr view --json number` succeeds on the branch) — `gh pr edit <number> --body-file <tmp>`. Don't open a duplicate.
+  - **GitLab remote** — use `glab` instead: `glab mr create`, `glab mr view`, `glab mr update <number> --description "$(cat <tmp>)"`. Everything above about the drafted body is unchanged.
 
 Do not ask whether to copy the body, where to place it, or how to apply it.
 
@@ -90,6 +100,6 @@ If the target is a UI with a separate title field (GitHub, GitLab), the title go
 
 - The format is a shape, not a taxonomy. No prefixes, no required type.
 - Match the request: draft-only when the developer asked for the text; open or update the PR when they asked you to. Don't push or open a PR on your own initiative when only the text was requested.
-- The skill works without `gh` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone.
+- The skill works without `gh` or `glab` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone. Pick the CLI from the remote: `gh` for GitHub, `glab` for GitLab.
 - If the diff is empty (nothing to summarise), say so and stop.
 - For a single commit (not a whole PR or squash-merge), use `/trace-git:commit-message` instead — same writing discipline, leaner template.

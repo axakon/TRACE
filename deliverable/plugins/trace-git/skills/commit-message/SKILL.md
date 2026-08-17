@@ -8,7 +8,14 @@ allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git show*) 
 
 You are drafting a single commit's message in TRACE's standard shape. The format is a shape, not a taxonomy — no prefixes, no enum of types. The goal is a predictable structure a future reader can scan in `git log`: *why this change* and *the non-obvious decisions behind it*.
 
-Writing style rules — title discipline, "write for a reader who lacks context", self-contained, skip-what-the-diff-makes-obvious, lead-in bullets — live in [shared/change-summary-style.md](../../shared/change-summary-style.md). Read that file once at the start of the skill; this SKILL.md only covers what is commit-specific.
+Writing rules live in two shared files. Read both at the start of the skill, and re-read them in Phase 4 before you emit:
+
+- [shared/authoring-rules.md](../../shared/authoring-rules.md) — which words you may use, and how to write a sentence. The backtick test is the one that matters most here.
+- [shared/change-summary-style.md](../../shared/change-summary-style.md) — title discipline, self-contained, skip-what-the-diff-makes-obvious, lead-in bullets.
+
+[example-commit-message.md](./example-commit-message.md) shows the target length at three sizes — title only, title plus why, and one that earns bullets. Read it in Phase 2, before you draft.
+
+This SKILL.md only covers what is commit-specific.
 
 **Commit messages are plain text, not markdown.** Do not use `##` headers, `**bold**`, or other markdown syntax in the body — `git log` and `git show` render them as literal characters, not formatting. Structure is conveyed by paragraph order and bullet syntax, the same way Tim Pope's classic convention does it.
 
@@ -20,8 +27,8 @@ The output template — emit exactly this, dropping the optional bullets section
 {Body: 1–3 sentences. The why — the problem this commit solves, the intent.
 Wrap lines at ~72 characters so the message reads cleanly in a terminal.}
 
-- {Lead-in phrase} — {≤15 words of detail on a non-obvious decision}
-- {Lead-in phrase} — {≤15 words of detail on a non-obvious decision}
+- {The decision, in plain words} — {one sentence of detail, about 15 words}
+- {The decision, in plain words} — {one sentence of detail, about 15 words}
 ```
 
 A commit message describes *one logical change*. Stay scoped to what is in this commit's diff — not the whole branch, not the wider goal, not the next step. If the change is trivial (typo, one-line fix, lockfile bump), the title alone is enough; emit just the title with no body.
@@ -48,7 +55,7 @@ For a trivial change where the title is self-explanatory (a typo fix, a one-line
 
 ## Phase 3: Draft decision bullets — only if non-obvious
 
-List only what isn't visible from reading the diff: a non-obvious decision, a rejected alternative, a deliberate omission, a hidden constraint. Render each as a plain bullet with a short lead-in phrase and an em-dash separator:
+Most commits have none — see the first two messages in [example-commit-message.md](./example-commit-message.md). Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what a future reader would then get wrong. Anything already explained by a comment in the diff fails the test. Write the lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it. Render each as a plain bullet with an em-dash separator:
 
 ```
 - Per-IP bucket, not per-API-key — the abusive traffic was unauthenticated.
@@ -56,9 +63,11 @@ List only what isn't visible from reading the diff: a non-obvious decision, a re
 
 No `**bold**` — commit messages are plain text. If nothing qualifies, skip the bullets entirely — do not pad. Most commits will have none.
 
-## Phase 4: Output the message
+## Phase 4: Re-check, then output
 
-Output the drafted message as plain text in a fenced block, then act on the original request:
+Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run both tests over the draft. The backtick test on every phrase that names something in the codebase: if the phrase cannot itself take backticks, rewrite it in plain words. The bullet test on every bullet: delete it and ask what a future reader gets wrong, and if the answer is nothing, leave it deleted. Fix the draft before showing it.
+
+Then output the message as plain text in a fenced block, and act on the original request:
 
 - **Asked only for the message text** — stop here. The developer takes it from there.
 - **Asked you to perform the commit** — use this message as the commit message and carry out the commit in your normal flow.
