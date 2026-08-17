@@ -89,7 +89,7 @@ This is the failure to watch for. The same change, written out of the code's voc
 > - **Search joins the anonymous-quota middleware chain:** the per-key bucket resolves ahead of the session-shaped guard.
 > - **The quota store rides the session Redis:** counter-drift is acceptable under the failover-tolerant read path.
 
-Five invented compounds — "anonymous-quota", "per-key", "session-shaped", "counter-drift", "failover-tolerant" — and two abstract nouns, "the quota store" and "the read path", standing where a fact belongs. Not one of those phrases can take backticks, so not one of them is a name. A reviewer cannot act on either line.
+Every phrase here fails the name test. "Anonymous-quota", "per-key", "session-shaped", "counter-drift", and "failover-tolerant" are in no file in the repo, and none of them is ordinary English either. "The quota store" and "the read path" also fail the actor test — neither says who does what. A reviewer cannot act on either line.
 
 The same two decisions, plainly:
 

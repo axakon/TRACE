@@ -63,4 +63,4 @@ The per-key bucket now resolves ahead of the session-shaped guard, and
 counter-drift stays acceptable under the failover-tolerant read path.
 ```
 
-Five invented compounds — "anonymous-quota", "per-key", "session-shaped", "counter-drift", "failover-tolerant" — plus "the read path" standing where a fact belongs. Not one of those phrases can take backticks, so not one of them is a name. In a year, in `git log`, nobody will be able to reconstruct what this commit did or why.
+Every phrase here fails the name test. "Anonymous-quota", "per-key", "session-shaped", "counter-drift", and "failover-tolerant" are in no file in the repo, and none of them is ordinary English either. "The read path" fails the actor test too. In a year, reading `git log`, nobody can tell what this commit did or why.

@@ -47,6 +47,8 @@ Both CLIs are optional — without one, the PR-number and apply-to-PR paths just
 
 Two files, layered. `shared/authoring-rules.md` sets which words are allowed and how a sentence is built — it is a synced copy of the file in [`trace/shared/`](../trace/shared/authoring-rules.md), so edit it there and run `node scripts/sync-shared.js` from the repo root. `shared/change-summary-style.md` adds only what is specific to a change summary and never restates a rule from the base file.
 
-Two rules do most of the work. The **backtick test**: if a phrase can take backticks it is a real name and survives, and if it cannot, it is text and gets said in plain words. The **delete test**: remove a bullet and ask what the reviewer then gets wrong, and if the answer is nothing, the bullet was narrating the diff.
+`authoring-rules.md` is four tests, each a yes-or-no question about one phrase. **Name** — is this a real name from the code, or ordinary words? It has to be one of the two. **Cover-up** — hide the backticked names and read the sentence again. Does it still say anything? **Actor** — who does what? **Count** — 25 words to a sentence.
+
+`change-summary-style.md` adds a fifth for change summaries. **Delete** — take out a bullet and ask what the reviewer now gets wrong. If nothing, the bullet was narrating the diff.
 
 Each skill also ships an example — [`example-pr-description.md`](skills/pr-description/example-pr-description.md) and [`example-commit-message.md`](skills/commit-message/example-commit-message.md). They show how long the text should be, which no rule can say on its own. The PR one is 322 words on one screen, and it lists the four Approach bullets a first draft had to lose to get there.

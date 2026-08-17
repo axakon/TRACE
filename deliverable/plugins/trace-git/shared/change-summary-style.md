@@ -40,8 +40,8 @@ More than four bullets in a section usually means you are narrating. Re-run the 
 
 ## Before you emit
 
-Re-read [authoring-rules.md](./authoring-rules.md) and run all three tests over the draft. Two of them are easy to remember and the third is the one that gets missed, so run it last and run it slowly.
+Run the four tests from [authoring-rules.md](./authoring-rules.md) over the draft — name, cover-up, actor, count. Then run the one test that belongs to a change summary:
 
-- **Every phrase not already in backticks:** if it names something in the codebase but cannot itself take backticks, it is jargon. Rewrite it in plain words.
-- **Every bullet:** delete it and ask what the reviewer gets wrong. If nothing, leave it deleted.
-- **Every "the" followed by a word ending in -ing, -tion, -ment, or -ance:** that is an action with its actor hidden. Name the actor and use the verb. A draft can pass the first two tests and still be unreadable because of this one.
+- **The delete test.** Take out each bullet and ask what the reviewer now gets wrong. If the answer is nothing, leave it out.
+
+The actor test is the one that gets missed, because every word in "licensed the borrowing" is common on its own. Run it last and run it slowly.

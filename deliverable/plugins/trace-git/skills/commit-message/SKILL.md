@@ -10,7 +10,7 @@ You are drafting a single commit's message in TRACE's standard shape. The format
 
 Writing rules live in two shared files. Read both at the start of the skill, and re-read them in Phase 4 before you emit:
 
-- [shared/authoring-rules.md](../../shared/authoring-rules.md) — which words you may use, and how to write a sentence. The backtick test is the one that matters most here.
+- [shared/authoring-rules.md](../../shared/authoring-rules.md) — the four tests every text must pass: name, cover-up, actor, count.
 - [shared/change-summary-style.md](../../shared/change-summary-style.md) — title discipline, self-contained, skip-what-the-diff-makes-obvious, lead-in bullets.
 
 [example-commit-message.md](./example-commit-message.md) shows the target length at three sizes — title only, title plus why, and one that earns bullets. Read it in Phase 2, before you draft.
@@ -55,7 +55,7 @@ For a trivial change where the title is self-explanatory (a typo fix, a one-line
 
 ## Phase 3: Draft decision bullets — only if non-obvious
 
-Most commits have none — see the first two messages in [example-commit-message.md](./example-commit-message.md). Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what a future reader would then get wrong. Anything already explained by a comment in the diff fails the test. Write the lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it. Render each as a plain bullet with an em-dash separator:
+Most commits have none — see the first two messages in [example-commit-message.md](./example-commit-message.md). Apply the delete test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what a future reader would then get wrong. Anything already explained by a comment in the diff fails the test. Write the lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it. Render each as a plain bullet with an em-dash separator:
 
 ```
 - Per-IP bucket, not per-API-key — the abusive traffic was unauthenticated.
@@ -65,7 +65,7 @@ No `**bold**` — commit messages are plain text. If nothing qualifies, skip the
 
 ## Phase 4: Re-check, then output
 
-Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run both tests over the draft. The backtick test on every phrase that names something in the codebase: if the phrase cannot itself take backticks, rewrite it in plain words. The bullet test on every bullet: delete it and ask what a future reader gets wrong, and if the answer is nothing, leave it deleted. Fix the draft before showing it.
+Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run all five tests over the draft — name, cover-up, actor, count, and delete. Run the actor test last and slowly, because it is the one that gets missed. Fix the draft before showing it.
 
 Then output the message as plain text in a fenced block, and act on the original request:
 

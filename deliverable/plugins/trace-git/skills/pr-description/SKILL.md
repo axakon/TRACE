@@ -10,7 +10,7 @@ You are drafting a PR description (or squash-merge commit message) in TRACE's st
 
 Writing rules live in two shared files. Read both at the start of the skill, and re-read them in Phase 6 before you emit:
 
-- [shared/authoring-rules.md](../../shared/authoring-rules.md) — which words you may use, and how to write a sentence. The backtick test is the one that matters most here.
+- [shared/authoring-rules.md](../../shared/authoring-rules.md) — the four tests every text must pass: name, cover-up, actor, count.
 - [shared/change-summary-style.md](../../shared/change-summary-style.md) — title discipline, self-contained, skip-what-the-diff-makes-obvious, bold-lead-in bullets.
 
 [example-pr-description.md](./example-pr-description.md) shows the target length and depth, and the bullets a first draft has to lose to get there. Read it in Phase 3, before you draft the Approach section.
@@ -57,7 +57,7 @@ The "What is this" body is the *why*: the problem this change solves and the int
 
 ## Phase 3: Draft the "Approach" and "Risks / follow-ups"
 
-**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table shows how few bullets survive. Apply the bullet test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
+**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table shows how few bullets survive. Apply the delete test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
 
 **Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
 
@@ -82,7 +82,7 @@ Exclude anything the developer or CI already covered: do not write "`go test ./.
 
 ## Phase 6: Re-check, then output
 
-Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run both tests over the draft. The backtick test on every phrase that names something in the codebase: if the phrase cannot itself take backticks, rewrite it in plain words. The bullet test on every bullet: delete it and ask what the reviewer gets wrong, and if the answer is nothing, leave it deleted. Fix the draft before showing it — do not emit a draft and note the problems afterwards.
+Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run all five tests over the draft — name, cover-up, actor, count, and delete. Run the actor test last and slowly, because it is the one that gets missed. Fix the draft before showing it — do not emit a draft and note the problems afterwards.
 
 Then output the full body as plain text in a fenced block, and act on the original request:
 
