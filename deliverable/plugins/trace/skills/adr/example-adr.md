@@ -6,7 +6,7 @@ Notice the calibration: each section is a few sentences, the alternatives live i
 
 ---
 
-# 0004. Process billing webhooks through the job queue
+# Process billing webhooks through the job queue
 
 *2025-11-14*
 

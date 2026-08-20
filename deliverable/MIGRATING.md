@@ -242,7 +242,7 @@ If Phase 1 chose a narrower set, name the core alongside the add-on — `trace-p
 
 Two exceptions — leave these alone:
 
-- **Immutable ADRs** (`<docs-folder>/adr/NNNN-*.md`). They are historical records of what was true when written. If one is now materially misleading, tell the user; a new superseding ADR is the correct fix, never an edit.
+- **Immutable ADRs** (`<docs-folder>/adr/` — files named `2026-08-20-<slug>.md` or, under the older scheme, `0007-<slug>.md`). They are historical records of what was true when written. If one is now materially misleading, tell the user; a new superseding ADR is the correct fix, never an edit.
 - **Anything that reads as a historical note** — changelogs, frozen working notes, meeting records.
 
 **Env vars.** If Phase 0 found `PLAYBOOK_PLAN_VIEWER` or `PLAYBOOK_PLAN_VIEWER_PORT` in repo files (`.env`, `launch.json`, CI config), update them to the `TRACE_` names. Report any in shell profiles rather than editing them.

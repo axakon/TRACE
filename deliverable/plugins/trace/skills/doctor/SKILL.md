@@ -20,7 +20,7 @@ Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) �
 node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check <scope-root>
 ```
 
-The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
+The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames (dated or numbered) / date lines / numbering collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
 
 **Monorepos:** when the scope contains nested scopes (project-level `AGENTS.md` files under the root), add `--all` — the script discovers every scope and returns one report per TRACE-adopted scope (`scope_rel` names each). Triage and fix per scope; the phases below apply to each in turn. Two things `--all` deliberately does not validate: an `AGENTS.md` inside another scope's docs folder is docs content (a folder guide), never a scope; and a scope with a bare `AGENTS.md` but no TRACE config or marked docs folder comes back under `context_only` — mention those as information ("run `/trace:init <scope>` if it should carry the tree"), since adopting a scope is a decision, not a repair.
 
@@ -32,7 +32,7 @@ Otherwise, list the findings in one short block (errors first, plain language, f
 
 ## Phase 3: Resolve ADR number collisions (when the report has `adr-collision`)
 
-Two files sharing a number is almost always a branch merge: each branch minted the same next number for a different decision. The files are fixed mechanically; the *references* to that number are not — a comment written before the merge means one specific decision, and only reading it tells which. Never bulk-rewrite references.
+Only ADRs under the older numbered scheme collide — dated filenames cannot, so this phase never applies to them. Two files sharing a number is almost always a branch merge: each branch minted the same next number for a different decision. The files are fixed mechanically; the *references* to that number are not — a comment written before the merge means one specific decision, and only reading it tells which. Never bulk-rewrite references.
 
 1. **Decide which file keeps the number.** The file that shipped first keeps it (check with `git log --diff-filter=A --format="%aI %H" -- <each-file>`); its number has been citable for longer. A clear date order decides it — announce the choice and proceed. Ask only when the signal is genuinely absent (no git, same commit, identical dates).
 

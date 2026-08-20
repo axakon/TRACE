@@ -34,7 +34,7 @@ The output template — emit exactly this, dropping any optional section that is
 - **{Risk or deferred work}:** {what the reviewer or operator needs to know}
 
 ## Updated context
-- ADR: {NNNN-short-title} — {one-line summary}
+- ADR: {adr-filename-without-md} — {one-line summary}
 - Docs: {file or area} — {one-line summary}
 
 ## How to verify
@@ -67,7 +67,7 @@ Auto-populate this section from the diff. Skip the whole section if both lists a
 
 Read the paths from `git diff --name-status <base>...HEAD` — the diff names the files, so there is no docs folder to resolve.
 
-- **ADRs.** Any *added* file whose path matches `**/adr/NNNN-*.md` (four digits, then a slug). Read each to extract the title and a one-line summary.
+- **ADRs.** Any *added* file under an `adr/` folder whose name starts with a date (`2026-08-20-<slug>.md`) or a four-digit number (`0007-<slug>.md`). Read each to extract the title and a one-line summary.
 - **Docs.** Any other added or modified markdown file that is durable project context: a root-level `AGENTS.md`/`CLAUDE.md`, or a file under the same documentation folder the ADRs live in. One line per file describing what changed (not what the file is). Skip READMEs of code packages, changelogs, and generated docs.
 
 If the change made a substantial decision but no ADR exists in the diff, mention this in your final summary so the developer can run `/trace:adr` separately — do not invent an ADR entry.

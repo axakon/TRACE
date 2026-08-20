@@ -10,11 +10,11 @@ ADRs are the project's structural memory. When a future contributor asks "why is
 
 ## What goes here
 
-- Numbered files: `0001-<short-kebab-name>.md`, `0002-<...>.md`, etc., strictly sequential.
+- Dated files: `<YYYY-MM-DD>-<short-kebab-name>.md`, using the day you wrote the record. Older projects also hold `0001-<...>.md` files from the earlier sequential scheme. Both forms are valid, and one folder can carry a mix.
 - One decision per file.
 - Three sections, in order: **Context** (the forces in tension, alternatives considered), **Decision** (what we will do, in active voice), **Consequences** (what becomes easier, what becomes harder).
-- No `Status` field. A shipped ADR is accepted by definition; an unshipped one is still being edited. Supersession adds a `> Superseded by <NNNN>.` line under the title — the only edit allowed on a shipped ADR.
-- The foundational record `0000-record-architecture-decisions.md` declares that this project uses ADRs and how. Created once at project setup.
+- No `Status` field. A shipped ADR is accepted by definition; an unshipped one is still being edited. Supersession adds a `> Superseded by <filename without .md>.` line under the title — the only edit allowed on a shipped ADR.
+- The foundational record `<YYYY-MM-DD>-record-architecture-decisions.md` declares that this project uses ADRs and how. Created once at project setup.
 
 ## What does NOT go here
 
@@ -27,16 +27,16 @@ ADRs are the project's structural memory. When a future contributor asks "why is
 
 ADRs become **immutable once shipped**. Two phases:
 
-- **Draft (local, unpushed, no one has acted on it).** Edit freely. Reshape the framing, fix mistakes, sharpen the wording. The ADR is not yet a record anyone else relies on, and a tidy revised version is more useful than a `0001 + 0002 (supersedes 0001)` pair where both are one day old.
+- **Draft (local, unpushed, no one has acted on it).** Edit freely. Reshape the framing, fix mistakes, sharpen the wording. The ADR is not yet a record anyone else relies on, and a tidy revised version is more useful than two records one day apart where the second only replaces the first.
 - **Shipped (committed, pushed, or already acted on by other work).** Immutable. A future reader needs to see the decision as it stood when it was made; downstream commits, ADRs, and implementations may quote or rely on its exact wording. From here on, course corrections are a *new* ADR that supersedes the old one.
 
 The rule of thumb: if anyone else has had reason to read this ADR, treat it as shipped.
 
 When superseding a shipped ADR:
 
-- Add a `> Superseded by <NNNN>.` line under the **old** ADR's title — the only permitted edit to a shipped ADR. The body stays untouched.
-- The new ADR's body explains what changed and why, and references the superseded one by number in its Context.
-- Numbers are strictly sequential. Never renumber, never reuse a number for a different decision.
+- Add a `> Superseded by <filename without .md>.` line under the **old** ADR's title — the only permitted edit to a shipped ADR. The body stays untouched.
+- The new ADR's body explains what changed and why, and names the superseded one by filename in its Context.
+- Never rename a shipped ADR, and never reuse a filename for a different decision.
 
 ## When to write one
 
@@ -58,4 +58,8 @@ Not an ADR:
 
 ## Naming
 
-`<NNNN>-<short-kebab-title>.md` — four-digit zero-padded number, kebab-case title that reads as a noun phrase (e.g., `0007-use-postgres-for-event-storage.md`).
+`<YYYY-MM-DD>-<short-kebab-title>.md` — the date you wrote the record, then a kebab-case title that reads as a noun phrase (e.g., `2026-08-20-use-postgres-for-event-storage.md`).
+
+The date replaces the sequence number that older ADR conventions use. Two branches working in parallel each pick the next number and land the same one, which merges cleanly and leaves two records sharing an identifier. Two branches cannot produce the same dated filename unless they also chose the same title, and git reports that as a conflict.
+
+Files named `<NNNN>-<short-kebab-title>.md` under the older scheme stay exactly as they are. Never renumber or rename one.

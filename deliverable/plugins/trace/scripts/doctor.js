@@ -12,6 +12,10 @@
 //   migrate <adr-file> <NNNN> [scope]    renumber one ADR file to a free number,
 //                                        then report all references to the OLD number
 //
+// ADR filenames take two forms: YYYY-MM-DD-kebab-title.md for new records, and
+// NNNN-kebab-title.md for the older sequential scheme. Both stay valid forever.
+// refs and migrate serve the numbered scheme only — it is the one that collides.
+//
 // Options: --docs <folder>  override docs-folder resolution (relative to scope;
 //                           single-scope check only)
 //
@@ -34,7 +38,13 @@ const { spawnSync } = require('child_process');
 
 const FORWARDER = 'See @AGENTS.md for more information.';
 const MARKER_HEADING = '# Durable project context';
-const ADR_FILENAME = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+// ADR filenames come in two forms. Dated is what new ADRs use: two branches
+// never mint the same name without also colliding on the slug, which git
+// reports. Numbered is the older sequential form, kept working forever so
+// adopters never have to renumber what they already shipped. Test dated
+// first — a dated name also satisfies the numbered pattern, capturing the year.
+const ADR_FILENAME_DATED = /^(\d{4}-\d{2}-\d{2})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
+const ADR_FILENAME_NUMBERED = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const BANNER_PREFIX = '> **Working note — not authoritative.**';
 const CANONICAL_READMES = [
   'README.md',
@@ -260,6 +270,42 @@ function git(scope, args) {
   return res.stdout;
 }
 
+function isRealDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getUTCFullYear() === y && date.getUTCMonth() === m - 1 && date.getUTCDate() === d;
+}
+
+// A dated ADR carries its date in the filename, so the heading is the title
+// alone. The date line under the heading is the one place the date is repeated,
+// which makes it the cross-check that a mistyped filename date is caught.
+function checkDatedAdrBody(relPath, content, heading, date, report) {
+  if (!heading) {
+    report.warnings.push({
+      check: 'adr-heading', path: relPath,
+      message: 'First heading should be "# Title" — the title alone, with no number or date prefix.',
+    });
+  } else if (/^#\s+(?:\d{4}-\d{2}-\d{2}|\d{4})\.\s/.test(heading)) {
+    report.warnings.push({
+      check: 'adr-heading', path: relPath,
+      message: 'A dated ADR states the title alone in its heading. Drop the number or date prefix — the filename carries the date.',
+    });
+  }
+
+  const dateLine = /^\*(\d{4}-\d{2}-\d{2})\*$/m.exec(content);
+  if (!dateLine) {
+    report.warnings.push({
+      check: 'adr-date', path: relPath,
+      message: `No "*${date}*" date line under the title.`,
+    });
+  } else if (dateLine[1] !== date) {
+    report.errors.push({
+      check: 'adr-date', path: relPath,
+      message: `Date line ${dateLine[1]} does not match filename date ${date}.`,
+    });
+  }
+}
+
 function checkAdrs(scope, docs, report) {
   const adrDir = path.join(docs, 'adr');
   if (!isDir(adrDir)) return; // structure check covers the missing folder
@@ -271,25 +317,42 @@ function checkAdrs(scope, docs, report) {
 
   const byNumber = new Map();
   const numbers = [];
+  let datedCount = 0;
 
   for (const file of files) {
     const relPath = rel(scope, path.join(adrDir, file));
-    const m = ADR_FILENAME.exec(file);
-    if (!m) {
+    const dated = ADR_FILENAME_DATED.exec(file);
+    const numbered = dated ? null : ADR_FILENAME_NUMBERED.exec(file);
+    if (!dated && !numbered) {
       report.errors.push({
         check: 'adr-filename', path: relPath,
-        message: 'Filename must match NNNN-kebab-title.md (four-digit zero-padded number, kebab-case slug).',
+        message: 'Filename must match YYYY-MM-DD-kebab-title.md, or NNNN-kebab-title.md for an ADR numbered under the older sequential scheme.',
       });
       continue;
     }
-    const number = m[1];
+
+    const content = readText(path.join(adrDir, file));
+    const heading = content === null ? null : firstHeading(content);
+
+    if (dated) {
+      datedCount++;
+      const date = dated[1];
+      if (!isRealDate(date)) {
+        report.errors.push({
+          check: 'adr-filename', path: relPath,
+          message: `Filename date ${date} is not a real calendar date.`,
+        });
+      }
+      if (content !== null) checkDatedAdrBody(relPath, content, heading, date, report);
+      continue;
+    }
+
+    const number = numbered[1];
     numbers.push(parseInt(number, 10));
     if (!byNumber.has(number)) byNumber.set(number, []);
     byNumber.get(number).push(file);
 
-    const content = readText(path.join(adrDir, file));
     if (content !== null) {
-      const heading = firstHeading(content);
       const hm = heading && /^#\s+(\d{4})\./.exec(heading);
       if (!hm) {
         report.warnings.push({
@@ -308,8 +371,15 @@ function checkAdrs(scope, docs, report) {
   const maxNumber = numbers.length ? Math.max(...numbers) : 0;
   const nextFree = String(maxNumber + 1).padStart(4, '0');
   report.summary.adr_count = files.length;
+  report.summary.dated_adr_count = datedCount;
+  report.summary.numbered_adr_count = numbers.length;
+  // Only the numbered scheme has a "next" number. It is what `migrate` moves a
+  // collided ADR to, so it stays in the report while any numbered ADR remains.
   report.summary.next_free_adr = nextFree;
 
+  // Collisions and gaps belong to the numbered scheme alone. Two branches
+  // cannot produce the same dated filename without also picking the same slug,
+  // and git reports that as an add/add conflict at merge time.
   for (const [number, dupes] of byNumber) {
     if (dupes.length > 1) {
       report.errors.push({
@@ -326,7 +396,7 @@ function checkAdrs(scope, docs, report) {
     if (unique[i] !== unique[i - 1] + 1) {
       report.warnings.push({
         check: 'adr-gap', path: rel(scope, adrDir),
-        message: `Numbering gap between ${String(unique[i - 1]).padStart(4, '0')} and ${String(unique[i]).padStart(4, '0')} — numbers should be strictly sequential.`,
+        message: `Numbering gap between ${String(unique[i - 1]).padStart(4, '0')} and ${String(unique[i]).padStart(4, '0')} — numbered ADRs should be strictly sequential.`,
       });
     }
   }
@@ -337,7 +407,7 @@ function checkAdrs(scope, docs, report) {
     return;
   }
   for (const file of files) {
-    if (!ADR_FILENAME.test(file)) continue;
+    if (!ADR_FILENAME_DATED.test(file) && !ADR_FILENAME_NUMBERED.test(file)) continue;
     const relPath = rel(scope, path.join(adrDir, file));
     const log = git(scope, ['log', '--diff-filter=A', '--format=%H', '--', relPath]);
     if (!log || !log.trim()) continue; // never committed — still a draft, free to edit
@@ -513,7 +583,7 @@ function nearestScopeFromSet(scanRoot, file, scopeSet) {
 function findAdrReferences(scope, number, docs) {
   const n = parseInt(number, 10);
   const prose = /\badr[\s\-_#:]{0,3}(\d{1,4})\b/gi;
-  const filename = /\b(\d{4})-[a-z0-9][a-z0-9-]*\.md\b/g;
+  const filename = /\b(\d{4})-(?!\d{2}-\d{2}-)[a-z0-9][a-z0-9-]*\.md\b/g;
   const superseded = /\bSuperseded by (\d{4})\b/gi;
 
   const files = [];
@@ -567,12 +637,18 @@ function migrate(scope, docs, fileArg, toNumber) {
   if (!isFile(src)) fail(`ADR file not found: ${fileArg}`);
 
   const base = path.basename(src);
-  const m = ADR_FILENAME.exec(base);
+  if (ADR_FILENAME_DATED.test(base)) {
+    fail(`"${base}" is a dated ADR. migrate renumbers ADRs under the older sequential scheme, and dated filenames never collide.`);
+  }
+  const m = ADR_FILENAME_NUMBERED.exec(base);
   if (!m) fail(`"${base}" does not match the NNNN-kebab-title.md pattern`);
   const fromNumber = m[1];
   if (fromNumber === toNumber) fail('source and target numbers are identical');
 
-  const taken = fs.readdirSync(adrDir).some((f) => f.startsWith(`${toNumber}-`));
+  const taken = fs.readdirSync(adrDir).some((f) => {
+    const nm = ADR_FILENAME_DATED.test(f) ? null : ADR_FILENAME_NUMBERED.exec(f);
+    return nm !== null && nm[1] === toNumber;
+  });
   if (taken) fail(`target number ${toNumber} is already in use`);
 
   const dest = path.join(adrDir, `${toNumber}-${base.slice(5)}`);

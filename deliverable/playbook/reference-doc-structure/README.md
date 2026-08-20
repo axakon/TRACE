@@ -18,7 +18,7 @@ Every file in this reference is generic — no TRACE-specific content. The READM
     │   └── overview.md        ← you author this; the structural map of your project
     ├── adr/                   ← HISTORICAL    — discrete decisions
     │   ├── README.md          ← ADR conventions
-    │   └── 0000-record-architecture-decisions.md  ← you create this; the foundational ADR
+    │   └── 2026-08-20-record-architecture-decisions.md  ← you create this; the foundational ADR
     ├── reference/             ← HISTORICAL    — stabilized rationale
     │   └── README.md          ← reference-doc conventions
     └── working-notes/         ← HISTORICAL    — raw research substrate

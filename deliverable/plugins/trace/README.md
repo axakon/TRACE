@@ -56,7 +56,7 @@ Commands are namespaced `/trace:`. For everything TRACE ships, install `trace-fu
 | `AGENTS.md` | `agents-md-setup` | Canonical project context |
 | `CLAUDE.md` | `agents-md-setup` | One-line forwarder |
 | `docs/` | `init` | The doc structure, each folder with a README explaining what belongs there |
-| `<docs-folder>/adr/` | `adr` | Immutable, numbered decision records |
+| `<docs-folder>/adr/` | `adr` | Immutable, dated decision records |
 | `.claude/.trace/config.json` | `init` | Which docs folder you chose |
 | `.claude/.trace/distillation-pending` | a hook | The distillation sentinel; self-gitignored |
 
@@ -85,7 +85,7 @@ Missing canonical READMEs or marker pairs, a root `AGENTS.md` outside its spec, 
 
 Unambiguous fixes are applied directly — every change is an uncommitted edit, so `git diff` is your review. You're asked only about genuinely uncertain cases (batched into one question) and anything that would overwrite prose you wrote. Record-level problems, like an edited shipped ADR, are reported with a recommendation and never auto-fixed.
 
-Its speciality is the **ADR number collision** — two merged branches minting the same number. Doctor renumbers one file mechanically (whichever shipped first keeps the number), then inventories every reference to the old number across the repo and resolves each by reading it in context. Confident resolutions apply; ambiguous ones come back to you. References are never bulk-rewritten.
+Its speciality is the **ADR number collision** — two merged branches minting the same number. New ADRs are named by date and cannot collide, so this applies to records numbered under the older scheme. Doctor renumbers one file mechanically (whichever shipped first keeps the number), then inventories every reference to the old number across the repo and resolves each by reading it in context. Confident resolutions apply; ambiguous ones come back to you. References are never bulk-rewritten.
 
 ### Monorepos and super-repos
 

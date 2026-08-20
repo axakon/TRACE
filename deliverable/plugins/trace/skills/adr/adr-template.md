@@ -1,14 +1,14 @@
 # ADR template (slimmed Nygard)
 
-Written into `<docs-folder>/adr/<NNNN>-<short-title>.md`. `<NNNN>` is a zero-padded four-digit sequence number; `<short-title>` is a kebab-case slug. Once shipped, an ADR is immutable — supersede, never edit.
+Written into `<docs-folder>/adr/<YYYY-MM-DD>-<short-title>.md`. The date is the day you write the record. `<short-title>` is a kebab-case slug. Once shipped, an ADR is immutable — supersede, never edit.
 
-No `Status` field: this skill writes ADRs at end-of-work, so on landing they're accepted; an unshipped draft (still local, no one acting on it) can still be edited freely until commit. If a later ADR reverses this one, add a single `> Superseded by {MMMM}.` line under the title — the only permitted edit to a shipped ADR.
+No `Status` field: this skill writes ADRs at end-of-work, so on landing they're accepted; an unshipped draft (still local, no one acting on it) can still be edited freely until commit. If a later ADR reverses this one, add a single `> Superseded by <filename without .md>.` line under the title — the only permitted edit to a shipped ADR.
 
-Drop this preamble when writing the file; start from the `# {NNNN}.` heading.
+Drop this preamble when writing the file. Start from the `# {Title}` heading.
 
 ---
 
-# {NNNN}. {Title — short noun phrase naming the decision}
+# {Title — short noun phrase naming the decision}
 
 *{YYYY-MM-DD}*
 

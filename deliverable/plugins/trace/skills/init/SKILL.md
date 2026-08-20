@@ -61,7 +61,7 @@ The script copies only missing files — it never overwrites — and prints a JS
 - `conflicts` — targets that exist and **differ**. For each, Read it, show what's there briefly, and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**. On overwrite, Read the source (`../../shared/doc-structure/<path>` relative to this skill) and Write it to the target.
 - `errors` — paths the script could not write (e.g. a file sitting where a directory is needed). Show each path and message to the developer and stop; they resolve the obstruction, then re-run `/trace:init` — re-running is safe, already-written files are skipped.
 
-Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of TRACE's guardrails.
+Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, an `adr/` record declaring that the project uses ADRs, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of TRACE's guardrails.
 
 ## Phase 4: Mark the folder
 

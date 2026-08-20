@@ -3,7 +3,7 @@ name: adr
 description: Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace-plan:spec at handoff.
 when_to_use: When an *architecturally significant* decision has been made — one affecting the system's structure, non-functional characteristics, a foundational dependency, a public interface, or a reused construction technique, with a real choice between alternatives. Spec-workflow invokes this at handoff when a planning decision qualifies; a developer can invoke it directly too. Not for a choice localized to one feature or module, a conventional default, or a routine/cheap-to-reverse implementation choice — route those to /trace:distil.
 argument-hint: [short decision title]
-allowed-tools: Glob Read Write AskUserQuestion
+allowed-tools: Glob Read Write AskUserQuestion Bash(node *)
 ---
 
 You are recording an architecture decision as an ADR — a short, immutable record of a single significant choice. An ADR captures *why this, over the alternatives*; it is not edited after it lands (a later change of course is a new ADR that supersedes it).
@@ -24,27 +24,33 @@ Apply [adr-criteria.md](../../shared/adr-criteria.md), hard gate first. If the d
 
 If an existing ADR covers the same ground, this is likely a **supersession** (Phase 5), not a new standalone record.
 
-## Phase 3: Resolve the target folder and next number
+## Phase 3: Resolve the target folder and the date
 
 Resolve the scope's docs folder using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). ADRs live in `<docs-folder>/adr/`.
 
-Use the Glob tool to list `<docs-folder>/adr/*.md`. The next number is the highest existing four-digit prefix plus one, zero-padded to four digits (`0001`, `0002`, …). If the folder is empty or absent, start at `0001`.
+An ADR filename starts with the date you write it. A wrong date lands in a filename nobody can change afterwards, so read the date from the machine rather than from memory:
+
+```
+node -e "console.log(new Date().toISOString().slice(0, 10))"
+```
+
+Some folders hold older ADRs whose filenames start with a four-digit number. Leave those alone. Both forms stay valid, and a folder can carry a mix.
 
 ## Phase 4: Draft the ADR
 
 Fill the [adr-template.md](./adr-template.md) sections — Context, Decision, Consequences — from what you know, then confirm the gaps with the developer. [example-adr.md](./example-adr.md) shows the target depth: a few sentences per section, alternatives as prose inside Context. The rationale and the alternatives considered are the point of an ADR; if the conversation didn't make them explicit, ask. Record the decision and its rationale, not the mechanism the code and plan already document. Apply [authoring-rules.md](../../shared/authoring-rules.md): plain prose, only what was actually decided, no padding.
 
-Choose a kebab-case `<short-title>` slug. The filename is `<NNNN>-<short-title>.md`.
+Choose a kebab-case `<short-title>` slug. The filename is `<YYYY-MM-DD>-<short-title>.md`.
 
 Show the developer the drafted ADR and its target path. Wait for explicit approval. Apply edits if requested.
 
 ## Phase 5: Write (and supersede, if applicable)
 
-Write the approved ADR to `<docs-folder>/adr/<NNNN>-<short-title>.md`. The Write tool creates parent directories, so a non-existent `adr/` folder is fine.
+Write the approved ADR to `<docs-folder>/adr/<YYYY-MM-DD>-<short-title>.md`. The Write tool creates parent directories, so a non-existent `adr/` folder is fine.
 
 If this ADR supersedes an earlier one:
-- In the new ADR's Context, name the one it supersedes (e.g. "Supersedes 0003.").
-- Add a `> Superseded by {NNNN}.` line under the **old** ADR's title — the only permitted edit to an existing ADR. Show the developer this edit and confirm before applying it.
+- In the new ADR's Context, name the one it supersedes by its filename without `.md` (e.g. "Supersedes 2026-03-11-use-redis-for-sessions."). Name an older numbered ADR the same way (e.g. "Supersedes 0003-use-redis-for-sessions.").
+- Add a `> Superseded by <filename without .md>.` line under the **old** ADR's title — the only permitted edit to an existing ADR. Show the developer this edit and confirm before applying it.
 
 ## Notes
 
