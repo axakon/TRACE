@@ -52,7 +52,7 @@ Read every ticket's frontmatter and render the board: number, title, status, dep
 - **Update status** — set a ticket to `todo` / `in-progress` / `done`
 - **Add ticket** — mini-interview (why, scope, dependencies), next free number
 - **Split ticket** — the original becomes the first of the splits; new tickets take fresh numbers
-- **Show ticket seed** — print the ticket body formatted for pasting into `/trace-plan:spec`
+- **Show ticket seed** — print the ticket for pasting into `/trace-plan:spec`: a line naming the epic title, a `Ticket file:` line with the ticket's absolute path, then the ticket body. The viewer's **copy seed** button emits the same text.
 
 After any change, rewrite the affected ticket frontmatter and regenerate epic.md's board table. Ticket frontmatter is authoritative; the board table is a view of it.
 

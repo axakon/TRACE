@@ -154,6 +154,7 @@ function readEpic(epicsDir, slug) {
     tickets.push({
       nnn: m[1],
       file: f,
+      filePath: path.join(dir, 'tickets', f),
       title: firstHeading(parsed.body, f),
       status: parsed.status,
       dependsOn: parsed.dependsOn,
@@ -615,7 +616,11 @@ async function copyText(text, link) {
   setTimeout(() => (link.textContent = orig), 1500);
 }
 function seedFor(epic, t) {
-  return 'Use /trace-plan:spec on this ticket from epic "' + epic.title + '":\\n\\n' + t.body.trim() + '\\n';
+  return (
+    'Use /trace-plan:spec on this ticket from epic "' + epic.title + '".\\n' +
+    'Ticket file: ' + t.filePath + '\\n\\n' +
+    t.body.trim() + '\\n'
+  );
 }
 async function postStatus(apiBase, slug, nnn, status) {
   await fetch(apiBase + slug + '/ticket/' + nnn + '/status', {
