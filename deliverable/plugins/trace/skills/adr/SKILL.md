@@ -3,7 +3,7 @@ name: adr
 description: Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace-plan:spec at handoff.
 when_to_use: When an *architecturally significant* decision has been made — one affecting the system's structure, non-functional characteristics, a foundational dependency, a public interface, or a reused construction technique, with a real choice between alternatives. Spec-workflow invokes this at handoff when a planning decision qualifies; a developer can invoke it directly too. Not for a choice localized to one feature or module, a conventional default, or a routine/cheap-to-reverse implementation choice — route those to /trace:distil.
 argument-hint: [short decision title]
-allowed-tools: Glob Read Write AskUserQuestion Bash(node *)
+allowed-tools: Glob Read Write AskUserQuestion Bash(date +%F)
 ---
 
 You are recording an architecture decision as an ADR — a short, immutable record of a single significant choice. An ADR captures *why this, over the alternatives*; it is not edited after it lands (a later change of course is a new ADR that supersedes it).
@@ -28,10 +28,10 @@ If an existing ADR covers the same ground, this is likely a **supersession** (Ph
 
 Resolve the scope's docs folder using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). ADRs live in `<docs-folder>/adr/`.
 
-An ADR filename starts with the date you write it. A wrong date lands in a filename nobody can change afterwards, so read the date from the machine rather than from memory:
+An ADR filename starts with the date you write it, and by convention a shipped ADR keeps that name. Read the date from the machine rather than from memory:
 
 ```
-node -e "console.log(new Date().toISOString().slice(0, 10))"
+date +%F
 ```
 
 Some folders hold older ADRs whose filenames start with a four-digit number. Leave those alone. Both forms stay valid, and a folder can carry a mix.
