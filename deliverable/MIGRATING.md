@@ -58,7 +58,7 @@ That's it for most people. The rest of this page covers multi-scope installs, co
 | Per-scope config | `.claude/.playbook/config.json` | `.claude/.trace/config.json` | **No** — the old path is still read as a fallback |
 | Viewer env vars | `PLAYBOOK_PLAN_VIEWER`, `PLAYBOOK_PLAN_VIEWER_PORT` | `TRACE_PLAN_VIEWER`, `TRACE_PLAN_VIEWER_PORT` | **No** — old names still honoured |
 | Your docs, `AGENTS.md`, ADRs | — | unchanged | **No** — nothing moves |
-| Committed `.claude/settings.json` naming the old plugin | — | must be updated | **Yes** — collaborators get prompts for a marketplace that no longer resolves |
+| Committed `.claude/settings.json` naming the old plugin | — | must be updated | **Yes** — collaborators end up enabling a plugin id that no longer exists in the catalog |
 | Repo text referencing `/playbook:` commands | — | should be updated | Not technically, but the instructions become wrong |
 
 ---
@@ -74,7 +74,7 @@ That's it for most people. The rest of this page covers multi-scope installs, co
 | `trace@trace` + `trace-plan@trace` | Also used `spec-workflow` / `epic-workflow` |
 | `trace@trace` + `trace-git@trace` | Also used the commit / PR skills |
 
-The add-ons depend on `trace`, so naming an add-on pulls the core in automatically.
+The add-ons depend on `trace`, so naming an add-on in `claude plugin install` pulls the core in automatically. Hand-editing `settings.json` is different — there you must name the core yourself, as [Phase 4](#phase-4--update-repo-references) shows.
 
 ---
 
@@ -100,6 +100,30 @@ claude plugin marketplace list
 ```
 
 From the JSON, note every entry whose `id` is `playbook@ai-playbook`, with its `scope` and `projectPath`. There is usually more than one. Git worktrees appear as separate `projectPath` entries but share their parent repo's committed settings — fixing the parent fixes them.
+
+**`claude plugin list` is not the whole picture.** Two separate records decide what you are looking at, and they disagree more often than you would expect:
+
+| Record | Where it lives | Committed? |
+|---|---|---|
+| **Enablement** — the `enabledPlugins` key | `settings.json` at each scope | Project scope is, and travels to everyone who clones the repo |
+| **Install** — what `claude plugin` acts on | `~/.claude/plugins/installed_plugins.json` | Never — it is per machine |
+
+A repo whose committed `settings.json` enables the plugin gives every collaborator the *enablement* without the *install record*. Phase 2's CLI steps only work where an install record exists, so decide now which case you are in:
+
+```bash
+# does THIS machine hold a project-scope install record for THIS repo?
+claude plugin list --json | python3 -c '
+import json, os, sys
+here = os.path.realpath(".")
+mine = [p for p in json.load(sys.stdin)
+        if p["id"] == "playbook@ai-playbook" and p.get("scope") == "project"
+        and os.path.realpath(p.get("projectPath", "")) == here]
+print("install record present -> Phase 2 CLI path" if mine
+      else "no install record for this repo -> Phase 2 settings-edit path")
+'
+```
+
+`claude plugin list --json` reports project entries for *every* repo on the machine, so match on `projectPath` — a project-scope install in a different repo does not make the CLI path work here. If `python3` is unavailable, read the JSON and check `projectPath` by eye.
 
 In the current repo, find the leftover state and references:
 
@@ -144,7 +168,28 @@ claude plugin marketplace add axakon/TRACE --scope project
 claude plugin install trace-full@trace --scope project
 ```
 
-Installing the bundle auto-installs `trace`, `trace-plan`, and `trace-git` — expect all four in `claude plugin list`.
+Installing the bundle auto-installs `trace`, `trace-plan`, and `trace-git` — expect all four in `claude plugin list`, and all four written into that scope's `enabledPlugins`. That is correct, not redundant: `trace-full` ships no content of its own, and Claude Code writes an explicit `true` for a plugin *and* each of its dependencies at the target scope.
+
+**No install record at this scope?** Then the CLI cannot help you, and the two scope flags will appear to contradict each other:
+
+```
+$ claude plugin uninstall playbook@ai-playbook --scope local
+  ... is enabled at project scope (.claude/settings.json, shared with your team)
+$ claude plugin uninstall playbook@ai-playbook --scope project
+  ... is not installed in project scope. Use --scope to specify the correct scope.
+```
+
+Both are true. The first reads the enablement record, the second reads the install record. Do not go looking for a third scope value — no scope flag reaches an enablement that has no install behind it. Do this instead:
+
+1. **Edit `.claude/settings.json` by hand** to drop the `ai-playbook` marketplace entry and the `playbook@ai-playbook` key. Only the file holds them, so only a file edit removes them. [Phase 4](#phase-4--update-repo-references) has the full target shape.
+2. **Then run the install**, which writes the new marketplace and all four `enabledPlugins` keys for you, and creates the install record this machine was missing:
+
+   ```bash
+   claude plugin marketplace add axakon/TRACE --scope project
+   claude plugin install trace-full@trace --scope project
+   ```
+
+Letting the CLI write step 2 is better than hand-writing the JSON: it registers the install, so every later `claude plugin` command at this scope works normally.
 
 **Verify the marketplace re-keyed.** `claude plugin marketplace list` should now show `trace`, not `ai-playbook`. If it still says `ai-playbook`, the remove didn't happen at that scope: the new plugins will still install, but as `trace-full@ai-playbook`, which works yet leaves the old name wired in permanently. Redo the remove/add pair at that scope.
 
@@ -172,11 +217,26 @@ This step is optional in the sense that 1.0 still reads the old path, and `/trac
       "source": { "source": "github", "repo": "axakon/TRACE" }
     }
   },
-  "enabledPlugins": { "trace-full@trace": true }
+  "enabledPlugins": {
+    "trace-full@trace": true,
+    "trace@trace": true,
+    "trace-plan@trace": true,
+    "trace-git@trace": true
+  }
 }
 ```
 
 Remove the old `ai-playbook` marketplace entry and the `playbook@ai-playbook` key. Merge into the existing JSON — do not replace the file, and leave unrelated keys alone.
+
+**Name every plugin, not just the bundle.** `trace-full` ships no content — its manifest is a `dependencies` array, and the three plugins it names carry every skill. Claude Code writes an explicit `true` for a plugin *and* each of its dependencies at the same scope, so the four keys above are what a CLI install produces. Write only `trace-full@trace` and its dependencies stay disabled, which Claude Code reports as `dependency-unsatisfied`.
+
+If Phase 1 chose a narrower set, name the core alongside the add-on — `trace-plan` and `trace-git` both depend on `trace`:
+
+```json
+{ "enabledPlugins": { "trace@trace": true, "trace-git@trace": true } }
+```
+
+**This file enables TRACE, it does not install it.** Claude Code does not fetch a plugin from an external marketplace just because `enabledPlugins` names it — after trusting the folder a collaborator sees the plugin reported as not installed, with a `claude plugin install` command to run. So every machine, including this one, still needs the Phase 2 install. Say so in the Phase 6 report: each collaborator runs `claude plugin install trace-full@trace --scope project` once, and it resolves from the marketplace this file now carries.
 
 **Text references.** Rewrite every `/playbook:<skill>` hit from Phase 0 using the [command table](#commands). Check `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, the docs folder, and CI configs.
 
@@ -215,7 +275,7 @@ Tell the user:
 
 1. **What changed** — scopes migrated, plugins now installed, config folders moved, files edited.
 2. **What they must do** — restart Claude Code (plugin changes apply on restart), then check tab-completion on `/trace`.
-3. **What's left for them** — any other repos from the Phase 0 `projectPath` list that still have a project-scope install, any env vars in shell profiles, and the reminder to review and commit the working-tree changes.
+3. **What's left for them** — any other repos from the Phase 0 `projectPath` list that still have a project-scope install, any env vars in shell profiles, and the reminder to review and commit the working-tree changes. If you changed a committed `settings.json`, add that each collaborator runs `claude plugin install trace-full@trace --scope project` once after pulling — the commit shares the enablement, not the install.
 4. **Anything you deliberately didn't touch** — ADRs, historical notes, shell profiles.
 
 ---
@@ -240,6 +300,10 @@ claude plugin install playbook@ai-playbook
 **`/trace:` commands don't appear.** Restart Claude Code — plugin changes apply on restart, not reload. Then check that the `trace` marketplace and the `enabledPlugins` key are in the *same* `settings.json`.
 
 **Both old and new commands appear.** An install of `playbook@ai-playbook` survives at a scope you haven't migrated. `claude plugin list --json` shows which.
+
+**`uninstall` gives two different answers about the same scope.** `--scope local` reports the plugin enabled at project scope, `--scope project` reports it not installed there. Both are correct — they read different records. `enabledPlugins` in the committed `settings.json` says the plugin is *enabled*, and `~/.claude/plugins/installed_plugins.json` on your machine has no *install* for it, which is the normal state after cloning a repo that ships TRACE in its settings. No scope flag resolves this. Edit `.claude/settings.json` directly, as [Phase 4](#phase-4--update-repo-references) describes, and restart.
+
+**`dependency-unsatisfied` on `trace-full`, or no skills after a hand-edit.** `enabledPlugins` names the bundle but not the three plugins it depends on. Add `trace@trace`, `trace-plan@trace`, and `trace-git@trace` alongside it — see [Phase 4](#phase-4--update-repo-references).
 
 **`marketplace add axakon/TRACE` says "already on disk".** The old `ai-playbook` declaration points at the same repo, so there is nothing to add. Remove it at that scope first (`claude plugin marketplace remove ai-playbook --scope <scope>`), then add again.
 

@@ -48,12 +48,20 @@ Add or drop add-ons later without reinstalling anything.
 
 <br>
 
-`/plugin install` defaults to **user scope** — every project on your machine, not committed. For team adoption use project scope, which writes to the repo's `.claude/settings.json` so collaborators get prompted when they trust the folder:
+`/plugin install` defaults to **user scope** — every project on your machine, not committed. For team adoption use project scope, which writes the marketplace and the enabled plugins into the repo's `.claude/settings.json`:
 
 ```
 /plugin marketplace add axakon/TRACE --scope project
 /plugin install trace-full@trace --scope project
 ```
+
+**Each collaborator still runs the install once.** Committing `settings.json` shares the *enablement*, not the install. Trusting the folder adds the `trace` marketplace without a further prompt, but Claude Code does not auto-install a plugin from an external source — it reports TRACE as not installed and prints the command to run. That command is:
+
+```bash
+claude plugin install trace-full@trace --scope project
+```
+
+It reads the marketplace already in the committed settings, so nobody has to add it again.
 
 </details>
 
@@ -71,11 +79,26 @@ Merge this into `.claude/settings.json` (project) or `~/.claude/settings.json` (
       "source": { "source": "github", "repo": "axakon/TRACE" }
     }
   },
-  "enabledPlugins": { "trace-full@trace": true }
+  "enabledPlugins": {
+    "trace-full@trace": true,
+    "trace@trace": true,
+    "trace-plan@trace": true,
+    "trace-git@trace": true
+  }
 }
 ```
 
-Swap `trace-full@trace` for whichever plugin you want. Then `/reload-plugins`.
+**Name the plugin you want *and* everything it depends on.** Claude Code does not expand a dependency array for you here — a plugin whose dependency is missing from `enabledPlugins` is disabled with `dependency-unsatisfied`. `trace-full` ships no content of its own, so the block above lists all four. Installing through the CLI or `/plugin` writes the same four keys for you; this is only for hand-editing.
+
+**This enables TRACE, it does not install it.** Claude Code will not fetch a plugin from an external marketplace just because `enabledPlugins` names it — it reports the plugin as not installed and prints a `claude plugin install` command. Prefer the CLI above unless you are pre-seeding a repo for other people.
+
+For a narrower install, keep `trace@trace` and the add-on you want — `trace-plan` and `trace-git` both depend on the core:
+
+```json
+{ "enabledPlugins": { "trace@trace": true, "trace-git@trace": true } }
+```
+
+Then `/reload-plugins`.
 
 </details>
 
