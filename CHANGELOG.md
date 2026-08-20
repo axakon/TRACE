@@ -4,6 +4,12 @@ All notable changes to the TRACE plugins are recorded here — `trace`, `trace-p
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Changed
+
+- **`distil` no longer records a dependency's own quirks.** Criterion 4 named "version-specific quirks" as an example of a distillable gotcha, so runs captured how Postgres or a query library behaves rather than how this project uses it. A quirk belongs to the tool's own docs and goes stale on the next version bump, and nobody here knows to chase it. The criterion now requires the gotcha to be about the repo's code or its use of a tool, and the not-worth-distilling list rejects anything true wherever that dependency is used. A fact that makes the project's use of a tool differ from the norm still qualifies.
+
 ## [1.0.0] - 2026-08-16
 
 **Breaking: the plugin is renamed and split into four.** `playbook@ai-playbook` no longer exists. See the [migration guide](deliverable/MIGRATING.md) — it doubles as an agent runbook.
