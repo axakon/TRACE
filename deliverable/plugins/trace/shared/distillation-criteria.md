@@ -10,7 +10,7 @@ A change is worth distilling if it introduces or modifies any of the following:
 
 3. **A durable design choice.** A decision that constrains how future work fits in — choice of state management, message bus, caching strategy, event schema. Not the *implementation*, but the *choice*.
 
-4. **A non-obvious gotcha.** Something that would surprise a developer who didn't make the change. Configuration values that look arbitrary but aren't, implicit ordering requirements, version-specific quirks, integration points that fail silently.
+4. **A non-obvious gotcha.** Something that would surprise a developer who didn't make the change. Configuration values that look arbitrary but aren't, implicit ordering requirements, integration points that fail silently. It must be about this repo's code or its use of a tool, not about the tool.
 
 5. **A correction to existing context.** If the change makes anything in AGENTS.md or the context files outdated or wrong, the context needs updating regardless of whether the change itself is "interesting."
 
@@ -19,6 +19,7 @@ A change is **not** worth distilling if:
 - It's purely additive within an established pattern (adding another endpoint that follows the existing route structure)
 - It's a typo, dependency bump, formatting fix, or cosmetic tweak with no behavioural impact
 - The information is already discoverable from standard project files without specific guidance
+- It's a quirk of a dependency, true wherever that dependency is used — the tool's own docs own it, and it goes stale on the next version
 - It's a rollback or revert — the previous state is what's documented
 
 When in doubt, ask: *would a developer working on something related six months from now be glad someone wrote this down?* If yes, distill. If no, skip.
