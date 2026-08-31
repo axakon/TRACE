@@ -33,7 +33,7 @@ Interview about architecture and phasing, not implementation. One question at a 
 
 Draft the complete epic — epic.md per [epic-template.md](./epic-template.md) (context, core user stories, architecture diagrams, board table) and every ticket per [ticket-template.md](./ticket-template.md). A ticket's Scope section is the **spec seed**: self-contained text a `/trace-plan:spec` run can start from without reading the epic — the deliverable, not acceptance criteria; those belong to the spec run.
 
-Read [authoring-rules.md](../../shared/authoring-rules.md) and [example-epic.md](./example-epic.md) before you draft, and re-check the draft against both before you stage it.
+Read [example-epic.md](./example-epic.md) before you draft — it sets the target length and tone — and re-check the draft against it before you stage it.
 
 Stage the draft for browser review instead of dumping it in chat:
 

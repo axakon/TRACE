@@ -1,8 +1,10 @@
-# Example: a filled epic and ticket
+# Example: a filled epic and two tickets
 
 Fictional example (the Meridian API project from `agents-md-setup`'s example) showing the target length and tone of Phase 3's output. Use it as a reference, not a template to copy.
 
-Notice the calibration. Context is three sentences. Each story names a real role. The ticket's Scope is a short paragraph a later spec run can start from cold — it states the deliverable and stops, because acceptance criteria are the spec run's job.
+Notice the calibration. Context is three sentences. Each story names a real role. A ticket's Scope is a short paragraph a later spec run can start from cold — it states the deliverable and stops, because acceptance criteria are the spec run's job.
+
+Ticket 001 is the simple shape. Ticket 002 is the harder one: it carries a question the spec must settle, and puts the candidates in a list instead of crowding them into a sentence.
 
 ---
 
@@ -84,4 +86,40 @@ changes nothing in Stripe or in our database.
 
 Applying the change (ticket 002). The portal screen that renders the preview.
 Plan downgrades, which bill differently and were cut from this epic.
+```
+
+## `tickets/002-plan-change.md`
+
+```markdown
+---
+status: todo
+depends_on: ["001"]
+---
+
+# 002. Plan change endpoint
+
+## Why
+
+The preview from ticket 001 tells the owner what they will pay. Nothing yet
+applies the change, so the portal still ends at an email to support.
+
+## Scope
+
+Add `POST /subscription` to the Meridian API. It takes the target plan id the
+owner confirmed, updates the subscription in Stripe, and returns the new plan
+and its start date.
+
+The spec settles what happens when Stripe declines the charge. Three
+candidates:
+
+- Fail the request and leave the old plan in place
+- Apply the new plan and mark the account past due
+- Retry once, then fail
+
+Only an account owner can call it. Ticket 001's preview endpoint already checks
+that role, so reuse its check.
+
+## Out of scope
+
+The audit record (ticket 003). Plan downgrades, which were cut from this epic.
 ```
