@@ -1,10 +1,12 @@
 ---
-name: commit-message
-description: Draft a single commit's message — imperative-mood title plus a short why body, optional decision bullets, plain text (no markdown). Use when the developer explicitly asks for a commit message, asks to fix a message before amending, or asks the agent to perform the commit on their behalf.
-when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for a commit message itself ("write a commit message", "draft the commit message", "help me write the commit", "give me a message for this commit", "fix the message before I amend"); (2) the developer asks the agent to perform the commit ("commit this", "commit the staged changes", "go ahead and commit") — the skill drafts the message the agent then uses. Also covers a request for the message of a specific past commit. Do **not** trigger merely because the developer is wrapping up, is done with a piece of work, has staged changes, or says "ship it" — those signals belong to `/trace:distil`, not here. Not for PR descriptions or squash-merge messages — `/trace-git:pr-description` handles those.
-argument-hint: [commit-ish]
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git show*) Bash(git rev-parse*) Glob Read Write
+name: "commit-message"
+description: "Draft a single commit's message — imperative-mood title plus a short why body, optional decision bullets, plain text (no markdown). Use when the developer explicitly asks for a commit message, asks to fix a message before amending, or asks the agent to perform the commit on their behalf."
+argument-hint: "[commit-ish]"
+allowed-tools: "Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git show*) Bash(git rev-parse*) Glob Read Write"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are drafting a single commit's message in TRACE's standard shape. The format is a shape, not a taxonomy — no prefixes, no enum of types. The goal is a predictable structure a future reader can scan in `git log`: *why this change* and *the non-obvious decisions behind it*.
 
@@ -79,3 +81,5 @@ Do not ask whether to copy the message, where to place it, or how to apply it. M
 - The format is a shape, not a taxonomy. No prefixes, no required type.
 - Single commit only. For a whole PR or squash-merge message, use `/trace-git:pr-description`.
 - If the diff is empty (nothing staged, or the target commit is empty), say so and stop.
+
+When to use: Triggers only on an explicit ask. Two cases — (1) the developer asks for a commit message itself ("write a commit message", "draft the commit message", "help me write the commit", "give me a message for this commit", "fix the message before I amend"); (2) the developer asks the agent to perform the commit ("commit this", "commit the staged changes", "go ahead and commit") — the skill drafts the message the agent then uses. Also covers a request for the message of a specific past commit. Do **not** trigger merely because the developer is wrapping up, is done with a piece of work, has staged changes, or says "ship it" — those signals belong to `/trace:distil`, not here. Not for PR descriptions or squash-merge messages — `/trace-git:pr-description` handles those.

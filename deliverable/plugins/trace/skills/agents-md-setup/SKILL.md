@@ -1,10 +1,12 @@
 ---
-name: agents-md-setup
-description: Set up or review the project's AGENTS.md through an interactive interview with the developer
-when_to_use: When a developer opens a project without an AGENTS.md, asks about project setup or conventions, or wants to update an existing AGENTS.md
-argument-hint: [path] [--yes]
-allowed-tools: Glob Read Edit Write AskUserQuestion
+name: "agents-md-setup"
+description: "Set up or review the project's AGENTS.md through an interactive interview with the developer"
+argument-hint: "[path] [--yes]"
+allowed-tools: "Glob Read Edit Write AskUserQuestion"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are helping a developer set up or update their project's `AGENTS.md` file. This file gives an agent persistent context about the project — what it is, how it's built, where things live, how to run it, and what's non-obvious.
 
@@ -19,7 +21,7 @@ Before you write anything, read these supporting files:
 
 Parse `$ARGUMENTS` first: a `--yes` (or `-y`) token anywhere turns on **non-interactive mode** (below); the remaining token, if any, is the `[path]`. Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) from that remaining token if given, otherwise cwd. Everywhere this skill says "the repo root" or "the root", read it as the resolved scope root: Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside it.
 
-Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or the Read tool). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per TRACE's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
+Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or a file read). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per TRACE's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
 
 ## Interview mechanics (both paths)
 
@@ -29,7 +31,7 @@ These rules govern every question you ask, in either path.
 
 2. **One clear turn boundary per section.** Propose the section, ask what's wrong or missing, then hand the turn over and wait — never chain into the next section.
    - Close each section with the literal line: *Reply `ok` to keep it, tell me what to change, or say "skip" to omit it.*
-   - Reserve `AskUserQuestion` for genuinely closed picks inside a section (e.g. the package manager) and for the single final write decision — not as a gate after every section. The one-section-at-a-time pace stays; the repeated approvals don't.
+   - Reserve the question control for genuinely closed picks inside a section (e.g. the package manager) and for the single final write decision — not as a gate after every section. The one-section-at-a-time pace stays; the repeated approvals don't.
 
 3. **Propose, then ask.** Lead with what you inferred from the repo; the developer corrects or confirms. Don't make them describe what you could have read.
 
@@ -46,7 +48,7 @@ _<one-sentence purpose, italics, copied from this skill>_
 
 <what you inferred from the repo>
 
-<your follow-up questions or AskUserQuestion calls>
+<your follow-up questions>
 ```
 
 ## Self-review (both paths)
@@ -60,7 +62,7 @@ Fix any violations before showing the draft.
 
 ## Non-interactive mode (`--yes`)
 
-When `--yes` (or `-y`) is set, skip the interview entirely — no `AskUserQuestion`, no per-section confirms, no waiting for replies. Build every section from Phase 1 reconnaissance alone, accepting your own inferred proposals, in both paths:
+When `--yes` (or `-y`) is set, skip the interview entirely — no the question control, no per-section confirms, no waiting for replies. Build every section from Phase 1 reconnaissance alone, accepting your own inferred proposals, in both paths:
 
 - **Inferable sections** (What is this, Stack, Directory index, Commands) — keep the content you proposed.
 - **Package manager** — take it from the lock file or manifest instead of asking.
@@ -101,7 +103,7 @@ _Key pieces only: framework, language/runtime, styling, data layer, package mana
 
 List the stack pieces visible in dependency files and config. Then:
 
-- Call `AskUserQuestion` for the **package manager** (`npm` / `pnpm` / `yarn` / `bun`) even when a lock file is present — lock files can be stale or committed by accident.
+- Call the question control for the **package manager** (`npm` / `pnpm` / `yarn` / `bun`) even when a lock file is present — lock files can be stale or committed by accident.
 - In chat, ask whether any are wrong and whether anything in the *running* system wouldn't show up in this repo (e.g. a Redis the deployed service uses) — the one place to probe beyond the source tree. Anchor it in what exists in production, not what might be added.
 
 **Section 3 — Directory index**
@@ -147,7 +149,7 @@ Apply the **Self-review** checklist above.
 
 In non-interactive mode, skip this phase — go straight to Phase 5 (see Non-interactive mode).
 
-Show the complete assembled draft (all sections in order). Call `AskUserQuestion`: **Write to disk / Edit / Discard**. If they pick Edit, ask what to change in chat, apply, re-present, and ask again. Do not write the file until they pick **Write to disk**.
+Show the complete assembled draft (all sections in order). Call the question control: **Write to disk / Edit / Discard**. If they pick Edit, ask what to change in chat, apply, re-present, and ask again. Do not write the file until they pick **Write to disk**.
 
 ### Phase 5: Write to disk
 
@@ -191,8 +193,10 @@ Apply the **Self-review** checklist above to the updated version.
 
 In non-interactive mode, skip this phase — go straight to Phase 5 (see Non-interactive mode).
 
-Show what changed — a before/after diff or a clean updated version, whichever is clearer. Call `AskUserQuestion`: **Apply changes / Edit further / Discard**. Do not modify the file until they pick **Apply changes**.
+Show what changed — a before/after diff or a clean updated version, whichever is clearer. Call the question control: **Apply changes / Edit further / Discard**. Do not modify the file until they pick **Apply changes**.
 
 ### Phase 5: Apply changes
 
 Write the approved updates to `AGENTS.md`. If the root `CLAUDE.md` forwarder was missing in Phase 1, write it now (one line: `See @AGENTS.md for more information.`).
+
+When to use: When a developer opens a project without an AGENTS.md, asks about project setup or conventions, or wants to update an existing AGENTS.md

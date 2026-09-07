@@ -1,0 +1,9 @@
+{
+  "host-instructions": "Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.",
+  "scripts": "${CLAUDE_SKILL_DIR}/../../scripts",
+  "arguments": "$ARGUMENTS",
+  "plan-start": "Use EnterPlanMode when available. If the session cannot enter plan mode, conduct the interview in chat and wait for explicit approval before implementation.",
+  "plan-review": "Save the complete plan to the plan file allowed by the current session. If no plan file is provided, use a uniquely named Markdown file under ~/.claude/plans/ when permitted. Run the viewer command below before presenting the plan. Use ExitPlanMode when available to present the same plan for approval. Otherwise ask for explicit approval in chat. Do not treat preview creation or browser opening as approval.",
+  "invoke-adr": "invoke {{skill:trace:adr}} through the Skill tool",
+  "plugin-root": "${CLAUDE_PLUGIN_ROOT}"
+}

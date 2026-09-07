@@ -7,9 +7,9 @@
       "runtimeArgs": [
         "deliverable/plugins/trace-plan/scripts/plan-server.js",
         "--plans-dir",
-        "deliverable/plugins/trace-plan/viewer/fixtures",
+        "plugin-src/trace-plan/viewer/fixtures",
         "--epics-dir",
-        "deliverable/plugins/trace-plan/viewer/fixtures/epics"
+        "plugin-src/trace-plan/viewer/fixtures/epics"
       ],
       "port": 7526
     }

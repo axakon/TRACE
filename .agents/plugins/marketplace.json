@@ -1,0 +1,56 @@
+{
+  "name": "trace",
+  "interface": {
+    "displayName": "TRACE"
+  },
+  "plugins": [
+    {
+      "name": "trace",
+      "source": {
+        "source": "local",
+        "path": "./plugins/trace"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "trace-plan",
+      "source": {
+        "source": "local",
+        "path": "./plugins/trace-plan"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "trace-git",
+      "source": {
+        "source": "local",
+        "path": "./plugins/trace-git"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "trace-full",
+      "source": {
+        "source": "local",
+        "path": "./plugins/trace-full"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

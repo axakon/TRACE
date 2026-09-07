@@ -1,6 +1,6 @@
 {
   "name": "trace",
-  "description": "TRACE — durable context for AI-assisted development. A docs core plus opt-in planning and delivery add-ons.",
+  "description": "TRACE — durable context, planning, and delivery.",
   "owner": {
     "name": "byBrick Tech"
   },
@@ -8,22 +8,22 @@
     {
       "name": "trace",
       "source": "./deliverable/plugins/trace",
-      "description": "TRACE core: durable context for AI-assisted development. Docs structure, AGENTS.md authoring, architecture decision records, context distillation, and a convention validator."
+      "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, and validates the conventions."
     },
     {
       "name": "trace-plan",
       "source": "./deliverable/plugins/trace-plan",
-      "description": "Planning add-on: spec-driven plan mode with acceptance criteria, local epics with a kanban board, and a browser viewer for both."
+      "description": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows."
     },
     {
       "name": "trace-git",
       "source": "./deliverable/plugins/trace-git",
-      "description": "Delivery add-on: commit messages and PR descriptions in TRACE's What / Approach / Updated context shape."
+      "description": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy."
     },
     {
       "name": "trace-full",
       "source": "./deliverable/plugins/trace-full",
-      "description": "Everything TRACE ships, behind one install: core plus the planning and delivery add-ons."
+      "description": "Everything TRACE ships, behind one install: the docs core plus the planning and delivery add-ons. Install this if you don't want to choose."
     }
   ]
 }

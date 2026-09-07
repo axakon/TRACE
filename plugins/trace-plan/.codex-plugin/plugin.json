@@ -1,0 +1,32 @@
+{
+  "name": "trace-plan",
+  "description": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": [
+    "planning",
+    "spec",
+    "epic",
+    "kanban",
+    "trace"
+  ],
+  "version": "1.1.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "trace-plan",
+    "shortDescription": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows",
+    "longDescription": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows.",
+    "developerName": "byBrick Tech",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use TRACE to plan this change."
+    ]
+  }
+}

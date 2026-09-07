@@ -1,10 +1,13 @@
 ---
-name: doctor
-description: Validate a TRACE-adopted scope against TRACE's own conventions — doc structure, marker pairs, AGENTS.md spec, ADR numbering and immutability, working-note banners, relative links — then guide the fixes. Owns the resolution flow for ADR number collisions left by merged branches. Useful after merges, before releases, or whenever the structure feels off.
+name: "doctor"
+description: "Validate a TRACE-adopted scope against TRACE's own conventions — doc structure, marker pairs, AGENTS.md spec, ADR numbering and immutability, working-note banners, relative links — then guide the fixes. Owns the resolution flow for ADR number collisions left by merged branches. Useful after merges, before releases, or whenever the structure feels off."
 disable-model-invocation: true
-argument-hint: [path]
-allowed-tools: Bash(node *) Bash(git log*) Glob Read Edit Write AskUserQuestion
+argument-hint: "[path]"
+allowed-tools: "Bash(node *) Bash(git log*) Glob Read Edit Write AskUserQuestion"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are running TRACE's structure validator: a deterministic script finds the violations; you fix them.
 
@@ -17,7 +20,7 @@ Before doing anything, read [scope-resolution.md](../../shared/scope-resolution.
 Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `$ARGUMENTS` if given, otherwise cwd. Then:
 
 ```
-node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check <scope-root>
+node "${CLAUDE_SKILL_DIR}/../../scripts/doctor.js" check <scope-root>
 ```
 
 The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
@@ -39,7 +42,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 2. **Renumber the other file** to the report's `suggested_free` number:
 
    ```
-   node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" migrate <file> <NNNN> <scope-root>
+   node "${CLAUDE_SKILL_DIR}/../../scripts/doctor.js" migrate <file> <NNNN> <scope-root>
    ```
 
    The script renames the file, rewrites its own title heading, and returns `references_to_old_number` — every place in the scope (code comments, docs, other ADRs, supersession banners) that mentions the old number, with file, line, and the line's text.
@@ -58,7 +61,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 - **Missing docs-folder marker `AGENTS.md`** → write it from [context-folder-template.md](../distil/context-folder-template.md) — only when no `AGENTS.md` exists there at all.
 - **Working-note banner / `Status:` missing** → insert the banner line right under the title and `Status: Research note`.
 - **Broken relative links where the target clearly moved** (the file exists elsewhere in the scope under the same name) → fix the path.
-- **Missing canonical READMEs / structure** → run the copy directly: `node "${CLAUDE_PLUGIN_ROOT}/scripts/copy-doc-structure.js" <docs-folder>` (copies only missing files; never overwrites).
+- **Missing canonical READMEs / structure** → run the copy directly: `node "${CLAUDE_SKILL_DIR}/../../scripts/copy-doc-structure.js" <docs-folder>` (copies only missing files; never overwrites).
 
 **Needs input (batch into one question):**
 
@@ -77,6 +80,6 @@ Re-run the check. Summarise: every fix applied (this list is the developer's rev
 
 ## Notes
 
-- Other skills and agents can run the script directly as a cheap deterministic check — `node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check` — without invoking this skill's fix flow.
+- Other skills and agents can run the script directly as a cheap deterministic check — `node "${CLAUDE_SKILL_DIR}/../../scripts/doctor.js" check` — without invoking this skill's fix flow.
 - The script never rewrites ADR references itself; that judgment is this skill's Phase 3. Confident resolutions apply automatically; the developer is asked only about the genuinely ambiguous ones.
 - On a repo that deviates from the canonical structure on purpose (no plugin, hand-rolled docs), findings are information, not orders — say so rather than pushing fixes.

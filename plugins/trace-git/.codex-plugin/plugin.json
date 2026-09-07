@@ -1,0 +1,31 @@
+{
+  "name": "trace-git",
+  "description": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy.",
+  "author": {
+    "name": "byBrick Tech"
+  },
+  "homepage": "https://github.com/axakon/TRACE",
+  "repository": "https://github.com/axakon/TRACE",
+  "keywords": [
+    "git",
+    "commit",
+    "pull-request",
+    "trace"
+  ],
+  "version": "1.1.0",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "trace-git",
+    "shortDescription": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape",
+    "longDescription": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy.",
+    "developerName": "byBrick Tech",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use TRACE to draft a commit message."
+    ]
+  }
+}

@@ -1,9 +1,12 @@
 ---
-name: distil
-description: Evaluate recent changes and propose updates to the project's permanent context (AGENTS.md or the scope's docs folder) when something durable was learned
+name: "distil"
+description: "Evaluate recent changes and propose updates to the project's permanent context (AGENTS.md or the scope's docs folder) when something durable was learned"
 disable-model-invocation: true
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(node *) Glob Read Edit Write
+allowed-tools: "Bash(git diff*) Bash(git status*) Bash(git log*) Bash(node *) Glob Read Edit Write"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are running the distillation step of TRACE: evaluate recent changes and propose capturing anything durable into the project's permanent context.
 
@@ -49,7 +52,7 @@ For each candidate observation, pick a destination using two questions in this o
 - **Diff touches shared code** — the change includes files outside the affected scope (a root-level `shared/`, `contracts/`, `proto/`, or similar). Propose the nearest scope that owns the shared path.
 - **Candidate references siblings** — the candidate text names another sub-scope, or describes a contract between sub-scopes. Propose their common-ancestor scope.
 
-When any signal fires, lead with the upward target in Phase 5; the developer can still flip via **Change location**. When none fire but the candidate still feels domain-wide (a general rule rather than scope-specific behaviour), use `AskUserQuestion` before drafting: **Keep at `<local>`** / **Hoist to `<parent>`** / **Skip**. Don't guess silently. When none fire and the candidate is plainly local, propose local and move on.
+When any signal fires, lead with the upward target in Phase 5; the developer can still flip via **Change location**. When none fire but the candidate still feels domain-wide (a general rule rather than scope-specific behaviour), use the question control before drafting: **Keep at `<local>`** / **Hoist to `<parent>`** / **Skip**. Don't guess silently. When none fire and the candidate is plainly local, propose local and move on.
 
 **2. Inside that scope, which file?**
 
@@ -80,7 +83,7 @@ Work through the candidates one at a time — present, get one approval, write, 
    - **Proposed target** — the file (existing or new) and a brief reason; with multiple scopes, give the full path from the cwd (e.g. `services/api/docs/api-conventions.md`).
    - **The drafted change** — the exact diff you propose. Read [authoring-rules.md](../../shared/authoring-rules.md) and [example-distillation.md](./example-distillation.md) now, and re-check the draft against both before showing it.
 
-2. **Ask once** with `AskUserQuestion`: **Confirm & write** / **Change location** / **Edit content** / **Skip**. Nothing is written until the developer confirms.
+2. **Ask once** using the question control: **Confirm & write** / **Change location** / **Edit content** / **Skip**. Nothing is written until the developer confirms.
 
 3. **On confirm:** if the target durable-context folder isn't TRACE-marked yet (missing, or no `AGENTS.md` with TRACE heading), write the marker first: `<scope>/<docs-folder>/AGENTS.md` from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs), plus a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the one-line forwarder `See @AGENTS.md for more information.`. If the folder already holds hand-written docs, tell the developer the marker pair lands alongside them. Then write the candidate's addition.
 
@@ -88,13 +91,13 @@ Work through the candidates one at a time — present, get one approval, write, 
 
 If this run wrote files, run the structure validator and repair anything the writes introduced (a broken relative link, a misplaced file) before finishing:
 
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js" check`
+`node "${CLAUDE_SKILL_DIR}/../../scripts/doctor.js" check`
 
 Pre-existing findings unrelated to this run are not yours to fix here — mention `/trace:doctor` and move on.
 
 Once this run reaches a clean conclusion — candidates written, or a no-op from Phase 2 — clear the sentinel:
 
-`node "${CLAUDE_PLUGIN_ROOT}/scripts/clear-sentinel.js"`
+`node "${CLAUDE_SKILL_DIR}/../../scripts/clear-sentinel.js"`
 
 Skip only if the developer aborted mid-flow; then the pending state still applies.
 

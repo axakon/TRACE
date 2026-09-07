@@ -4,6 +4,20 @@ All notable changes to the TRACE plugins are recorded here — `trace`, `trace-p
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [1.1.0] - 2026-09-07
+
+### Added
+- Native Codex packages generated alongside Claude packages from shared source, with one version and release.
+- Package generation checks, hook payload tests, viewer integration tests, and a macOS CI gate.
+- Live harness evidence checks before release publication and hook execution diagnostics.
+
+### Changed
+- Specs and epics explicitly open their browser previews and use the chosen harness's question and approval controls.
+- The distillation sentinel understands Claude file edits and Codex multi-file patches.
+- Viewer discovery reuses a compatible server even when an earlier port is free.
+- Authored plugins and viewer build inputs now live in `plugin-src/`; installed packages remain committed in the repository.
+
+
 ## [Unreleased]
 
 ### Changed

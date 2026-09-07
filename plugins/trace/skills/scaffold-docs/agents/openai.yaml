@@ -1,0 +1,5 @@
+interface:
+  display_name: "TRACE scaffold-docs"
+  short_description: "Suggest and scaffold starter docs for a project's"
+policy:
+  allow_implicit_invocation: false

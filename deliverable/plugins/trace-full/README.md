@@ -1,31 +1,19 @@
 # trace-full
 
-Everything [TRACE](../../../README.md) ships, behind one install.
+Everything TRACE ships, behind one install.
 
-No content of its own — the manifest is a `dependencies` array. Installing it brings [`trace`](../trace/), [`trace-plan`](../trace-plan/), and [`trace-git`](../trace-git/).
+This package installs trace, trace-plan, and trace-git through Claude’s plugin dependencies. Invoke skills under their original plugin namespaces.
 
-```
+Install from the TRACE marketplace:
+
+```text
 /plugin marketplace add axakon/TRACE
 /plugin install trace-full@trace
 /reload-plugins
 ```
 
-Use this if you don't want to choose. To opt out of the planning or delivery add-ons, install the individual plugins instead — [which one do I want?](../README.md#why-youd-skip-one)
+Claude installs declared dependencies automatically.
 
----
+The suite contains durable-context setup, AGENTS.md authoring, scaffolding, ADRs, distillation, validation, specs, epics, commit messages, and PR descriptions.
 
-## Changing your mind
-
-Uninstalling the bundle leaves the three plugins in place. To drop just one:
-
-```
-claude plugin uninstall trace-git@trace
-```
-
-To remove the bundle and everything it brought along:
-
-```
-claude plugin uninstall trace-full@trace --prune
-```
-
-`--prune` removes auto-installed dependencies nothing else needs. Plugins you installed yourself are never pruned.
+All packages share one version. Consumers install the committed package and do not run a build.

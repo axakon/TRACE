@@ -1,10 +1,13 @@
 ---
-name: init
-description: Configure TRACE for this scope — choose where durable project context lives, copy the canonical three-category doc structure into it, mark the folder, and persist the choice. Recommended as the first TRACE command in a fresh repo, before /trace:agents-md-setup. Safe to re-run to change the location.
+name: "init"
+description: "Configure TRACE for this scope — choose where durable project context lives, copy the canonical three-category doc structure into it, mark the folder, and persist the choice. Recommended as the first TRACE command in a fresh repo, before /trace:agents-md-setup. Safe to re-run to change the location."
 disable-model-invocation: true
-argument-hint: [path]
-allowed-tools: Bash(node *) Glob Read Write Edit AskUserQuestion
+argument-hint: "[path]"
+allowed-tools: "Bash(node *) Glob Read Write Edit AskUserQuestion"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are configuring TRACE for the current scope. Init does four things, in order:
 
@@ -22,7 +25,7 @@ Before doing anything, read:
 
 ## Phase 1: Check for existing config
 
-Read `<scope>/.claude/.trace/config.json` if it exists. If it does, show the current `docs_folder` value and call `AskUserQuestion`: **Keep as-is** (exit) / **Change location** (proceed) / **Cancel** (exit).
+Read `<scope>/.claude/.trace/config.json` if it exists. If it does, show the current `docs_folder` value and use the question control: **Keep as-is** (exit) / **Change location** (proceed) / **Cancel** (exit).
 
 If it does not exist, read `<scope>/.claude/.playbook/config.json` — the pre-1.0 location. If that one exists, migrate it: write its contents to `.claude/.trace/config.json`, delete the whole `.claude/.playbook/` folder, tell the developer in one line that the config moved, then continue as if the new file had been there (same three-way question on **Keep as-is** / **Change location** / **Cancel**).
 
@@ -35,7 +38,7 @@ Glob the top-level directories. Identify:
 - **Already TRACE-marked** — a folder whose `AGENTS.md` is TRACE-marked (see [docs-folder-resolution.md](../../shared/docs-folder-resolution.md)). Read the first ~30 lines to check. A `CLAUDE.md` without a sibling `AGENTS.md` does **not** count.
 - **Existing docs roots** — `docs/`, `documentation/`, `wiki/`: folders that look like documentation homes even without a marker.
 
-Show concisely what you found. Then call `AskUserQuestion` with up to four options, ordered by strength, including only rows that apply (the auto-added "Other" covers anything else):
+Show concisely what you found. Then use the question control with up to four options, ordered by strength, including only rows that apply (allow a custom answer in chat):
 
 - The strongest already-marked candidate, if any.
 - One reasonable existing docs root, if different.
@@ -44,21 +47,21 @@ Show concisely what you found. Then call `AskUserQuestion` with up to four optio
 
 Validate the choice before continuing: if a *file* (not a directory) already exists at the chosen path, or at any of the five sub-paths (`system`, `architecture`, `adr`, `reference`, `working-notes`), say what's in the way and re-ask — don't proceed into Phase 3 with a path that can't hold the structure.
 
-If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: TRACE's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second `AskUserQuestion`.
+If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: TRACE's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second the question control.
 
 ## Phase 3: Copy the canonical doc structure
 
 Copy the six canonical READMEs from the plugin's `shared/doc-structure/` into `<chosen-folder>/` with one call:
 
 ```
-node "${CLAUDE_PLUGIN_ROOT}/scripts/copy-doc-structure.js" <chosen-folder>
+node "${CLAUDE_SKILL_DIR}/../../scripts/copy-doc-structure.js" <chosen-folder>
 ```
 
 The script copies only missing files — it never overwrites — and prints a JSON report:
 
 - `written` — files it created. The common greenfield case: all six, nothing routed through context.
 - `skipped_identical` — targets already byte-identical to the canonical source. Nothing to do.
-- `conflicts` — targets that exist and **differ**. For each, Read it, show what's there briefly, and call `AskUserQuestion`: **Overwrite with canonical** / **Leave existing** / **Cancel init**. On overwrite, Read the source (`../../shared/doc-structure/<path>` relative to this skill) and Write it to the target.
+- `conflicts` — targets that exist and **differ**. For each, Read it, show what's there briefly, and use the question control: **Overwrite with canonical** / **Leave existing** / **Cancel init**. On overwrite, Read the source (`../../shared/doc-structure/<path>` relative to this skill) and Write it to the target.
 - `errors` — paths the script could not write (e.g. a file sitting where a directory is needed). Show each path and message to the developer and stop; they resolve the obstruction, then re-run `/trace:init` — re-running is safe, already-written files are skipped.
 
 Author nothing beyond these six READMEs. In particular, do not create `architecture/overview.md`, `adr/0000-record-architecture-decisions.md`, or any topic files under `system/` — those land later, with real content, via other skills or the developer. Pre-authoring empty stubs is a violation of TRACE's guardrails.
@@ -76,7 +79,7 @@ See @AGENTS.md for more information.
 If `<chosen-folder>/AGENTS.md` already exists:
 
 - If it is already TRACE-marked, leave it alone.
-- If it differs, show the existing content briefly and call `AskUserQuestion`: **Overwrite with template** / **Leave existing** / **Cancel init**.
+- If it differs, show the existing content briefly and use the question control: **Overwrite with template** / **Leave existing** / **Cancel init**.
 
 If `<chosen-folder>/CLAUDE.md` exists with content other than the one-line forwarder, overwrite it — per the plugin's convention CLAUDE.md is always just a forwarder.
 

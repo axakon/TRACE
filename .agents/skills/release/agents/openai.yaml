@@ -1,0 +1,5 @@
+interface:
+  display_name: "TRACE release"
+  short_description: "Release Claude and Codex packages together"
+policy:
+  allow_implicit_invocation: false

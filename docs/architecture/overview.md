@@ -19,7 +19,7 @@ Brownfield is the default path; greenfield is handled as called-out variations w
 
 The repo is split in two:
 
-- **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugins/` (the four Claude Code plugins), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
+- **`deliverable/`** — what adopters consume. `playbook/` (the prose), `plugins/` (the Claude Code and Codex plugin distributions), `awesome-list/` (curated third-party resources), `examples/` (TRACE applied to real projects).
 - **`docs/`** — TRACE's own working docs, applying TRACE's conventions to itself. Working notes, reference rationale, ADRs, and the architecture overview you are reading now. The READMEs inside `docs/` are generic — describing the convention an adopter is following — so they double as templates.
 
 The reference layer (`docs/reference/`) holds the rationale behind every playbook step; each `deliverable/playbook/<phase>.md` links back to the reference doc(s) and ADR(s) that justify it.
@@ -53,7 +53,7 @@ The lifecycle is visible on disk:
 
 - **Don't pre-author.** Empty folders are intentional. Files emerge from real work, not speculation. This applies recursively — to the playbook (don't draft phase 4 before phase 1 has content), to skills (don't author one before the friction has been felt twice), to reference docs (don't write rationale until the underlying opinion stops moving).
 - **AGENTS.md is canonical.** `CLAUDE.md` is a one-line forwarder (`@AGENTS.md`). Same convention TRACE recommends to adopting teams.
-- **Markdown only.** No build, no toolchain. The repo browses on GitHub as-is.
+- **The playbook is Markdown.** Plugin source generates committed packages for Claude Code and Codex. See [plugin distribution](plugin-distribution.md) for the build and release contract.
 - **Mermaid for diagrams.** Inline in the doc that uses them. Shared diagrams (used by 2+ docs) graduate to `docs/architecture/diagrams/` if and when that bar is met.
 
 ## Recursive structure — why TRACE looks like what it advocates

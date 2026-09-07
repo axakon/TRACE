@@ -1,10 +1,13 @@
 ---
-name: scaffold-docs
-description: Suggest and scaffold starter docs for a project's durable-context folder, tailored to what the repo evidences. One-time bootstrap on a project that has code but little documentation, after /trace:init and /trace:agents-md-setup.
+name: "scaffold-docs"
+description: "Suggest and scaffold starter docs for a project's durable-context folder, tailored to what the repo evidences. One-time bootstrap on a project that has code but little documentation, after /trace:init and /trace:agents-md-setup."
 disable-model-invocation: true
-argument-hint: [path]
-allowed-tools: Glob Read Write AskUserQuestion
+argument-hint: "[path]"
+allowed-tools: "Glob Read Write AskUserQuestion"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are bootstrapping a project's durable-context folder: suggest starter docs for the topics this repo evidences, then scaffold the ones the developer picks. Light touch — record what the repo confirms and leave prompts for the rest.
 
@@ -40,7 +43,7 @@ Always consider `security.md` even without an auth library — every project has
 
 ## Phase 3: Propose and let the developer pick
 
-Present the tailored shortlist. For each: the signal that prompted it, the proposed filename(s) and folder(s), and one line on what it would cover. Then call `AskUserQuestion` (multi-select) to choose which to scaffold, plus an option to add a topic of their own. Filenames are suggestions — use the project's own vocabulary if it differs (e.g. `kafka.md` over `events.md` if the codebase calls it that).
+Present the tailored shortlist. For each: the signal that prompted it, the proposed filename(s) and folder(s), and one line on what it would cover. Then use the question control (multi-select) to choose which to scaffold, plus an option to add a topic of their own. Filenames are suggestions — use the project's own vocabulary if it differs (e.g. `kafka.md` over `events.md` if the codebase calls it that).
 
 ## Phase 4: Scaffold each chosen topic
 

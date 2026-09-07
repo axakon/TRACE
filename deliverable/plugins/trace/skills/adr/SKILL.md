@@ -1,10 +1,12 @@
 ---
-name: adr
-description: Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace-plan:spec at handoff.
-when_to_use: When an *architecturally significant* decision has been made — one affecting the system's structure, non-functional characteristics, a foundational dependency, a public interface, or a reused construction technique, with a real choice between alternatives. Spec-workflow invokes this at handoff when a planning decision qualifies; a developer can invoke it directly too. Not for a choice localized to one feature or module, a conventional default, or a routine/cheap-to-reverse implementation choice — route those to /trace:distil.
-argument-hint: [short decision title]
-allowed-tools: Glob Read Write AskUserQuestion
+name: "adr"
+description: "Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace-plan:spec at handoff."
+argument-hint: "[short decision title]"
+allowed-tools: "Glob Read Write AskUserQuestion"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are recording an architecture decision as an ADR — a short, immutable record of a single significant choice. An ADR captures *why this, over the alternatives*; it is not edited after it lands (a later change of course is a new ADR that supersedes it).
 
@@ -28,7 +30,7 @@ If an existing ADR covers the same ground, this is likely a **supersession** (Ph
 
 Resolve the scope's docs folder using [docs-folder-resolution.md](../../shared/docs-folder-resolution.md). ADRs live in `<docs-folder>/adr/`.
 
-Use the Glob tool to list `<docs-folder>/adr/*.md`. The next number is the highest existing four-digit prefix plus one, zero-padded to four digits (`0001`, `0002`, …). If the folder is empty or absent, start at `0001`.
+List `<docs-folder>/adr/*.md`. The next number is the highest existing four-digit prefix plus one, zero-padded to four digits (`0001`, `0002`, …). If the folder is empty or absent, start at `0001`.
 
 ## Phase 4: Draft the ADR
 
@@ -40,7 +42,7 @@ Show the developer the drafted ADR and its target path. Wait for explicit approv
 
 ## Phase 5: Write (and supersede, if applicable)
 
-Write the approved ADR to `<docs-folder>/adr/<NNNN>-<short-title>.md`. The Write tool creates parent directories, so a non-existent `adr/` folder is fine.
+Write the approved ADR to `<docs-folder>/adr/<NNNN>-<short-title>.md`. Create the ADR directory if it does not exist.
 
 If this ADR supersedes an earlier one:
 - In the new ADR's Context, name the one it supersedes (e.g. "Supersedes 0003.").
@@ -51,3 +53,5 @@ If this ADR supersedes an earlier one:
 - ADRs become immutable **once shipped** (committed, pushed, or already relied on by other work). The skill writes ADRs at end-of-work, so they're effectively shipped on write — do not rewrite the body afterwards. Course corrections are a *new* ADR that supersedes the old one.
 - This skill does not mark the docs folder as the durable-context folder and does not touch the directory index — those are `init`/`distil`/`agents-md-setup` concerns. ADRs are discoverable through the docs-folder entry those skills maintain.
 - One ADR per decision. If the work settled several distinct decisions, record them as separate ADRs.
+
+When to use: When an *architecturally significant* decision has been made — one affecting the system's structure, non-functional characteristics, a foundational dependency, a public interface, or a reused construction technique, with a real choice between alternatives. Spec-workflow invokes this at handoff when a planning decision qualifies; a developer can invoke it directly too. Not for a choice localized to one feature or module, a conventional default, or a routine/cheap-to-reverse implementation choice — route those to /trace:distil.

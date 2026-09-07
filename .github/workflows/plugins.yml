@@ -1,0 +1,32 @@
+name: TRACE packages
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Verify both harnesses (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install the locked viewer toolchain
+        working-directory: plugin-src/trace-plan/viewer
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Rebuild the viewer from source
+        working-directory: plugin-src/trace-plan/viewer
+        run: npm run build
+      - name: Verify committed packages and behaviour
+        run: node scripts/verify-plugins.js
+      - name: Regenerate and reject tracked or untracked output changes
+        run: |
+          node scripts/generate-plugins.js
+          git diff --exit-code
+          test -z "$(git ls-files --others --exclude-standard)"

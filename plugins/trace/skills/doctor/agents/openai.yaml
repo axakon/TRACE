@@ -1,0 +1,5 @@
+interface:
+  display_name: "TRACE doctor"
+  short_description: "Validate a TRACE-adopted scope against TRACE's own conventions"
+policy:
+  allow_implicit_invocation: false

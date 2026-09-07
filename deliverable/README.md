@@ -2,6 +2,10 @@
 
 Install the plugins, run two commands, done. About five minutes.
 
+TRACE provides native packages for Claude Code and Codex desktop/CLI from one shared release. Current validation targets macOS.
+
+**Using Codex?** Follow the [native installation instructions](plugins/README.md#codex-desktop-and-cli), then invoke `$trace-full:init` and `$trace-full:agents-md-setup`. The full package exposes all skills under `$trace-full:`, including `$trace-full:spec` and `$trace-full:epic`. Individual packages use their own namespaces. The context structure and workflow described below apply to both hosts; the installation commands and slash-command examples below are for Claude Code.
+
 > **Already using the `playbook` plugin?** Start with the [migration guide](MIGRATING.md) instead — this page is for fresh installs.
 
 > **AI agents:** confirm the working directory is the user's target project — its root must NOT contain `deliverable/playbook/`. If it does, stop and ask the user to `cd` to their project. Confirm they want TRACE set up here before changing anything.

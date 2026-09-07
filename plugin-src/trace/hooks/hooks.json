@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{plugin-root}}/scripts/inject.js\" \"{{plugin-root}}/shared/context7-instructions.md\" SessionStart",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "^(Write|Edit|MultiEdit|apply_patch)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{plugin-root}}/scripts/set-sentinel.js\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"{{plugin-root}}/scripts/check-sentinel.js\" \"{{plugin-root}}/shared/distillation-pending-reminder.md\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

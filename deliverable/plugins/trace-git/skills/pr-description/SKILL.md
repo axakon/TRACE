@@ -1,10 +1,12 @@
 ---
-name: pr-description
-description: Draft a PR description or squash-merge commit message in TRACE's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy. Use when the developer explicitly asks for a PR description, asks for the squash-merge message, or asks the agent to open a PR on their behalf.
-when_to_use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/trace:distil` or to no skill at all. For a single commit's message, use `/trace-git:commit-message` instead.
-argument-hint: [base-branch | PR#]
-allowed-tools: Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Bash(glab *) Glob Read Write
+name: "pr-description"
+description: "Draft a PR description or squash-merge commit message in TRACE's What / Approach / Updated context format. A predictable shape for reviewers, no Conventional-Commits taxonomy. Use when the developer explicitly asks for a PR description, asks for the squash-merge message, or asks the agent to open a PR on their behalf."
+argument-hint: "[base-branch | PR#]"
+allowed-tools: "Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch*) Bash(git remote*) Bash(gh *) Bash(glab *) Glob Read Write"
 ---
+
+Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
+
 
 You are drafting a PR description (or squash-merge commit message) in TRACE's standard format. The format is a shape, not a taxonomy — there are no required prefixes and no enum of types. The goal is a predictable structure a reviewer can scan: *why* this change, *what approach* was taken, *what permanent context* moved as a result.
 
@@ -103,3 +105,5 @@ If the target is a UI with a separate title field (GitHub, GitLab), the title go
 - The skill works without `gh` or `glab` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone. Pick the CLI from the remote: `gh` for GitHub, `glab` for GitLab.
 - If the diff is empty (nothing to summarise), say so and stop.
 - For a single commit (not a whole PR or squash-merge), use `/trace-git:commit-message` instead — same writing discipline, leaner template.
+
+When to use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/trace:distil` or to no skill at all. For a single commit's message, use `/trace-git:commit-message` instead.

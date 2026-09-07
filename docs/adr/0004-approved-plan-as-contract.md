@@ -1,4 +1,5 @@
 # 0004. The approved plan is the contract — change-spec removed
+> Superseded by 0011.
 
 *2026-07-04 — recorded retroactively; decided in plugin v0.4.0 (2026-05-24).*
 

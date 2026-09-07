@@ -11,7 +11,7 @@ A playbook for AI-first software development. This repo is the workspace where t
 Writing tooling only:
 
 - Markdown, GitHub-flavored. Mermaid for diagrams, inline in the doc that uses them.
-- No build system, no package manager, no tests. Plain files, plain Git. One exception: the plan-viewer bundle under `deliverable/plugins/trace-plan/viewer/` has an npm build — rules in `deliverable/plugins/AGENTS.md`.
+- Plugin packages are generated from `plugin-src/` for Claude Code and Codex. Node scripts and tests verify both outputs; the viewer has its existing npm build. Rules live in `deliverable/plugins/AGENTS.md`.
 - The plugins under `deliverable/plugins/` ship small Node.js scripts; working on them has its own rules in `deliverable/plugins/AGENTS.md`.
 
 ## Directory index
@@ -19,9 +19,11 @@ Writing tooling only:
 | Path | What's there |
 |------|-------------|
 | `deliverable/` | What adopters consume — the playbook prose, the plugins, the awesome-list, examples. Each folder inside is a deliverable in its own right |
-| `deliverable/plugins/` | The four Claude Code plugins — `trace` (core), `trace-plan`, `trace-git`, and the `trace-full` bundle. Read its `AGENTS.md` before working on any of them |
+| `deliverable/plugins/` | The four generated Claude Code plugins — `trace` (core), `trace-plan`, `trace-git`, and the `trace-full` bundle. Read its `AGENTS.md` before working on any of them |
 | `docs/` | TRACE applying its own conventions to itself. The READMEs inside describe **conventions**, not TRACE-specific facts, so adopters can copy the structure verbatim |
-| `scripts/` | Repo-level maintenance. `sync-shared.js` propagates the shared instruction files that cross a plugin boundary |
+| `plugin-src/` | Shared authored plugin content, harness adapters, and the single release version |
+| `plugins/` | Generated native Codex packages |
+| `scripts/` | Package generation, validation, tests, and release checks |
 | `CHANGELOG.md` | One changelog for all four plugins — they share a version and ship together |
 
 ```
@@ -37,7 +39,7 @@ Entry points: what TRACE is, the four-phase playbook hypothesis, the self-feedin
 
 ## Commands
 
-No build, test, or lint commands — the "build" is markdown synthesis, verified by reading. Commands for exercising the plugins locally and the release loop are in `deliverable/plugins/AGENTS.md`.
+Run `node scripts/generate-plugins.js` after plugin source edits and `node scripts/verify-plugins.js` to verify both distributions. The playbook remains Markdown. Plugin and release instructions live in `deliverable/plugins/AGENTS.md`.
 
 ## Gotchas
 
