@@ -36,6 +36,7 @@ Paths in this table are repository-relative. Read [package architecture](../../d
 ## Skills and hooks
 
 - Keep skill descriptions short and discriminating. Keep explicit-only invocation policies when generating Codex metadata.
+- Adding or removing a skill changes the expected counts in `scripts/validate-packages.js` (`expectedSkills`). Update them in the same change, or `verify-plugins.js` fails with `Wrong skill inventory`.
 - Read `plugin-src/trace/shared/authoring-rules.md` before changing prose. Plugin-specific style files add to those rules; they must not contradict or restate them.
 - Prose-authoring skills use their existing examples to establish depth. If an example has a stated word or line count, remeasure after changing it.
 - Preserve real approval points. Preview creation is authorized planning work; implementation and final epic writes wait for the developer's approval.
@@ -57,5 +58,7 @@ Paths in this table are repository-relative. Read [package architecture](../../d
 ## Verification
 
 Run `node scripts/generate-plugins.js`, then `node scripts/verify-plugins.js`. The latter runs Node tests, package checks, doctor, and version checks. CI repeats the checks on macOS and rejects any tracked or untracked generated drift.
+
+If `verify-plugins.js` fails at the drift check with `obsolete:` lines under `.claude/` in a package folder, a local plugin session wrote state there. The files are gitignored, so `git status` stays clean. A plain `node scripts/generate-plugins.js` removes them.
 
 For a release, follow the shared procedure. Record live checks with client versions and the package hash. Script tests alone do not establish native interview or approval behaviour.
