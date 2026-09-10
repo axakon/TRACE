@@ -28,6 +28,8 @@ Paths in this table are repository-relative. Read [package architecture](../../d
 - Validate on macOS. Keep portable Node code; Windows validation is outside the current support claim.
 - Keep AGENTS.md canonical and CLAUDE.md the exact one-line forwarder: `See @AGENTS.md for more information.`
 - Preserve the docs-folder precedence and old `.claude/.playbook/config.json` compatibility read. Change all readers together if that contract changes.
+- Keep scope discovery, docs-folder resolution, and markdown helpers in `plugin-src/trace/scripts/trace-lib.js`. `doctor.js` and `context-graph.js` both require it; do not copy a helper into a script.
+- `scripts/tests/fixtures/context-graph/` and its `context-graph.expected.json` are the output contract for `context-graph.js`, written down in `docs/architecture/context-graph.md`. Change the contract first, then the golden file. Never regenerate the golden file to make a test pass.
 - Preserve existing configuration and epic file formats. No session transfer mechanism is required.
 - Preserve hand-authored templates and examples. Do not pre-author playbook content or promote working notes while maintaining plugins.
 

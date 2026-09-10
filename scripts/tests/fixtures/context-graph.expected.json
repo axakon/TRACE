@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "token_estimate": "characters / 4 after stripping HTML comments",
+  "nodes": [
+    {
+      "path": ".",
+      "depth": 0,
+      "parent": null,
+      "kind": "scope",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "tokens": 179,
+          "words": 102,
+          "lines": 30,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 4
+            },
+            {
+              "heading": "What is this",
+              "tokens": 81
+            },
+            {
+              "heading": "Stack",
+              "tokens": 61
+            },
+            {
+              "heading": "Commands",
+              "tokens": 5
+            },
+            {
+              "heading": "Gotchas",
+              "tokens": 29
+            }
+          ]
+        },
+        {
+          "path": "CLAUDE.md",
+          "tokens": 10,
+          "words": 5,
+          "lines": 2,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 10
+            }
+          ]
+        }
+      ],
+      "imports": [
+        {
+          "path": "docs/system/conventions.md",
+          "tokens": 19,
+          "hop": 1,
+          "from": "AGENTS.md"
+        },
+        {
+          "path": "docs/reference/hop2.md",
+          "tokens": 14,
+          "hop": 2,
+          "from": "docs/system/conventions.md"
+        },
+        {
+          "path": "docs/reference/hop3.md",
+          "tokens": 22,
+          "hop": 3,
+          "from": "docs/reference/hop2.md"
+        },
+        {
+          "path": "docs/reference/hop4.md",
+          "tokens": 20,
+          "hop": 4,
+          "from": "docs/reference/hop3.md"
+        }
+      ],
+      "own_tokens": 264,
+      "chain_tokens": 264,
+      "gotcha_tokens": 29,
+      "docs": {
+        "path": "docs",
+        "files": 10,
+        "tokens": 180
+      }
+    },
+    {
+      "path": "apps/web",
+      "depth": 2,
+      "parent": ".",
+      "kind": "claude-only",
+      "files": [
+        {
+          "path": "apps/web/CLAUDE.md",
+          "tokens": 14,
+          "words": 8,
+          "lines": 4,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 15
+            }
+          ]
+        },
+        {
+          "path": "apps/web/CLAUDE.local.md",
+          "tokens": 6,
+          "words": 3,
+          "lines": 2,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 6
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 20,
+      "chain_tokens": 284,
+      "gotcha_tokens": 0,
+      "docs": null
+    },
+    {
+      "path": "docs",
+      "depth": 1,
+      "parent": ".",
+      "kind": "marker",
+      "files": [
+        {
+          "path": "docs/AGENTS.md",
+          "tokens": 33,
+          "words": 21,
+          "lines": 4,
+          "marker": true,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 34
+            }
+          ]
+        },
+        {
+          "path": "docs/CLAUDE.md",
+          "tokens": 10,
+          "words": 5,
+          "lines": 2,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 10
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 43,
+      "chain_tokens": 307,
+      "gotcha_tokens": 0,
+      "docs": null
+    },
+    {
+      "path": "services",
+      "depth": 1,
+      "parent": ".",
+      "kind": "scope",
+      "files": [
+        {
+          "path": "services/AGENTS.md",
+          "tokens": 119,
+          "words": 79,
+          "lines": 20,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 3
+            },
+            {
+              "heading": "What is this",
+              "tokens": 30
+            },
+            {
+              "heading": "Stack",
+              "tokens": 5
+            },
+            {
+              "heading": "Commands",
+              "tokens": 7
+            },
+            {
+              "heading": "Gotchas",
+              "tokens": 76
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 119,
+      "chain_tokens": 383,
+      "gotcha_tokens": 76,
+      "docs": null
+    },
+    {
+      "path": "services/billing",
+      "depth": 2,
+      "parent": "services",
+      "kind": "scope",
+      "files": [
+        {
+          "path": "services/billing/AGENTS.md",
+          "tokens": 41,
+          "words": 26,
+          "lines": 14,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 3
+            },
+            {
+              "heading": "What is this",
+              "tokens": 25
+            },
+            {
+              "heading": "Stack",
+              "tokens": 8
+            },
+            {
+              "heading": "Commands",
+              "tokens": 7
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 41,
+      "chain_tokens": 424,
+      "gotcha_tokens": 0,
+      "docs": {
+        "path": "services/billing/context",
+        "files": 4,
+        "tokens": 65
+      }
+    },
+    {
+      "path": "services/billing/context",
+      "depth": 3,
+      "parent": "services/billing",
+      "kind": "marker",
+      "files": [
+        {
+          "path": "services/billing/context/AGENTS.md",
+          "tokens": 33,
+          "words": 21,
+          "lines": 4,
+          "marker": true,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 34
+            }
+          ]
+        },
+        {
+          "path": "services/billing/context/CLAUDE.md",
+          "tokens": 10,
+          "words": 5,
+          "lines": 2,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 10
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 43,
+      "chain_tokens": 467,
+      "gotcha_tokens": 0,
+      "docs": null
+    },
+    {
+      "path": "tools/dev",
+      "depth": 2,
+      "parent": ".",
+      "kind": "scope",
+      "files": [
+        {
+          "path": "tools/dev/AGENTS.md",
+          "tokens": 23,
+          "words": 19,
+          "lines": 6,
+          "marker": false,
+          "sections": [
+            {
+              "heading": "preamble",
+              "tokens": 3
+            },
+            {
+              "heading": "What is this",
+              "tokens": 20
+            }
+          ]
+        }
+      ],
+      "imports": [],
+      "own_tokens": 23,
+      "chain_tokens": 287,
+      "gotcha_tokens": 0,
+      "docs": null
+    }
+  ],
+  "totals": {
+    "nodes": 7,
+    "scopes": 4,
+    "markers": 2,
+    "instruction_tokens": 553,
+    "gotcha_tokens": 105,
+    "docs_tokens": 245,
+    "heaviest_chain": {
+      "path": "services/billing/context",
+      "tokens": 467
+    }
+  },
+  "pointers": [
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/architecture/overview.md",
+      "target": "docs/architecture/overview.md",
+      "exists": true
+    },
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/nowhere.md",
+      "target": "docs/nowhere.md",
+      "exists": false
+    },
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/adr/0001-pick-a-thing.md",
+      "target": "docs/adr/0001-pick-a-thing.md",
+      "exists": true
+    },
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/missing.md",
+      "target": "docs/missing.md",
+      "exists": false
+    }
+  ],
+  "broken_pointers": [
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/nowhere.md",
+      "target": "docs/nowhere.md",
+      "exists": false
+    },
+    {
+      "from": "AGENTS.md",
+      "ref": "docs/missing.md",
+      "target": "docs/missing.md",
+      "exists": false
+    }
+  ],
+  "unresolved_imports": [
+    {
+      "from": "services/AGENTS.md",
+      "ref": "../ghost.md"
+    }
+  ],
+  "external_imports": [
+    {
+      "from": "services/AGENTS.md",
+      "ref": "~/.claude/personal.md"
+    }
+  ]
+}
