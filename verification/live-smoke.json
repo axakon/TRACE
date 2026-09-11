@@ -1,190 +1,190 @@
 {
-  "recordedAt": "2026-09-07",
+  "recordedAt": "",
   "platform": "macOS",
   "clients": {
     "claude-code": {
       "version": "2.1.245",
-      "packageHash": "82e446f96a505bc6ad381b2db7e590c06ea519968d207820e7692f455c918d74",
+      "packageHash": "b17f91b17d7d2d7e2780be525b06c66328815ec6812739663f8aa25bf891191f",
       "checks": {
         "install": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "init": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "agents-md-setup": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "scaffold-docs": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "adr": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "distil": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "doctor": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec": {
           "status": "unverified",
-          "evidence": "Attempted claude --plugin-dir with generated core, planning, and git packages and /trace-plan:spec. No result arrived; the run was interrupted. No successful workflow observation."
+          "evidence": ""
         },
         "epic": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "commit-message": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "pr-description": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec-revise-reject-approve": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "epic-preview-board-seed": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "hooks": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         }
       }
     },
     "codex-cli": {
       "version": "0.153.4",
-      "packageHash": "82e446f96a505bc6ad381b2db7e590c06ea519968d207820e7692f455c918d74",
+      "packageHash": "b17f91b17d7d2d7e2780be525b06c66328815ec6812739663f8aa25bf891191f",
       "checks": {
         "install": {
           "status": "unverified",
-          "evidence": "Fresh trace, trace-plan, and trace-git 1.1.0 installs succeeded from an isolated local marketplace using codex plugin add. Full-suite installation still requires verification."
+          "evidence": ""
         },
         "init": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "agents-md-setup": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "scaffold-docs": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "adr": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "distil": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "doctor": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec": {
           "status": "unverified",
-          "evidence": "A fresh ephemeral CLI session loaded the installed trace-plan 1.1.0 skill and responded to $trace-plan:spec with “What do you want to build?”. Full interview, preview, and implementation cycle remains unverified."
+          "evidence": ""
         },
         "epic": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "commit-message": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "pr-description": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec-revise-reject-approve": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "epic-preview-board-seed": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "hooks": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         }
       }
     },
     "codex-desktop": {
       "version": "unverified",
-      "packageHash": "82e446f96a505bc6ad381b2db7e590c06ea519968d207820e7692f455c918d74",
+      "packageHash": "b17f91b17d7d2d7e2780be525b06c66328815ec6812739663f8aa25bf891191f",
       "checks": {
         "install": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "init": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "agents-md-setup": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "scaffold-docs": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "adr": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "distil": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "doctor": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "epic": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "commit-message": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "pr-description": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "spec-revise-reject-approve": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "epic-preview-board-seed": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         },
         "hooks": {
           "status": "unverified",
-          "evidence": "Full live workflow has not been observed with these packages."
+          "evidence": ""
         }
       }
     }
