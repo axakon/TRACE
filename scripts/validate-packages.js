@@ -16,7 +16,7 @@ function validate(root = ROOT) {
     catch (error) { fail(manifestPath, error.message); continue; }
     if (manifest.name !== name || manifest.version !== catalog.version) fail(manifestPath, 'Name/version differs from source catalog');
     if (host === 'codex' && manifest.dependencies) fail(manifestPath, 'Claude plugin dependencies are not supported in native Codex manifests');
-    const expectedSkills = name === 'trace-full' ? (host === 'codex' ? 10 : 0) : name === 'trace' ? 6 : 2;
+    const expectedSkills = name === 'trace-full' ? (host === 'codex' ? 11 : 0) : name === 'trace' ? 7 : 2;
     const packageFiles = files(base);
     if (packageFiles.filter((f) => f.endsWith(`${path.sep}SKILL.md`)).length !== expectedSkills) fail(base, 'Wrong skill inventory');
     const contained = (from, relative) => {

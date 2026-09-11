@@ -29,11 +29,14 @@
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
+const {
+  FORWARDER, MARKER_HEADING, SKIP_DIRS,
+  readText, isFile, isDir, rel, firstHeading, stripCode, collectMarkdownFiles,
+  resolveDocsFolder, discoverScopes, isAdopted,
+} = require('./trace-lib');
 
 // ---------------------------------------------------------------- utilities
 
-const FORWARDER = 'See @AGENTS.md for more information.';
-const MARKER_HEADING = '# Durable project context';
 const ADR_FILENAME = /^(\d{4})-[a-z0-9]+(?:-[a-z0-9]+)*\.md$/;
 const BANNER_PREFIX = '> **Working note — not authoritative.**';
 const CANONICAL_READMES = [
@@ -44,83 +47,10 @@ const CANONICAL_READMES = [
   'reference/README.md',
   'working-notes/README.md',
 ];
-const SKIP_DIRS = new Set([
-  '.git', 'node_modules', 'vendor', 'dist', 'build', 'out', 'target',
-  '.next', '.nuxt', 'coverage', '__pycache__', '.venv', 'venv',
-]);
 
 function fail(msg) {
   process.stderr.write(`doctor: ${msg}\n`);
   process.exit(1);
-}
-
-function readText(file) {
-  try {
-    return fs.readFileSync(file, 'utf8');
-  } catch {
-    return null;
-  }
-}
-
-function isFile(p) {
-  try { return fs.statSync(p).isFile(); } catch { return false; }
-}
-
-function isDir(p) {
-  try { return fs.statSync(p).isDirectory(); } catch { return false; }
-}
-
-function rel(scope, p) {
-  return path.relative(scope, p).split(path.sep).join('/');
-}
-
-function firstHeading(content) {
-  for (const line of content.split('\n')) {
-    const t = line.trim();
-    if (t.startsWith('#')) return t;
-    if (t !== '') return null; // non-blank, non-heading before any heading
-  }
-  return null;
-}
-
-// ------------------------------------------------------- docs-folder lookup
-
-// Reads the persisted docs_folder for a scope, or null. Prefers the current
-// .claude/.trace/ location and falls back to the pre-1.0 .claude/.playbook/
-// one so adopters who haven't re-run init still resolve correctly.
-function readConfiguredDocsFolder(scope) {
-  for (const dir of ['.trace', '.playbook']) {
-    const config = readText(path.join(scope, '.claude', dir, 'config.json'));
-    if (!config) continue;
-    try {
-      const parsed = JSON.parse(config);
-      if (parsed && typeof parsed.docs_folder === 'string' && parsed.docs_folder) {
-        return parsed.docs_folder;
-      }
-    } catch { /* try the next location */ }
-  }
-  return null;
-}
-
-// Mirrors shared/docs-folder-resolution.md: config → single TRACE-marked
-// folder → existing docs/ → default docs/.
-function resolveDocsFolder(scope, override) {
-  if (override) return path.resolve(scope, override);
-
-  const configured = readConfiguredDocsFolder(scope);
-  if (configured) return path.resolve(scope, configured);
-
-  const marked = [];
-  let entries = [];
-  try { entries = fs.readdirSync(scope, { withFileTypes: true }); } catch { /* ignore */ }
-  for (const entry of entries) {
-    if (!entry.isDirectory() || SKIP_DIRS.has(entry.name) || entry.name.startsWith('.')) continue;
-    const agents = readText(path.join(scope, entry.name, 'AGENTS.md'));
-    if (agents && firstHeading(agents) === MARKER_HEADING) marked.push(entry.name);
-  }
-  if (marked.length === 1) return path.join(scope, marked[0]);
-
-  return path.join(scope, 'docs');
 }
 
 // ------------------------------------------------------------------- checks
@@ -397,38 +327,6 @@ function checkWorkingNotes(scope, docs, report) {
   }
 }
 
-// Blanks out fenced blocks and inline code spans so checks don't fire on
-// examples. A fence only counts when it opens a line — a stray inline ``` is
-// prose, not a fence. (Matching it as one used to swallow the rest of the file
-// through the end-of-input fallback, silently skipping every later link.)
-// Lines are blanked rather than removed so offsets stay usable.
-function stripCode(content) {
-  let inFence = false;
-  return content
-    .split('\n')
-    .map((line) => {
-      if (/^[ \t]*```/.test(line)) {
-        inFence = !inFence;
-        return '';
-      }
-      return inFence ? '' : line;
-    })
-    .join('\n')
-    .replace(/`[^`\n]*`/g, '');
-}
-
-function collectMarkdownFiles(dir, out) {
-  let entries = [];
-  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-  for (const entry of entries) {
-    if (entry.isDirectory()) {
-      if (!SKIP_DIRS.has(entry.name)) collectMarkdownFiles(path.join(dir, entry.name), out);
-    } else if (entry.isFile() && entry.name.endsWith('.md')) {
-      out.push(path.join(dir, entry.name));
-    }
-  }
-}
-
 function checkLinks(scope, docs, report) {
   const files = [];
   if (isDir(docs)) collectMarkdownFiles(docs, files);
@@ -484,13 +382,6 @@ function collectAllFiles(dir, out) {
       out.push(full);
     }
   }
-}
-
-// A scope root is a directory with its own AGENTS.md — excluding the
-// durable-context marker, whose AGENTS.md marks a docs folder, not a scope.
-function isScopeRoot(dir) {
-  const agents = readText(path.join(dir, 'AGENTS.md'));
-  return agents !== null && firstHeading(agents) !== MARKER_HEADING;
 }
 
 // Deepest discovered scope containing the file; the scan root when none does.
@@ -635,41 +526,6 @@ function runCheck(scope, docsOverride) {
   report.summary.errors = report.errors.length;
   report.summary.warnings = report.warnings.length;
   return report;
-}
-
-// Every scope root under (and including) the given root — for monorepos where
-// TRACE is adopted at the root and at project level. A scope's own docs folder
-// is never descended into: an AGENTS.md in there is docs-tree content (a
-// folder guide, a customer brief), not a project scope.
-function discoverScopes(root) {
-  const scopes = [];
-  (function walk(dir, docsToSkip) {
-    let skip = docsToSkip;
-    if (isScopeRoot(dir)) {
-      scopes.push(dir);
-      skip = resolveDocsFolder(dir, null);
-    }
-    let entries = [];
-    try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      if (SKIP_DIRS.has(entry.name) || entry.name === '.claude') continue;
-      const full = path.join(dir, entry.name);
-      if (full === skip) continue;
-      walk(full, skip);
-    }
-  })(root, null);
-  return scopes.length ? scopes : [root];
-}
-
-// A scope has adopted TRACE when init persisted a config or the
-// resolved docs folder carries TRACE marker. A bare AGENTS.md without
-// either is context-only — legitimate, but not expected to hold the canonical
-// tree or meet the project-root AGENTS.md spec.
-function isAdopted(scope) {
-  if (readConfiguredDocsFolder(scope)) return true;
-  const marker = readText(path.join(resolveDocsFolder(scope, null), 'AGENTS.md'));
-  return marker !== null && firstHeading(marker) === MARKER_HEADING;
 }
 
 // --------------------------------------------------------------------- main

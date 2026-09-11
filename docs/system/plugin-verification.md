@@ -1,6 +1,6 @@
 # Plugin verification
 
-Run `node scripts/verify-plugins.js` from the repository root. This command checks generated output, manifests, local resources, JavaScript syntax, hook payloads, viewer endpoints, doc-structure copies, doctor findings, and changelog agreement.
+Run `node scripts/verify-plugins.js` from the repository root. This command checks generated output, manifests, local resources, JavaScript syntax, hook payloads, viewer endpoints, doc-structure copies, doctor findings, context-graph fixture parity, and changelog agreement.
 
 The tests use Node built-ins and temporary directories. Viewer tests bind localhost ports and stop their servers after completion. CI runs the same checks on macOS without model credentials. Branch protection must require the `Verify both harnesses (macOS)` job to prevent merging failed checks.
 
