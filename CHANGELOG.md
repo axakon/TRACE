@@ -4,7 +4,7 @@ All notable changes to the TRACE plugins are recorded here — `trace`, `trace-p
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
-## [1.2.0] - 2026-09-11
+## [1.2.0] - 2026-09-22
 
 ### Added
 
