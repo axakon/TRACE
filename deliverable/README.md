@@ -22,6 +22,26 @@ TRACE builds its Claude Code and Codex packages from one source and releases the
 
 To check the install, type `/trace`. The list should now include `/trace:init`.
 
+**Turn on auto-update.** Open `/plugin`, go to **Marketplaces**, select `trace`, and select **Enable auto-update**. Claude Code turns auto-update off by default for marketplaces outside Anthropic, so without this step you stay on the version you installed. With it, Claude Code updates all four TRACE plugins in the background after each start.
+
+<details>
+<summary><b>Updating without auto-update</b></summary>
+
+<br>
+
+`claude plugin update trace-full@trace` updates only the bundle. It does not update `trace`, `trace-plan`, or `trace-git`, which hold the actual skills. Update each installed plugin by name, then restart Claude Code:
+
+```bash
+claude plugin update trace-full@trace
+claude plugin update trace@trace
+claude plugin update trace-plan@trace
+claude plugin update trace-git@trace
+```
+
+For a project scope install, add `--scope project` to each command.
+
+</details>
+
 <details>
 <summary><b>Installing only some plugins</b></summary>
 
@@ -193,6 +213,8 @@ The [full guide](MIGRATING.md) covers the renamed commands, installs at several 
 ## Troubleshooting
 
 **No `/trace:` commands after a reload.** Check that the marketplace entry and the `enabledPlugins` entry are in the *same* `settings.json`, and that the JSON is valid. The most common cause is a typo in the marketplace name. The marketplace is `trace`, and the plugin names are `trace@trace`, `trace-plan@trace`, `trace-git@trace`, and `trace-full@trace`.
+
+**A command from a new release is missing.** The bundle is new, but the plugins inside it are old. Run `claude plugin list` and compare the versions of `trace-full@trace` and `trace@trace`. If they differ, follow "Updating without auto-update" in step 1, and turn on auto-update.
 
 **Only some commands appear.** You installed one plugin rather than the bundle. The `/trace-plan:` and `/trace-git:` commands come from the add-ons. Install those, or install `trace-full@trace` for everything.
 

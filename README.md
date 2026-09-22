@@ -16,6 +16,8 @@ Install the plugins in Claude Code:
 /reload-plugins
 ```
 
+Then turn on updates: open `/plugin`, go to **Marketplaces**, select `trace`, and select **Enable auto-update**. Without this step, a new TRACE release does not reach you.
+
 Then run two commands in your project:
 
 ```
