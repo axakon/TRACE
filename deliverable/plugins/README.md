@@ -4,7 +4,7 @@ TRACE ships the same workflows for Claude Code and Codex desktop/CLI on macOS. B
 
 | Plugin | Skills |
 |---|---|
-| trace | init, agents-md-setup, scaffold-docs, adr, distil, doctor |
+| trace | init, agents-md-setup, scaffold-docs, adr, distil, doctor, context-graph |
 | trace-plan | spec, epic |
 | trace-git | commit-message, pr-description |
 | trace-full | The complete suite |
@@ -28,7 +28,7 @@ codex plugin add trace-full@trace
 
 In the desktop app, choose TRACE in the Plugins marketplace view and install the desired package. Start a new session after installation. Review and trust the installed hooks in the host's hook controls.
 
-The native full package contains all ten skills. Its skill namespace is `trace-full`, such as `$trace-full:spec`. For a smaller install, install `trace`, then the desired add-ons. Individual add-ons retain namespaces such as `$trace-plan:spec` and require core to be installed separately.
+The native full package contains every TRACE skill. Its skill namespace is `trace-full`, such as `$trace-full:spec`. For a smaller install, install `trace`, then the desired add-ons. Individual add-ons retain namespaces such as `$trace-plan:spec` and require core to be installed separately.
 
 Choose the full package or individual packages. Installing both duplicates skills. Configuration and existing user-space epics keep their current paths and formats.
 

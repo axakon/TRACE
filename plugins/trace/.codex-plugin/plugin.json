@@ -1,6 +1,6 @@
 {
   "name": "trace",
-  "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, and validates the conventions.",
+  "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight.",
   "author": {
     "name": "byBrick Tech"
   },
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "trace",
     "shortDescription": "TRACE core: durable context for AI-assisted development",
-    "longDescription": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, and validates the conventions.",
+    "longDescription": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight.",
     "developerName": "byBrick Tech",
     "category": "Productivity",
     "capabilities": [

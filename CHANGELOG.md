@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the TRACE plugins are recorded here — `trace`, `trace-plan`, `trace-git`, and the `trace-full` bundle share one version line and ship together. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Bump `version` in all four `.claude-plugin/plugin.json` files with every release and add an entry here — Claude Code caches installs by version string, so an unbumped release reaches no one.
+All notable changes to the TRACE plugins are recorded here — `trace`, `trace-plan`, `trace-git`, and the `trace-full` bundle share one version line and ship together. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Set `version` in `plugin-src/catalog.json` and add an entry here with every release. The generator writes it into every Claude and Codex manifest. Claude Code caches installs by version string, so an unbumped release reaches no one.
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
@@ -8,7 +8,7 @@ Entries before 1.0.0 describe the single `playbook` plugin this suite was split 
 
 ### Added
 
-- **`/trace:context-graph` measures context weight.** `scripts/context-graph.js` walks a scope, finds every directory holding an `AGENTS.md`, `CLAUDE.md`, or `CLAUDE.local.md`, follows bare `@path` imports the way Claude Code does (four hops, code spans and fences skipped), and reports per node the own weight, the launch chain from the root, the gotcha share, and the on-demand docs weight. Backticked `@paths` and relative links become pointers and are checked for existence. The skill prints a terminal tree (docs-folder marker rows hidden unless `--all`, with their count and size in the footer) and writes a Mermaid markdown report (`--format markdown`) and an SVG treegraph (`--format treegraph`) with `--save`, which puts timestamped files under `.claude/.trace/` so a new run never overwrites an old report. Every format prints to stdout by default, and `--out <file>` writes to a named file. In the treegraph each directory is a box sized by the tokens loaded there, nested in its parent, with instruction files split into sections and imports so a heavy Gotchas section shows as area; every box has a hover title, and no library or browser code is involved. In a terminal the tree colors `own` and `chain` cells yellow from 4,000 tokens and red from 8,000; `NO_COLOR`, `FORCE_COLOR`, and `TERM=dumb` are honored, and no color ever reaches a pipe, a file, JSON, or markdown. The output contract is `docs/architecture/context-graph.md` plus the fixture under `scripts/tests/fixtures/context-graph/`, so a second implementation can be held to the same numbers (ADR 0012).
+- **`/trace:context-graph` measures context weight.** `scripts/context-graph.js` finds every directory with an `AGENTS.md`, `CLAUDE.md`, or `CLAUDE.local.md` and follows bare `@path` imports the way Claude Code does. For each directory it reports the tokens loaded there, the tokens loaded at launch from the root down, the gotcha share, and the docs weight read on demand. It prints a terminal tree that marks heavy directories with `!` and `!!`, or JSON for scripts. The contract is `docs/architecture/context-graph.md` plus a test fixture, so a second implementation can be held to the same numbers (ADR 0012).
 
 ### Changed
 
@@ -16,18 +16,24 @@ Entries before 1.0.0 describe the single `playbook` plugin this suite was split 
 - **The `epic` skill no longer reads `authoring-rules.md`.** Phase 3 drafts a whole epic — `epic.md` plus every ticket — in one pass, and the rules were read and then ignored: tickets still came out as compressed noun phrases like "handling slice holdable at business contexts". The skill now calibrates on `example-epic.md` alone, which gained a second ticket showing the harder shape — a question the spec must settle, with its candidates as a list. `authoring-rules.md` still governs `/trace-plan:spec`, `/trace-git:commit-message`, and `/trace-git:pr-description`.
 - **`distil` no longer records a dependency's own quirks.** Criterion 4 named "version-specific quirks" as an example of a distillable gotcha, so runs captured how Postgres or a query library behaves rather than how this project uses it. A quirk belongs to the tool's own docs and goes stale on the next version bump, and nobody here knows to chase it. The criterion now requires the gotcha to be about the repo's code or its use of a tool, and the not-worth-distilling list rejects anything true wherever that dependency is used. A fact that makes the project's use of a tool differ from the norm still qualifies.
 
+### Removed
+
+- **`scripts/epic-viewer-open.js`.** The epic skill opens the board through `viewer-open.js` since 1.1.0, so nothing called it.
+
 ## [1.1.0] - 2026-09-07
 
 ### Added
-- Native Codex packages generated alongside Claude packages from shared source, with one version and release.
-- Package generation checks, hook payload tests, viewer integration tests, and a macOS CI gate.
-- Live harness evidence checks before release publication and hook execution diagnostics.
+
+- **Native Codex packages.** Claude and Codex packages are generated from one shared source and ship under one version.
+- **Automated checks.** Package generation checks, hook payload tests, viewer integration tests, and a macOS CI gate.
+- **Hook diagnostics.** Set `TRACE_DEBUG_HOOKS=1` to print hook script failures.
 
 ### Changed
-- Specs and epics explicitly open their browser previews and use the chosen harness's question and approval controls.
-- The distillation sentinel understands Claude file edits and Codex multi-file patches.
-- Viewer discovery reuses a compatible server even when an earlier port is free.
-- Authored plugins and viewer build inputs now live in `plugin-src/`; installed packages remain committed in the repository.
+
+- **Specs and epics open their previews explicitly.** They use the chosen harness's question and approval controls. `trace-plan` no longer registers `ExitPlanMode` hooks, so plan mode alone does not open the viewer.
+- **The distillation sentinel understands both hosts.** It reads Claude file edits and Codex multi-file patches.
+- **Viewer discovery reuses a compatible server** even when an earlier port is free.
+- **Plugin sources moved to `plugin-src/`.** Installed packages remain committed in the repository.
 
 ## [1.0.0] - 2026-08-16
 

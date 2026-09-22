@@ -1,5 +1,0 @@
-{
-  "host": "claude",
-  "version": "1.2.0",
-  "specCommand": "/trace-plan:spec"
-}

@@ -166,6 +166,7 @@ Worth running once on a project that has plenty of code and few docs. It looks f
 | `/trace:distil` | You're wrapping up. It reads what changed and proposes capturing anything durable — a convention, a security boundary, a gotcha. Most runs find nothing; that's normal. |
 | `/trace:adr` | A decision shaped the system's structure, a dependency, or an interface. Records it immutably in `docs/adr/`. |
 | `/trace:doctor` | After a merge, before a release, or when the docs structure feels off. Validates and guides the fixes — including ADR number collisions from parallel branches. |
+| `/trace:context-graph` | You want to know how much instruction text an agent loads in each folder, and which files make it heavy. |
 | `/trace-plan:spec` | Starting substantial work. Interviews you to a plan with acceptance criteria, implements against it, verifies. Small edits don't need it. |
 | `/trace-plan:epic` | Work spans several phases. Produces spec-sized tickets on a kanban board. |
 | `/trace-git:commit-message`<br>`/trace-git:pr-description` | Writing up a change. Ask explicitly, or ask the agent to commit or open the PR. |
@@ -182,7 +183,7 @@ Every skill explains itself when invoked. Nothing fires on its own — after cod
 | `CLAUDE.md` | One-line forwarder to `AGENTS.md` |
 | `docs/` | The doc structure, six READMEs explaining what belongs where |
 | `.claude/.trace/config.json` | Which folder you chose |
-| `.claude/settings.json` | The plugin install (project scope only) |
+| `.claude/settings.json` | The marketplace and enabled plugins (project scope only) |
 
 ---
 

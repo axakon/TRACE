@@ -4,7 +4,7 @@
 
 **Durable context for AI-assisted development.**
 
-Your coding agent is only as good as the context it's given. Most repos give it nothing — so it guesses — or everything, so it gets lost. TRACE is the middle: a small documentation structure, a few conventions, and a Claude Code plugin that keeps them current as you work.
+Your coding agent is only as good as the context it's given. Most repos give it nothing — so it guesses — or everything, so it gets lost. TRACE is the middle: a small documentation structure, a few conventions, and plugins for Claude Code and Codex that keep them current as you work.
 
 No process tax. No governance theatre. Just the context an agent needs, in the places it looks.
 
@@ -83,6 +83,7 @@ The add-ons depend on the core, so installing any of them pulls `trace` in autom
 | `/trace:distil` | Wrapping up — capture anything durable that was learned |
 | `/trace:adr` | A real architectural decision was made |
 | `/trace:doctor` | After a merge, before a release, or when the structure feels off |
+| `/trace:context-graph` | You want to know how much instruction text an agent loads in each folder |
 | `/trace-plan:spec` | Starting substantial work — plan it before writing it |
 | `/trace-plan:epic` | Work spanning several phases — break it into tickets |
 | `/trace-git:commit-message` · `/trace-git:pr-description` | Writing up a change |
@@ -98,6 +99,6 @@ Each skill explains itself when you invoke it. Nothing runs automatically — TR
 - **Curious how it's built?** → [The plugins](deliverable/plugins/README.md) · [Architecture](docs/architecture/overview.md) · [Decisions](docs/adr/)
 - **Contributing to TRACE itself?** → [AGENTS.md](AGENTS.md)
 
-Requires [Claude Code](https://code.claude.com) and Node.js 18+. Built by [byBrick Tech](https://github.com/axakon).
+Requires [Claude Code](https://code.claude.com) or Codex (desktop or CLI), and Node.js 18+. Built by [byBrick Tech](https://github.com/axakon).
 
 <sub>**AI agents:** if you were pointed at this URL to set up TRACE, first confirm the working directory is *not* TRACE's own source tree (its root contains `deliverable/playbook/`). If it is, stop and ask the user to `cd` to their project. Otherwise fetch [`deliverable/README.md`](deliverable/README.md) and follow it.</sub>
