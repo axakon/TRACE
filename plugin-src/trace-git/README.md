@@ -1,6 +1,6 @@
 # trace-git
 
-Draft commit messages and PR descriptions using TRACE’s shared authoring rules.
+Drafts commit messages and PR descriptions that follow TRACE's shared writing rules.
 
 {{installation}}
 

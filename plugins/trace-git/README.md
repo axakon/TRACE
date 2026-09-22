@@ -1,8 +1,8 @@
 # trace-git
 
-Draft commit messages and PR descriptions using TRACE’s shared authoring rules.
+Drafts commit messages and PR descriptions that follow TRACE's shared writing rules.
 
-Add the TRACE marketplace, then install this package:
+Add the TRACE marketplace, then install the package:
 
 ```sh
 codex plugin marketplace add axakon/TRACE
@@ -10,7 +10,7 @@ codex plugin add trace@trace
 codex plugin add trace-git@trace
 ```
 
-Start a new session after installation. In Codex desktop, install from the TRACE marketplace in the Plugins view. Review and trust plugin hooks in the host hook controls. Choose either trace-full or individual packages; enabling both duplicates skill listings.
+Start a new session after you install. In the desktop app, install from the TRACE marketplace in the Plugins view. Then review and trust the plugin's hooks in the app's hook settings. Install either trace-full or the individual packages, not both. With both installed, every skill appears twice.
 
 ## Skills
 

@@ -34,12 +34,16 @@ The context graph measures how much instruction context an agent carries at each
 - Imports are followed from each of the node's own instruction files, which are hop 0, up to hop 4. A file already counted for the node MUST NOT be counted again. A cycle MUST terminate.
 - A target outside the root MUST be listed under `external_imports` and MUST NOT be read or counted.
 - A path candidate that does not exist or is a directory MUST be listed under `unresolved_imports`.
+- `unresolved_imports` and `external_imports` MUST list each `from` and `ref` pair once, even when several nodes reach the same file.
 
 ## Pointers
 
 - A backticked `@path` and a relative markdown link are pointers. They MUST NOT add to any weight.
+- Pointers are read from each node's own instruction files only, not from the files those import.
 - Links with a URL scheme and links to anchors MUST be ignored. The fragment after `#` MUST be dropped before resolving.
-- Every pointer MUST appear in `pointers` with `from`, `ref`, `target` (root-relative, or `null` when outside the root), and `exists`. Pointers whose target does not exist MUST also appear in `broken_pointers`.
+- A backticked `@path` resolves like an import. A link resolves against the directory of the file that holds it. A link that starts with `/` resolves against the root, the way GitHub renders it.
+- A pointer that is not a path candidate, as defined under Imports, and does not exist MUST be dropped silently.
+- Every other pointer MUST appear in `pointers` with `from`, `ref`, `target` (root-relative, or `null` when outside the root), and `exists`. Pointers whose target does not exist MUST also appear in `broken_pointers`.
 
 ## Weights
 
@@ -52,8 +56,8 @@ The context graph measures how much instruction context an agent carries at each
 - The JSON document has `schema_version` (integer, currently 1), `root` (absolute path), `token_estimate` (text), `nodes`, `totals`, `pointers`, `broken_pointers`, `unresolved_imports`, and `external_imports`.
 - Each node has `path` (`.` for the root), `depth`, `parent`, `kind`, `files`, `imports`, `own_tokens`, `chain_tokens`, `gotcha_tokens`, and `docs`.
 - Each file has `path`, `tokens`, `words`, `lines`, `marker`, and `sections`. Each import has `path`, `tokens`, `hop`, and `from`.
-- `totals` has `nodes`, `scopes`, `markers`, `instruction_tokens`, `gotcha_tokens`, `docs_tokens`, and `heaviest_chain` (`path` and `tokens`, or `null`).
-- The reference script also renders a terminal tree, a markdown report with a Mermaid diagram, and a static SVG treemap (`--format treegraph`). Rendering is not part of the contract. Marker nodes SHOULD stay out of the diagram because they are template copies.
+- `totals` has `nodes`, `scopes`, `markers`, `instruction_tokens`, `gotcha_tokens`, `docs_tokens`, and `heaviest_chain` (`path` and `tokens`, or `null`). `heaviest_chain` is the node with the largest `chain_tokens` among nodes that are not `marker`. The first in path order wins a tie.
+- The reference script also renders a terminal tree (`--format tree`). Rendering is not part of the contract. The tree SHOULD hide marker nodes by default because they are template copies.
 - Exit code 1 is reserved for caller errors. Findings are data and MUST NOT change the exit code.
 
 ## Known simplifications

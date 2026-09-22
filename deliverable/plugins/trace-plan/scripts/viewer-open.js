@@ -64,5 +64,4 @@ async function main() {
   console.log(JSON.stringify(await openArtifact(kind, file, { browser: !flags.includes('--no-browser') })));
 }
 
-module.exports = { describeArtifact, openArtifact };
 if (require.main === module) main().catch((error) => { console.error(`TRACE viewer: ${error.message}`); process.exitCode = 1; });

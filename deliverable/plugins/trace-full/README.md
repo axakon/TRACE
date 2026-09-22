@@ -1,8 +1,8 @@
 # trace-full
 
-Everything TRACE ships, behind one install.
+All of TRACE in one install.
 
-This package installs trace, trace-plan, and trace-git through Claude’s plugin dependencies. Invoke skills under their original plugin namespaces.
+This package has no skills of its own. It depends on trace, trace-plan, and trace-git, so Claude Code installs all three. Each skill keeps its own plugin name, such as /trace-plan:spec.
 
 Install from the TRACE marketplace:
 
@@ -12,8 +12,8 @@ Install from the TRACE marketplace:
 /reload-plugins
 ```
 
-Claude installs declared dependencies automatically.
+Claude Code installs the plugins this one depends on.
 
-The suite contains durable-context setup, AGENTS.md authoring, scaffolding, ADRs, distillation, validation, specs, epics, commit messages, and PR descriptions.
+The suite includes docs setup, `AGENTS.md` setup, starter docs, ADRs, distillation, convention checks, context size reports, specs, epics, commit messages, and PR descriptions.
 
-All packages share one version. Consumers install the committed package and do not run a build.
+All TRACE packages share one version. The packages in the repository are ready to use, so you don't need to build anything.

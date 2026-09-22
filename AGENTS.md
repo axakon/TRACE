@@ -12,7 +12,6 @@ Writing tooling only:
 
 - Markdown, GitHub-flavored. Mermaid for diagrams, inline in the doc that uses them.
 - Plugin packages are generated from `plugin-src/` for Claude Code and Codex. Node scripts and tests verify both outputs; the viewer has its existing npm build. Rules live in `deliverable/plugins/AGENTS.md`.
-- The plugins under `deliverable/plugins/` ship small Node.js scripts; working on them has its own rules in `deliverable/plugins/AGENTS.md`.
 
 ## Directory index
 

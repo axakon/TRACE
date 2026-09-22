@@ -1,11 +1,11 @@
 # trace-full
 
-Everything TRACE ships, behind one install.
+All of TRACE in one install.
 
 {{bundle-description}}
 
 {{installation}}
 
-The suite contains durable-context setup, AGENTS.md authoring, scaffolding, ADRs, distillation, validation, specs, epics, commit messages, and PR descriptions.
+The suite includes docs setup, `AGENTS.md` setup, starter docs, ADRs, distillation, convention checks, context size reports, specs, epics, commit messages, and PR descriptions.
 
-All packages share one version. Consumers install the committed package and do not run a build.
+All TRACE packages share one version. The packages in the repository are ready to use, so you don't need to build anything.

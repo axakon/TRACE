@@ -19,7 +19,7 @@ claude plugin marketplace add axakon/TRACE
 claude plugin install trace-full@trace
 ```
 
-> **The order matters.** `ai-playbook` and `trace` are the *same GitHub repo*, and Claude Code keys a marketplace by its source. Add before removing and you get `Marketplace 'ai-playbook' already on disk` — nothing happens, because it's already registered under the old name. Remove first, then add, and it registers as `trace`.
+> **The order matters.** `ai-playbook` and `trace` are the *same GitHub repo*, and Claude Code keys a marketplace by its source. Add before removing and you get `Marketplace 'ai-playbook' already on disk` — nothing happens, because it's already registered under the old name, and the plugins stay keyed `@ai-playbook`. Remove first, then add, and it registers as `trace`.
 
 Restart Claude Code. Then in each project you use TRACE in, run `/trace:init` once — it moves `.claude/.playbook/config.json` to `.claude/.trace/` and cleans up.
 
@@ -148,7 +148,7 @@ Ask which plugins they want, using the [table above](#choosing-what-to-install).
 
 Do this **once per scope** found in Phase 0. Project scope acts on the current working directory's project, so a project-scope install in another repo has to be done from that repo — note it for the final report rather than trying to reach it from here.
 
-**The four steps must run in this order at each scope.** `ai-playbook` and `trace` are the same GitHub repo, and Claude Code keys a marketplace by its source — so adding before removing is a silent no-op (`Marketplace 'ai-playbook' already on disk`), and the plugins stay keyed `@ai-playbook`.
+**The four steps must run in this order at each scope.** [The short version](#the-short-version) explains why.
 
 User scope:
 
@@ -168,7 +168,7 @@ claude plugin marketplace add axakon/TRACE --scope project
 claude plugin install trace-full@trace --scope project
 ```
 
-Installing the bundle auto-installs `trace`, `trace-plan`, and `trace-git` — expect all four in `claude plugin list`, and all four written into that scope's `enabledPlugins`. That is correct, not redundant: `trace-full` ships no content of its own, and Claude Code writes an explicit `true` for a plugin *and* each of its dependencies at the target scope.
+Installing the bundle auto-installs `trace`, `trace-plan`, and `trace-git` — expect all four in `claude plugin list`, and all four written into that scope's `enabledPlugins`. That is correct, not redundant: `trace-full` ships no content of its own — its manifest is a `dependencies` array, and the three plugins it names carry every skill. Claude Code writes an explicit `true` for a plugin *and* each of its dependencies at the target scope.
 
 **No install record at this scope?** Then the CLI cannot help you, and the two scope flags will appear to contradict each other:
 
@@ -179,7 +179,7 @@ $ claude plugin uninstall playbook@ai-playbook --scope project
   ... is not installed in project scope. Use --scope to specify the correct scope.
 ```
 
-Both are true. The first reads the enablement record, the second reads the install record. Do not go looking for a third scope value — no scope flag reaches an enablement that has no install behind it. Do this instead:
+Both are true. They read the enablement record and the install record, which [Phase 0](#phase-0--inventory-read-only) describes. Do not go looking for a third scope value — no scope flag reaches an enablement that has no install behind it. Do this instead:
 
 1. **Edit `.claude/settings.json` by hand** to drop the `ai-playbook` marketplace entry and the `playbook@ai-playbook` key. Only the file holds them, so only a file edit removes them. [Phase 4](#phase-4--update-repo-references) has the full target shape.
 2. **Then run the install**, which writes the new marketplace and all four `enabledPlugins` keys for you, and creates the install record this machine was missing:
@@ -228,7 +228,7 @@ This step is optional in the sense that 1.0 still reads the old path, and `/trac
 
 Remove the old `ai-playbook` marketplace entry and the `playbook@ai-playbook` key. Merge into the existing JSON — do not replace the file, and leave unrelated keys alone.
 
-**Name every plugin, not just the bundle.** `trace-full` ships no content — its manifest is a `dependencies` array, and the three plugins it names carry every skill. Claude Code writes an explicit `true` for a plugin *and* each of its dependencies at the same scope, so the four keys above are what a CLI install produces. Write only `trace-full@trace` and its dependencies stay disabled, which Claude Code reports as `dependency-unsatisfied`.
+**Name every plugin, not just the bundle.** The four keys above are what a CLI install produces, for the reason [Phase 2](#phase-2--swap-the-plugin) gives. Write only `trace-full@trace` and its dependencies stay disabled, which Claude Code reports as `dependency-unsatisfied`.
 
 If Phase 1 chose a narrower set, name the core alongside the add-on — `trace-plan` and `trace-git` both depend on `trace`:
 
@@ -236,7 +236,7 @@ If Phase 1 chose a narrower set, name the core alongside the add-on — `trace-p
 { "enabledPlugins": { "trace@trace": true, "trace-git@trace": true } }
 ```
 
-**This file enables TRACE, it does not install it.** Claude Code does not fetch a plugin from an external marketplace just because `enabledPlugins` names it — after trusting the folder a collaborator sees the plugin reported as not installed, with a `claude plugin install` command to run. So every machine, including this one, still needs the Phase 2 install. Say so in the Phase 6 report: each collaborator runs `claude plugin install trace-full@trace --scope project` once, and it resolves from the marketplace this file now carries.
+**This file enables TRACE, it does not install it** — see [the two records](#phase-0--inventory-read-only). Claude Code does not fetch a plugin from an external marketplace just because `enabledPlugins` names it — after trusting the folder a collaborator sees the plugin reported as not installed, with a `claude plugin install` command to run. So every machine, including this one, still needs the Phase 2 install. Say so in the Phase 6 report: each collaborator runs `claude plugin install trace-full@trace --scope project` once, and it resolves from the marketplace this file now carries.
 
 **Text references.** Rewrite every `/playbook:<skill>` hit from Phase 0 using the [command table](#commands). Check `AGENTS.md`, `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`, the docs folder, and CI configs.
 
@@ -301,11 +301,11 @@ claude plugin install playbook@ai-playbook
 
 **Both old and new commands appear.** An install of `playbook@ai-playbook` survives at a scope you haven't migrated. `claude plugin list --json` shows which.
 
-**`uninstall` gives two different answers about the same scope.** `--scope local` reports the plugin enabled at project scope, `--scope project` reports it not installed there. Both are correct — they read different records. `enabledPlugins` in the committed `settings.json` says the plugin is *enabled*, and `~/.claude/plugins/installed_plugins.json` on your machine has no *install* for it, which is the normal state after cloning a repo that ships TRACE in its settings. No scope flag resolves this. Edit `.claude/settings.json` directly, as [Phase 4](#phase-4--update-repo-references) describes, and restart.
+**`uninstall` gives two different answers about the same scope.** `--scope local` reports the plugin enabled at project scope, `--scope project` reports it not installed there. Both are correct — they read the two records described in [Phase 0](#phase-0--inventory-read-only). No scope flag resolves this. Edit `.claude/settings.json` directly, as [Phase 4](#phase-4--update-repo-references) describes, and restart.
 
 **`dependency-unsatisfied` on `trace-full`, or no skills after a hand-edit.** `enabledPlugins` names the bundle but not the three plugins it depends on. Add `trace@trace`, `trace-plan@trace`, and `trace-git@trace` alongside it — see [Phase 4](#phase-4--update-repo-references).
 
-**`marketplace add axakon/TRACE` says "already on disk".** The old `ai-playbook` declaration points at the same repo, so there is nothing to add. Remove it at that scope first (`claude plugin marketplace remove ai-playbook --scope <scope>`), then add again.
+**`marketplace add axakon/TRACE` says "already on disk".** The old `ai-playbook` declaration points at the same repo — see [The short version](#the-short-version). Remove it at that scope first (`claude plugin marketplace remove ai-playbook --scope <scope>`), then add again.
 
 **`marketplace remove ai-playbook` fails.** A plugin from it is still installed. Uninstall at every scope first.
 

@@ -1,5 +1,5 @@
 interface:
   display_name: "TRACE context-graph"
-  short_description: "Measure context weight per directory: tree, Mermaid report, SVG"
+  short_description: "Measure context weight per directory: AGENTS.md chains, @"
 policy:
   allow_implicit_invocation: false

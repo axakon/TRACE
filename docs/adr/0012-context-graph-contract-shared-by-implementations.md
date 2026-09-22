@@ -10,7 +10,7 @@ Two delivery shapes were wanted: a skill inside the core plugin, and later a sta
 
 ## Decision
 
-We will ship `context-graph.js` in the core plugin, wrapped by `/trace:context-graph`, as the reference implementation. We will fix its behaviour in a contract with two parts: `docs/architecture/context-graph.md` states the scan, import, pointer, and weight rules and the JSON shape, and `scripts/tests/fixtures/context-graph/` with its expected JSON is the acceptance test every implementation must pass. Rendering (terminal tree, Mermaid markdown) is outside the contract. A CLI in another language lives in its own repository, vendors the fixture, and states which contract version it implements.
+We will ship `context-graph.js` in the core plugin, wrapped by `/trace:context-graph`, as the reference implementation. We will fix its behaviour in a contract with two parts: `docs/architecture/context-graph.md` states the scan, import, pointer, and weight rules and the JSON shape, and `scripts/tests/fixtures/context-graph/` with its expected JSON is the acceptance test every implementation must pass. Rendering (the terminal tree) is outside the contract. A CLI in another language lives in its own repository, vendors the fixture, and states which contract version it implements.
 
 We will also move the scope, docs-folder, and markdown helpers that `doctor.js` and `context-graph.js` share into `trace-lib.js` in the same scripts folder, so the two scripts read a scope the same way.
 

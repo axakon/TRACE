@@ -326,8 +326,8 @@
     "gotcha_tokens": 105,
     "docs_tokens": 245,
     "heaviest_chain": {
-      "path": "services/billing/context",
-      "tokens": 467
+      "path": "services/billing",
+      "tokens": 424
     }
   },
   "pointers": [

@@ -31,7 +31,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const {
   FORWARDER, MARKER_HEADING, SKIP_DIRS,
-  readText, isFile, isDir, rel, firstHeading, stripCode, collectMarkdownFiles,
+  readText, isFile, isDir, rel, firstHeading, collectMarkdownFiles, findLinks, resolveLink,
   resolveDocsFolder, discoverScopes, isAdopted,
 } = require('./trace-lib');
 
@@ -333,24 +333,14 @@ function checkLinks(scope, docs, report) {
   const rootAgents = path.join(scope, 'AGENTS.md');
   if (isFile(rootAgents)) files.push(rootAgents);
 
-  const LINK = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
   for (const file of files) {
     const content = readText(file);
     if (content === null) continue;
-    const scannable = stripCode(content);
-    let m;
-    while ((m = LINK.exec(scannable)) !== null) {
-      let target = m[1];
-      if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue; // URLs, mailto, anchors
-      target = target.split('#')[0];
-      if (!target) continue;
-      const resolved = target.startsWith('/')
-        ? path.join(scope, target)
-        : path.resolve(path.dirname(file), target);
-      if (!fs.existsSync(resolved)) {
+    for (const { raw, target } of findLinks(content)) {
+      if (!fs.existsSync(resolveLink(scope, file, target))) {
         report.errors.push({
           check: 'link', path: rel(scope, file),
-          message: `Relative link target does not exist: ${m[1]}`,
+          message: `Relative link target does not exist: ${raw}`,
         });
       }
     }

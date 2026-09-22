@@ -44,7 +44,7 @@ Show concisely what you found. Then use the question control with up to four opt
 
 Validate the choice before continuing: if a *file* (not a directory) already exists at the chosen path, or at any of the five sub-paths (`system`, `architecture`, `adr`, `reference`, `working-notes`), say what's in the way and re-ask — don't proceed into Phase 3 with a path that can't hold the structure.
 
-If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: TRACE's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second the question control.
+If the developer picks a folder that already contains hand-written content, tell them in plain text before continuing: TRACE's three-category structure and marker will be laid down alongside whatever is there. Confirm once in chat — no second question.
 
 ## Phase 3: Copy the canonical doc structure
 

@@ -8,7 +8,7 @@
     {
       "name": "trace",
       "source": "./deliverable/plugins/trace",
-      "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, and validates the conventions."
+      "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight."
     },
     {
       "name": "trace-plan",

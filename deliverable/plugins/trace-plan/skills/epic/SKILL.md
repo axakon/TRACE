@@ -16,7 +16,7 @@ Epics are the developer's personal work-staging, not repo artifacts. They live i
 Glob `~/.claude/epics/*/epic.md`.
 
 - **Invoked with a feature description** → create (Phase 2).
-- **Invoked bare, existing epics found** → Ask: **Create new epic** / one option per existing epic (label = its title). Choosing an epic → manage (Phase 4).
+- **Invoked bare, existing epics found** → use the question control: **Create new epic** / one option per existing epic (label = its title). Choosing an epic → manage (Phase 4).
 - **Invoked bare, no epics** → ask one open question: "What do you want to build?" Then create.
 
 ## Phase 2 (create): Interview at epic altitude
@@ -41,7 +41,7 @@ Stage the draft for browser review instead of dumping it in chat:
 
 1. Write the draft to the preview area — `~/.claude/epics/.preview/<epic-slug>/` with the same `epic.md` + `tickets/` layout as a real epic.
 2. Open it in the viewer: `node "${CLAUDE_SKILL_DIR}/../../scripts/viewer-open.js" epic "<absolute-home>/.claude/epics/.preview/<epic-slug>/epic.md"`. In chat, give the title, ticket count, and returned viewer URL — the browser shows the full draft.
-3. Ask: **Write epic** / **Revise** / **Abort**.
+3. Use the question control: **Write epic** / **Revise** / **Abort**.
 4. On **Revise**: the developer's feedback may be typed or pasted from the viewer's revision marks ("Revise the epic …"). Apply it to the preview files — the browser live-reloads — and re-ask step 3.
 5. On **Write epic**: write the final files to `~/.claude/epics/<epic-slug>/epic.md` and `tickets/<NNN>-<slug>.md` (three-digit numbers from `001`, kebab-case slugs), delete the preview staging with `node -e "require('fs').rmSync('<absolute-home>/.claude/epics/.preview/<epic-slug>', { recursive: true, force: true })"`, then open the real board: `node "${CLAUDE_SKILL_DIR}/../../scripts/viewer-open.js" epic "<absolute-home>/.claude/epics/<epic-slug>/epic.md"`.
 
@@ -49,7 +49,7 @@ The command reports its URL or a diagnostic. If the viewer is disabled or cannot
 
 ## Phase 4 (manage): Board review
 
-Read every ticket's frontmatter and render the board: number, title, status, dependencies. Then offer, via Ask:
+Read every ticket's frontmatter and render the board: number, title, status, dependencies. Then offer, via the question control:
 
 - **Update status** — set a ticket to `todo` / `in-progress` / `done`
 - **Add ticket** — mini-interview (why, scope, dependencies), next free number
