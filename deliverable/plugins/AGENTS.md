@@ -14,7 +14,7 @@ For maintainers of TRACE. Adopters receive the generated plugin folders, not thi
 | `.claude-plugin/marketplace.json` | Generated Claude catalog |
 | `.agents/plugins/marketplace.json` | Generated Codex catalog |
 | `scripts/generate-plugins.js` | Deterministic package generation and drift check |
-| `scripts/verify-plugins.js` | Automated checks and release evidence gate |
+| `scripts/verify-plugins.js` | Automated checks and release version check |
 
 Paths in this table are repository-relative. Read [package architecture](../../docs/architecture/plugin-distribution.md) and [release procedure](../../docs/system/releasing.md) for the contracts and commands.
 
@@ -61,4 +61,4 @@ Run `node scripts/generate-plugins.js`, then `node scripts/verify-plugins.js`. T
 
 If `verify-plugins.js` fails at the drift check with `obsolete:` lines under `.claude/` in a package folder, a local plugin session wrote state there. The files are gitignored, so `git status` stays clean. A plain `node scripts/generate-plugins.js` removes them.
 
-For a release, follow the shared procedure. Record live checks with client versions and the package hash. Script tests alone do not establish native interview or approval behaviour.
+For a release, follow the shared procedure. Script tests alone do not establish native interview or approval behaviour, so try changed skills in a live client.

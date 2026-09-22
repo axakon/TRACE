@@ -22,6 +22,6 @@ Existing configuration and epic formats remain compatible. This change does not 
 
 CI MUST validate generation, package resources, hook payloads, and viewer behaviour on macOS. CI MUST reject missing, stale, or obsolete generated files. CI MUST NOT commit fixes or open release PRs.
 
-Release preflight MUST validate both distributions and current live-check evidence before publication. The source catalog owns the version. Both distributions use the same changelog and release tag.
+Release preflight MUST validate both distributions before publication. The source catalog owns the version. Both distributions use the same changelog and release tag.
 
 Windows validation is outside the current support claim. Runtime scripts SHOULD retain portable Node APIs.

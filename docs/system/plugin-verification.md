@@ -6,9 +6,7 @@ The tests use Node built-ins and temporary directories. Viewer tests bind localh
 
 ## Live checks
 
-Automated tests cannot establish native skill discovery, interviews, approval controls, or browser behaviour. Use fresh installed packages in disposable projects for each client: Claude Code, Codex CLI, and Codex desktop.
-
-Record the client version and actual commands or observations. Do not replace unverified behaviour with a passing script-test result.
+Automated tests cannot establish native skill discovery, interviews, approval controls, or browser behaviour. Before a release, install the packages in a disposable project and try the skills the release changed. Use the table below to decide what to observe. Nothing records or enforces these checks.
 
 | Check | Observe |
 |---|---|
@@ -29,12 +27,4 @@ Record the client version and actual commands or observations. Do not replace un
 
 Use the fixtures in `plugin-src/trace-plan/viewer/fixtures/` for browser checks. Use copies so board edits do not modify source fixtures. Test a parent directory containing spaces.
 
-## Evidence and release gate
-
-`verification/live-smoke.json` records live results. Its `clients` object uses `claude-code`, `codex-cli`, and `codex-desktop` keys. Each client record includes `version`, `packageHash`, and `checks`. Each check contains `status` and a concrete `evidence` string.
-
-Get the current package hash with `node scripts/verify-plugins.js --hash`. Use `met` only after observing the behaviour. Use `unverified` when a required environment or interaction is unavailable.
-
-`node scripts/verify-plugins.js --release` requires every listed check to be met for the current packages. It also checks the release version and date. Recording a gap does not waive the gate.
-
-Windows live checks are excluded from this change. Keep that limitation explicit in release claims.
+Windows live checks are outside the current support claim.

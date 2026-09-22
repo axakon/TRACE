@@ -9,8 +9,8 @@ TRACE releases Claude Code and Codex packages together. `plugin-src/catalog.json
 3. If viewer inputs changed, run `npm ci` and `npm run build` in `plugin-src/trace-plan/viewer/`.
 4. Run `node scripts/generate-plugins.js`.
 5. Run `node scripts/verify-plugins.js`. Repair failures in source and regenerate. Report unrelated doctor warnings.
-6. Run the live checks described in [plugin verification](plugin-verification.md). Record actual evidence for each client and the package hash.
-7. Run `node scripts/verify-plugins.js --release`. Missing or stale live evidence blocks publication.
+6. Try the skills this release changed in a live client. [Plugin verification](plugin-verification.md) lists what to observe.
+7. Run `node scripts/verify-plugins.js --release`. It also checks the changelog date and that the version exceeds the latest tag.
 
 Use `/release` in Claude or `$release` in Codex to load this procedure. The release skill is generated from `plugin-src/maintainer/release/SKILL.md` for both harnesses.
 
