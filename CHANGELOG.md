@@ -4,6 +4,12 @@ All notable changes to the TRACE plugins are recorded here — `trace`, `trace-p
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Changed
+
+- **The writing rules are about 40% shorter.** `authoring-rules.md`, `change-summary-style.md`, and the `commit-message` and `pr-description` skills and examples went from about 5,860 words to about 3,550. The cuts remove rules stated in more than one file, worked examples of each test, and process steps the model now follows without them. Every rule about words, sentences, templates, and the delete test stays. Drafts for two PRs and four commits in this repo came out the same length and quality with the old and new rules. The new rules missed two things more often: sentences whose subject was an "-ing" verb, and bold bullet openings past 15 words. `change-summary-style.md` now names both as a last check.
+
 ## [1.2.0] - 2026-09-22
 
 ### Added

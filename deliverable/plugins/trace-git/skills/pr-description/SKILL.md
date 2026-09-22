@@ -8,18 +8,11 @@ allowed-tools: "Bash(git diff*) Bash(git status*) Bash(git log*) Bash(git branch
 Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.
 
 
-You are drafting a PR description (or squash-merge commit message) in TRACE's standard format. The format is a shape, not a taxonomy — there are no required prefixes and no enum of types. The goal is a predictable structure a reviewer can scan: *why* this change, *what approach* was taken, *what permanent context* moved as a result.
+Draft a PR description or squash-merge message in TRACE's shape: *why* the change exists, *what approach* it takes, and *what permanent context* moved. The shape has no prefixes and no enum of change types.
 
-Writing rules live in two shared files. Read both at the start of the skill, and re-read them in Phase 6 before you emit:
+Before drafting, read [authoring-rules.md](../../shared/authoring-rules.md), [change-summary-style.md](../../shared/change-summary-style.md), and [example-pr-description.md](./example-pr-description.md). The example sets the target length.
 
-- [shared/authoring-rules.md](../../shared/authoring-rules.md) — the four tests every text must pass: name, cover-up, actor, count.
-- [shared/change-summary-style.md](../../shared/change-summary-style.md) — title discipline, self-contained, skip-what-the-diff-makes-obvious, bold-lead-in bullets.
-
-[example-pr-description.md](./example-pr-description.md) shows the target length and depth, and the bullets a first draft has to lose to get there. Read it in Phase 3, before you draft the Approach section.
-
-This SKILL.md only covers what is PR-specific.
-
-The output template — emit exactly this, dropping any optional section that is empty:
+Emit exactly this template, dropping any optional section that is empty:
 
 ```
 {Imperative-mood title, ≤72 chars, no prefix}
@@ -45,65 +38,47 @@ The output template — emit exactly this, dropping any optional section that is
 
 ## Phase 1: Determine the change range
 
-Find the range of commits this draft summarises.
+- **With a PR number** (`/trace-git:pr-description 123`): run `gh pr view 123 --json baseRefName,headRefName,number,title,body`, fetch the base if needed, and diff against `origin/<base>`.
+- **With a base branch** (`/trace-git:pr-description main`): diff `<base>...HEAD`.
+- **Bare:** use the current branch's PR base from `gh pr view --json baseRefName`, then the remote's default branch, then `main` or `master`. Tell the developer which base you picked.
 
-- **Invoked with a PR number** (`/trace-git:pr-description 123`): use `gh pr view 123 --json baseRefName,headRefName,number,title,body` to get base/head, then `git fetch origin <base>` if needed and diff against `origin/<base>`.
-- **Invoked with a base branch** (`/trace-git:pr-description main`): diff `<base>...HEAD`.
-- **Invoked bare:** infer the base. Try in order: `gh pr view --json baseRefName` for the current branch's PR; otherwise the repo's default branch from `git remote show origin | grep "HEAD branch"`; otherwise `main` then `master`. Show the developer which base you picked and proceed unless they redirect.
+Start from `git diff --stat <base>...HEAD` and `git log <base>..HEAD --oneline`. Read the files that matter, and skip lockfiles, generated output, and formatting-only churn. If the diff is empty, say so and stop.
 
-Run `git diff --stat <base>...HEAD` and `git log <base>..HEAD --oneline` to get the shape of the change. Read the full diff selectively for files that matter (new files, security-sensitive paths, structural changes). Skip lockfiles, generated output, and formatting-only churn.
+## Phase 2: Title and "What is this"
 
-## Phase 2: Draft the title and "What is this"
+The body is the why: the problem and the intent, in one to three sentences. If the conversation did not establish the intent, draft it from the diff and confirm it with one short question.
 
-The "What is this" body is the *why*: the problem this change solves and the intent behind it. One to three sentences. If the conversation already established the intent, draft from that; otherwise propose a draft from the diff and confirm with the developer in one short question.
+## Phase 3: Approach and Risks
 
-## Phase 3: Draft the "Approach" and "Risks / follow-ups"
+**Approach** holds the decisions that survive the delete test in [change-summary-style.md](../../shared/change-summary-style.md).
 
-**Approach.** Read [example-pr-description.md](./example-pr-description.md) now if you haven't — its "What got cut, and why" table shows how few bullets survive. Apply the delete test from [change-summary-style.md](../../shared/change-summary-style.md): delete each bullet and ask what the reviewer would then get wrong. Anything already explained by a comment or docstring in the diff fails the test — the reviewer reads it there. Write each lead-in as the decision in plain words, not as the schema names, columns, or test fixtures the code uses for it.
+**Risks / follow-ups** holds what a reviewer or operator must act on or watch: a manual rollout step, deferred cleanup, a known limitation, or a feature flag. Skip it if nothing qualifies.
 
-**Risks / follow-ups.** Pull out anything the reviewer or an operator needs to act on or watch for: a manual rollout step, a deferred cleanup, a known limitation, a feature flag. One bullet each, **bold lead-in**. Skip the section entirely if nothing qualifies — do not pad it.
+## Phase 4: Updated context
 
-## Phase 4: Detect "Updated context"
+Fill this from `git diff --name-status <base>...HEAD`, and skip it if both lists are empty.
 
-Auto-populate this section from the diff. Skip the whole section if both lists are empty.
+- **ADRs:** each *added* file matching `**/adr/NNNN-*.md`. Read it for the title and a one-line summary.
+- **Docs:** each added or modified markdown file that is durable project context: a root `AGENTS.md` or `CLAUDE.md`, or a file in the folder the ADRs live in. Say what changed, not what the file is. Skip package READMEs, changelogs, and generated docs.
 
-Read the paths from `git diff --name-status <base>...HEAD` — the diff names the files, so there is no docs folder to resolve.
+If the change made a substantial decision with no ADR in the diff, say so in your final message so the developer can run `/trace:adr`. Do not invent an ADR entry.
 
-- **ADRs.** Any *added* file whose path matches `**/adr/NNNN-*.md` (four digits, then a slug). Read each to extract the title and a one-line summary.
-- **Docs.** Any other added or modified markdown file that is durable project context: a root-level `AGENTS.md`/`CLAUDE.md`, or a file under the same documentation folder the ADRs live in. One line per file describing what changed (not what the file is). Skip READMEs of code packages, changelogs, and generated docs.
+## Phase 5: How to verify
 
-If the change made a substantial decision but no ADR exists in the diff, mention this in your final summary so the developer can run `/trace:adr` separately — do not invent an ADR entry.
+Include it for behaviour changes, bug fixes, and anything user-facing. Skip it for trivial changes and pure refactors. Write one to three concrete steps a reviewer can take, each with a URL or command and the expected result. Leave out anything CI or the developer already covered, such as tests, lint, or the build. If CI is the only check, skip the section.
 
-## Phase 5: Decide on "How to verify"
+## Phase 6: Output
 
-Decide whether to include the section from the change itself: skip for trivial or pure-refactor changes; include for behavioural changes, bug fixes, or anything user-facing.
+Check the draft against the rules files and fix it before showing it. Output the body in a fenced block, then act on the request:
 
-If included, draft 1–3 short steps **a reviewer can meaningfully take** — staging behaviour to exercise, a UI flow to walk, an output to eyeball. Each step concrete (URL, command, expected observation).
+- **Asked only for the text:** stop there.
+- **Asked to open or update the PR:**
+  - **New PR:** push the branch if needed, then `gh pr create` with the title and body.
+  - **Existing PR** (`gh pr view --json number` succeeds): `gh pr edit <number> --body-file <tmp>`. Do not open a duplicate.
+  - **GitLab remote:** use `glab mr create`, `glab mr view`, and `glab mr update <number> --description "$(cat <tmp>)"`.
 
-Exclude anything the developer or CI already covered: do not write "`go test ./...` passes", "lint is clean", "the build succeeds", or any restatement of CI. The reviewer is not re-running the dev's pre-flight. If the only verification is "CI passes", skip the section.
+The title goes in the title field of GitHub or GitLab, and the rest in the body. A squash-merge message takes the whole block. Do not push or open a PR when the developer asked only for the text.
 
-## Phase 6: Re-check, then output
-
-Re-read [authoring-rules.md](../../shared/authoring-rules.md) and [change-summary-style.md](../../shared/change-summary-style.md) now, then run all five tests over the draft — name, cover-up, actor, count, and delete. Run the actor test last and slowly, because it is the one that gets missed. Fix the draft before showing it — do not emit a draft and note the problems afterwards.
-
-Then output the full body as plain text in a fenced block, and act on the original request:
-
-- **Asked only for the description or squash-merge message** — stop here. The developer takes it from there.
-- **Asked you to open or update the PR** — carry it out in your normal flow using this body:
-  - **New PR** — push the branch if needed, then `gh pr create` with the title and body.
-  - **Existing PR** (`gh pr view --json number` succeeds on the branch) — `gh pr edit <number> --body-file <tmp>`. Don't open a duplicate.
-  - **GitLab remote** — use `glab` instead: `glab mr create`, `glab mr view`, `glab mr update <number> --description "$(cat <tmp>)"`. Everything above about the drafted body is unchanged.
-
-Do not ask whether to copy the body, where to place it, or how to apply it.
-
-If the target is a UI with a separate title field (GitHub, GitLab), the title goes in the title field and the rest in the body. For a squash-merge commit message, the whole block goes in.
-
-## Notes
-
-- The format is a shape, not a taxonomy. No prefixes, no required type.
-- Match the request: draft-only when the developer asked for the text; open or update the PR when they asked you to. Don't push or open a PR on your own initiative when only the text was requested.
-- The skill works without `gh` or `glab` installed — the PR-number and apply-to-PR paths simply become unavailable, and base-branch inference falls back to git alone. Pick the CLI from the remote: `gh` for GitHub, `glab` for GitLab.
-- If the diff is empty (nothing to summarise), say so and stop.
-- For a single commit (not a whole PR or squash-merge), use `/trace-git:commit-message` instead — same writing discipline, leaner template.
+Without `gh` or `glab`, the PR-number and apply paths are unavailable, and base inference falls back to git. For a single commit, use `/trace-git:commit-message`.
 
 When to use: Triggers only on an explicit ask. Two cases — (1) the developer asks for the PR text itself ("write the PR description", "draft the PR body", "give me the squash message", "update the PR description"); (2) the developer asks the agent to open or update the PR ("open a PR for this", "push and open a PR", "edit the open PR's body") — the skill drafts the body the agent then uses. Do **not** trigger merely because the developer is wrapping up, says "ship it", or pushes a branch — those signals belong to `/trace:distil` or to no skill at all. For a single commit's message, use `/trace-git:commit-message` instead.
