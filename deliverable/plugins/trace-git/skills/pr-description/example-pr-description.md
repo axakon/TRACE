@@ -2,9 +2,7 @@
 
 A fictional example (the same Meridian API project as `trace`'s `agents-md-setup` and `adr` examples) showing the target length and depth. Use it as a reference, not a template to copy — the template is in [SKILL.md](./SKILL.md).
 
-Notice how long it is, and how much it leaves out. The whole description is 322 words over 33 lines, so it fits on one screen. Approach carries three bullets, not seven — three decisions survived the delete test and four did not, and the table further down shows which. Risks names two real items instead of padding to three. A reviewer who reads only the title and the first sentence already knows what the change does. If a draft runs past roughly one screen, cut whole bullets and whole sections, never the sentences inside the ones that stay.
-
-Every sentence in the example is 25 words or fewer, and no phrase outside backticks is an invented compound. That is the standard the example exists to set, so it holds itself to it.
+Notice how much it leaves out. The description is 322 words over 33 lines, so it fits on one screen. Approach keeps three of the seven bullets from the first draft, and the table below shows why the other four went. Risks names two real items instead of padding to three. If a draft runs past one screen, cut whole bullets and sections, not the sentences inside them.
 
 ---
 
@@ -48,7 +46,7 @@ address.
 
 ## What got cut, and why
 
-The first draft had seven Approach bullets. Four failed the delete test — remove the bullet, and the reviewer gets nothing wrong. Each one failed for a different reason, and all four look reasonable until you run the test.
+The first draft had seven Approach bullets. Remove any of these four, and the reviewer gets nothing wrong.
 
 | Bullet in the first draft | Why it went |
 |---|---|
@@ -57,7 +55,7 @@ The first draft had seven Approach bullets. Four failed the delete test — remo
 | **The route now sits behind the same middleware chain as the rest of the API.** | Matching an existing pattern is not a decision. The diff shows the chain. |
 | **The counter may drift when Redis fails over:** a missed increment is cheaper than blocking a real user. | The comment above the counter says exactly this. The reviewer reads it there, in context, with the code next to it. |
 
-The last one is the trap to watch. Paraphrasing a comment feels like diligence, and it does two kinds of damage — it spends a bullet on something the reviewer already reads, and it pulls the code's vocabulary into a summary written for someone who has not read the code.
+The last one is the trap to watch. Paraphrasing a comment spends a bullet on text the reviewer already reads, and it pulls the code's vocabulary into the summary.
 
 ---
 
@@ -80,20 +78,3 @@ with more than one page could lose rows without reporting it.
   The total must match the count in the header.
 ```
 
----
-
-## A weak Approach section, for contrast
-
-This is the failure to watch for. The same change, written out of the code's vocabulary instead of the reviewer's:
-
-> - **Search joins the anonymous-quota middleware chain:** the per-key bucket resolves ahead of the session-shaped guard.
-> - **The quota store rides the session Redis:** counter-drift is acceptable under the failover-tolerant read path.
-
-Every phrase here fails the name test. "Anonymous-quota", "per-key", "session-shaped", "counter-drift", and "failover-tolerant" are in no file in the repo, and none of them is ordinary English either. "The quota store" and "the read path" also fail the actor test — neither says who does what. A reviewer cannot act on either line.
-
-The same two decisions, plainly:
-
-> - **Buckets are keyed by IP address, not by account:** the requests arrive with no session, so there is no account to key on.
-> - **The counter lives in the Redis instance that already holds sessions:** a dedicated instance would need its own failover plan for a number we can afford to lose.
-
-Same facts, same trade-offs. No invented terms, and every phrase that names a thing names one the reviewer can find in the code.
