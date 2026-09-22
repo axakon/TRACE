@@ -8,7 +8,6 @@
 // them there and here together.
 
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
 
 const FORWARDER = 'See @AGENTS.md for more information.';
@@ -92,51 +91,29 @@ function collectMarkdownFiles(dir, out) {
   return out;
 }
 
-// ----------------------------------------------------------- bare @imports
+// ------------------------------------------------------------ markdown links
 
-// Trailing punctuation is prose, not path.
-function trimPath(p) {
-  return p.replace(/[.,;:!?)\]]+$/, '');
-}
-
-// An @ reference is only a path candidate when it can be one: it starts with
-// a directory prefix, or its last segment carries an extension. Without either
-// (`@tanstack/router-cli`, `@theme`) it is a package or handle, and it counts
-// only when a file by that name exists — Claude Code's own `@README` example.
-const REF = /(?:~\/|\.{1,2}\/|\/)?[\w.\-][\w.\-/]*/;
-
-function looksLikePath(ref) {
-  if (/^(?:~\/|\.{1,2}\/|\/)/.test(ref)) return true;
-  const last = ref.split('/').pop();
-  return /\.[A-Za-z0-9]+$/.test(last);
-}
-
-// Bare @path tokens outside code spans and fences — Claude Code's import rule.
-// Doctor reports the ones that resolve nowhere; context-graph follows and weighs
-// the ones that do.
-// A leading word character rules out e-mail addresses and handles.
-function findImports(content) {
-  const scannable = stripCode(content);
+// Relative markdown links outside code, in document order. URLs, mailto, and
+// anchor-only links are skipped. `raw` is the link as written; `target` drops
+// the #fragment.
+function findLinks(content) {
   const found = [];
-  const re = new RegExp(`(?<![\\w\`@/])@(${REF.source})`, 'g');
+  const re = /\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
+  const scannable = stripCode(content);
   let m;
   while ((m = re.exec(scannable)) !== null) {
-    const p = trimPath(m[1]);
-    if (p && !found.includes(p)) found.push(p);
+    const raw = m[1];
+    if (/^[a-z][a-z0-9+.-]*:/i.test(raw) || raw.startsWith('#')) continue;
+    const target = raw.split('#')[0];
+    if (target) found.push({ raw, target });
   }
   return found;
 }
 
-// Resolves an @path the way Claude Code does: relative to the file that holds
-// it, `~/` to the home directory, `/` to the filesystem root. Returns null for
-// a target outside the scanned root — counted as external, never read.
-function resolveRef(root, fromFile, ref) {
-  let target;
-  if (ref.startsWith('~/')) target = path.join(os.homedir(), ref.slice(2));
-  else if (ref.startsWith('/')) target = ref;
-  else target = path.resolve(path.dirname(fromFile), ref);
-  const inside = target === root || target.startsWith(root + path.sep);
-  return { target, inside };
+// A link resolves against the file that holds it. A leading `/` means the
+// base directory (scope or scanned root), the way GitHub renders it.
+function resolveLink(base, fromFile, target) {
+  return target.startsWith('/') ? path.join(base, target) : path.resolve(path.dirname(fromFile), target);
 }
 
 // ------------------------------------------------------- docs-folder lookup
@@ -229,14 +206,9 @@ module.exports = {
   isMarkerContent,
   stripCode,
   collectMarkdownFiles,
-  readConfiguredDocsFolder,
+  findLinks,
+  resolveLink,
   resolveDocsFolder,
-  isScopeRoot,
   discoverScopes,
   isAdopted,
-  REF,
-  trimPath,
-  looksLikePath,
-  findImports,
-  resolveRef,
 };

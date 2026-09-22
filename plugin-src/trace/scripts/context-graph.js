@@ -3,15 +3,12 @@
 // Measure how much instruction context an agent carries at each directory of
 // a project, and where that weight comes from.
 //
-//   context-graph.js [root] [--format json|tree|markdown|treegraph] [--out <file> | --save] [--all]
+//   context-graph.js [root] [--format json|tree] [--all]
 //
-// The tree hides docs-folder marker rows (the template every scope carries)
-// unless --all is given; the footer reports how many and how much.
-//
-// Every format prints to stdout. --out <file> writes it to that file instead.
-// --save writes it to <root>/.claude/.trace/context-graph-<timestamp>.<ext>,
-// so a new run never overwrites an old report. Both print the path written.
-//
+// Prints one document to stdout: the JSON graph (the default) or a terminal
+// tree. The tree hides docs-folder marker rows (the template every scope
+// carries) unless --all is given; the footer reports how many and how much.
+
 // A node is a directory holding an instruction file: AGENTS.md, CLAUDE.md, or
 // CLAUDE.local.md. For each node the script reports
 //   own_tokens        the node's own instruction files plus every file they
@@ -31,16 +28,15 @@
 // docs/architecture/context-graph.md in the TRACE repository. Other
 // implementations (a CLI in another language) are held to the same fixtures.
 //
-// Output is a single document on stdout, or in --out when given. Exit 1 is
-// reserved for caller errors (bad arguments, unreadable root). Node built-ins
-// only; never writes anywhere but --out.
+// Exit 1 is reserved for caller errors (bad arguments, unreadable root). Node
+// built-ins only.
 
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const {
-  SKIP_DIRS, readText, isDir, rel, listDir, isMarkerContent, stripCode,
-  collectMarkdownFiles, resolveDocsFolder,
-  REF, trimPath, looksLikePath, findImports, resolveRef,
+  SKIP_DIRS, readText, isFile, isDir, rel, listDir, isMarkerContent, stripCode,
+  collectMarkdownFiles, findLinks, resolveLink, resolveDocsFolder,
 } = require('./trace-lib');
 
 const SCHEMA_VERSION = 1;
@@ -48,22 +44,10 @@ const MAX_IMPORT_HOPS = 4;
 const CONTEXT_FILES = ['AGENTS.md', 'CLAUDE.md', 'CLAUDE.local.md'];
 const GOTCHA_HEADING = /gotcha/i;
 
-// Terminal decoration for the tree format only. A cell turns yellow at
-// COLOR_WARN_TOKENS and red at COLOR_ALERT_TOKENS. Never part of JSON,
-// markdown, or the fixture contract.
-const COLOR_WARN_TOKENS = 4000;
-const COLOR_ALERT_TOKENS = 8000;
-const ANSI = { yellow: '\x1b[33m', red: '\x1b[31m', reset: '\x1b[0m' };
-
-// Color only when writing to a terminal, unless the environment says otherwise:
-// NO_COLOR wins, then FORCE_COLOR, then TERM=dumb, then the TTY check.
-function useColor(outFile, env = process.env, isTTY = process.stdout.isTTY) {
-  if (outFile) return false;
-  if ('NO_COLOR' in env) return false;
-  if (env.FORCE_COLOR !== undefined && env.FORCE_COLOR !== '0' && env.FORCE_COLOR !== '') return true;
-  if (env.TERM === 'dumb') return false;
-  return isTTY === true;
-}
+// The tree marks an own or chain cell with ! from WARN_TOKENS and !! from
+// ALERT_TOKENS. Plain text, so it survives pipes and files.
+const WARN_TOKENS = 4000;
+const ALERT_TOKENS = 8000;
 
 function fail(msg) {
   process.stderr.write(`context-graph: ${msg}\n`);
@@ -139,21 +123,58 @@ function sections(text) {
 
 // --------------------------------------------------------------- references
 
-// Backticked @paths and relative markdown links to files.
+// Trailing punctuation is prose, not path.
+function trimPath(p) {
+  return p.replace(/[.,;:!?)\]]+$/, '');
+}
+
+// An @ reference is only a path candidate when it can be one: it starts with
+// a directory prefix, or its last segment carries an extension. Without either
+// (`@tanstack/router-cli`, `@theme`) it is a package or handle, and it counts
+// only when a file by that name exists — Claude Code's own `@README` example.
+const REF = /(?:~\/|\.{1,2}\/|\/)?[\w.\-][\w.\-/]*/;
+
+function looksLikePath(ref) {
+  if (/^(?:~\/|\.{1,2}\/|\/)/.test(ref)) return true;
+  const last = ref.split('/').pop();
+  return /\.[A-Za-z0-9]+$/.test(last);
+}
+
+// Bare @path tokens outside code spans and fences — Claude Code's import rule.
+// A leading word character rules out e-mail addresses and handles.
+function findImports(content) {
+  const scannable = stripCode(content);
+  const found = [];
+  const re = new RegExp(`(?<![\\w\`@/])@(${REF.source})`, 'g');
+  let m;
+  while ((m = re.exec(scannable)) !== null) {
+    const p = trimPath(m[1]);
+    if (p && !found.includes(p)) found.push(p);
+  }
+  return found;
+}
+
+// Resolves an @path the way Claude Code does: relative to the file that holds
+// it, `~/` to the home directory, `/` to the filesystem root. `inside` is false
+// for a target outside the scanned root — counted as external, never read.
+function resolveRef(root, fromFile, ref) {
+  let target;
+  if (ref.startsWith('~/')) target = path.join(os.homedir(), ref.slice(2));
+  else if (ref.startsWith('/')) target = ref;
+  else target = path.resolve(path.dirname(fromFile), ref);
+  const inside = target === root || target.startsWith(root + path.sep);
+  return { target, inside };
+}
+
+// Backticked @paths and relative markdown links to files. `link` marks a
+// markdown link, whose leading `/` means the scanned root.
 function findPointers(content) {
   const found = [];
-  const add = (p) => { if (p && !found.includes(p)) found.push(p); };
+  const add = (ref, link) => { if (ref && !found.some((p) => p.ref === ref)) found.push({ ref, link }); };
   let m;
   const span = new RegExp(`\`@(${REF.source})\``, 'g');
-  while ((m = span.exec(content)) !== null) add(trimPath(m[1]));
-  const link = /\[[^\]\n]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
-  const scannable = stripCode(content);
-  while ((m = link.exec(scannable)) !== null) {
-    const target = m[1];
-    if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#')) continue;
-    const bare = target.split('#')[0];
-    if (bare) add(bare);
-  }
+  while ((m = span.exec(content)) !== null) add(trimPath(m[1]), false);
+  for (const { target } of findLinks(content)) add(target, true);
   return found;
 }
 
@@ -192,7 +213,7 @@ function resolveImports(root, ownFiles, cache) {
         const { target, inside } = resolveRef(root, file, ref);
         const from = rel(root, file);
         if (!inside) {
-          if (!external.some((e) => e.ref === ref && e.from === from)) external.push({ from, ref });
+          addOnce(external, [{ from, ref }]);
           continue;
         }
         if (seen.has(target)) continue;
@@ -214,8 +235,11 @@ function resolveImports(root, ownFiles, cache) {
 
 function checkPointers(root, file, pointers) {
   const out = [];
-  for (const ref of pointers) {
-    const { target, inside } = resolveRef(root, path.join(root, file.path), ref);
+  for (const { ref, link } of pointers) {
+    const from = path.join(root, file.path);
+    const { target, inside } = link
+      ? { target: resolveLink(root, from, ref), inside: true }
+      : resolveRef(root, from, ref);
     const exists = fs.existsSync(target);
     if (!exists && !looksLikePath(ref)) continue;
     out.push({ from: file.path, ref, target: inside ? rel(root, target) : null, exists });
@@ -227,9 +251,7 @@ function checkPointers(root, file, pointers) {
 function findNodes(root) {
   const nodes = [];
   (function walk(dir) {
-    const present = CONTEXT_FILES.filter((name) => {
-      try { return fs.statSync(path.join(dir, name)).isFile(); } catch { return false; }
-    });
+    const present = CONTEXT_FILES.filter((name) => isFile(path.join(dir, name)));
     if (present.length) nodes.push({ dir, present });
     for (const entry of listDir(dir)) {
       if (!entry.isDirectory() || SKIP_DIRS.has(entry.name) || entry.name.startsWith('.')) continue;
@@ -250,6 +272,11 @@ function nearestAncestor(nodePaths, nodePath) {
   }
 }
 
+// A file imported by several nodes reports its bad imports once.
+function addOnce(list, entries) {
+  for (const e of entries) if (!list.some((x) => x.from === e.from && x.ref === e.ref)) list.push(e);
+}
+
 function scan(rootArg) {
   const root = path.resolve(rootArg);
   const cache = new Map();
@@ -264,8 +291,8 @@ function scan(rootArg) {
     const files = present.map((name) => measureFile(root, path.join(dir, name))).filter(Boolean);
     for (const f of files) cache.set(path.join(root, f.path), f);
     const imports = resolveImports(root, files, cache);
-    unresolvedImports.push(...imports.unresolved);
-    externalImports.push(...imports.external);
+    addOnce(unresolvedImports, imports.unresolved);
+    addOnce(externalImports, imports.external);
     for (const f of files) pointers.push(...checkPointers(root, f, f.pointers));
 
     const agents = files.find((f) => f.path.endsWith('AGENTS.md'));
@@ -317,7 +344,9 @@ function scan(rootArg) {
     node.chain_tokens = node.own_tokens + (parentDir === null ? 0 : byDir.get(parentDir).chain_tokens);
   }
 
-  const heaviest = nodes.reduce((best, n) => (best === null || n.chain_tokens > best.chain_tokens ? n : best), null);
+  const heaviest = nodes
+    .filter((n) => n.kind !== 'marker')
+    .reduce((best, n) => (best === null || n.chain_tokens > best.chain_tokens ? n : best), null);
   const brokenPointers = pointers.filter((p) => !p.exists);
 
   return {
@@ -353,27 +382,26 @@ function pad(s, width) {
   return s.length >= width ? s : s + ' '.repeat(width - s.length);
 }
 
-function renderTree(graph, options = {}) {
-  // Numbers are right-aligned under a header row. Pad first, then wrap, so
-  // escape codes never shift the columns.
-  const CELL = 8;
-  const right = (text) => ' '.repeat(Math.max(0, CELL - String(text).length)) + text;
-  const cell = (tokens) => {
-    const text = right(k(tokens));
-    if (!options.color) return text;
-    const color = tokens >= COLOR_ALERT_TOKENS ? ANSI.red : tokens >= COLOR_WARN_TOKENS ? ANSI.yellow : null;
-    return color ? color + text + ANSI.reset : text;
-  };
-  // Marker rows (the docs-folder template) are hidden unless options.markers.
-  // A hidden marker's children hang from the nearest shown ancestor.
-  const shown = graph.nodes.filter((n) => options.markers || n.kind !== 'marker');
-  const shownPaths = new Set(shown.map((n) => n.path));
+// The nearest ancestor of a node that is shown. Hidden marker nodes are
+// skipped, so their children hang from the next shown ancestor.
+function shownParent(graph, shownPaths) {
   const byPath = new Map(graph.nodes.map((n) => [n.path, n]));
-  const displayParent = (n) => {
+  return (n) => {
     let p = n.parent;
     while (p !== null && !shownPaths.has(p)) p = byPath.get(p).parent;
     return p;
   };
+}
+
+function renderTree(graph, options = {}) {
+  // Numbers are right-aligned under a header row. own and chain carry a
+  // two-character warning column after the number.
+  const CELL = 8;
+  const right = (text) => ' '.repeat(Math.max(0, CELL - String(text).length)) + text;
+  const cell = (tokens) => right(k(tokens)) + (tokens >= ALERT_TOKENS ? '!!' : tokens >= WARN_TOKENS ? '! ' : '  ');
+  // Marker rows (the docs-folder template) are hidden unless options.markers.
+  const shown = graph.nodes.filter((n) => options.markers || n.kind !== 'marker');
+  const displayParent = shownParent(graph, new Set(shown.map((n) => n.path)));
   const children = new Map();
   for (const n of shown) {
     const p = displayParent(n);
@@ -397,7 +425,7 @@ function renderTree(graph, options = {}) {
   for (const top of children.get(null) || []) walk(top, '', '', true);
   const width = Math.max(...rows.map((r) => r.text.length));
 
-  const header = pad('', width) + ['own', 'chain', 'gotchas', 'docs'].map(right).join('');
+  const header = pad('', width) + right('own') + '  ' + right('chain') + '  ' + right('gotchas') + right('docs');
   const lines = [header, ...rows.map(({ text, node: n }) => pad(text, width)
     + cell(n.own_tokens)
     + cell(n.chain_tokens)
@@ -407,16 +435,15 @@ function renderTree(graph, options = {}) {
 
   const t = graph.totals;
   const hidden = graph.nodes.filter((n) => n.kind === 'marker' && !options.markers);
-  const heaviest = shown.reduce((best, n) => (best === null || n.chain_tokens > best.chain_tokens ? n : best), null);
   lines.push('');
   lines.push('own      this folder\'s AGENTS.md and CLAUDE.md, plus files they import with a bare @path');
   lines.push('chain    own here plus own in every folder above. What loads when an agent starts here');
   lines.push('gotchas  the Gotchas section of AGENTS.md');
   lines.push('docs     the docs folder. Read on demand, not at start');
-  lines.push('All numbers are tokens, estimated as characters / 4.');
+  lines.push(`All numbers are tokens, estimated as characters / 4. ! marks ${WARN_TOKENS.toLocaleString('en')} or more, !! marks ${ALERT_TOKENS.toLocaleString('en')} or more.`);
   lines.push('');
   lines.push(`${t.nodes} nodes (${t.scopes} scopes, ${t.markers} markers). Instruction files: ${k(t.instruction_tokens)} tokens, of which gotchas ${k(t.gotcha_tokens)}. Docs on demand: ${k(t.docs_tokens)} tokens.`);
-  if (heaviest) lines.push(`Heaviest launch load: ${heaviest.path} at ${k(heaviest.chain_tokens)} tokens.`);
+  if (t.heaviest_chain) lines.push(`Heaviest launch load: ${t.heaviest_chain.path} at ${k(t.heaviest_chain.tokens)} tokens.`);
   if (hidden.length) lines.push(`${hidden.length} docs-folder marker rows hidden (${k(hidden.reduce((s, n) => s + n.own_tokens, 0))} tokens in total, loaded when a docs file is read). Add --all to show them.`);
   if (graph.broken_pointers.length) lines.push(`Broken pointers: ${graph.broken_pointers.length}.`);
   if (graph.unresolved_imports.length) lines.push(`Unresolved bare @imports: ${graph.unresolved_imports.length}.`);
@@ -424,284 +451,18 @@ function renderTree(graph, options = {}) {
   return lines.join('\n') + '\n';
 }
 
-function mermaidId(i) {
-  return `n${i}`;
-}
-
-function renderMarkdown(graph) {
-  const t = graph.totals;
-  const out = [];
-  out.push('# Context graph');
-  out.push('');
-  out.push(`Root: \`${graph.root}\``);
-  out.push('');
-  out.push(`${t.nodes} directories hold instruction files: ${t.scopes} scopes, ${t.markers} docs-folder markers. Instruction files weigh ${k(t.instruction_tokens)} tokens in total, and gotcha sections account for ${k(t.gotcha_tokens)} of them. Docs folders hold ${k(t.docs_tokens)} tokens that load only when read.`);
-  if (t.heaviest_chain) {
-    out.push('');
-    out.push(`The heaviest launch load is \`${t.heaviest_chain.path}\` at ${k(t.heaviest_chain.tokens)} tokens. That is what an agent started in that directory carries before reading one line of code.`);
-  }
-  out.push('');
-  out.push(`Tokens are estimated as characters divided by four. Own is the node's instruction files plus their bare \`@\` imports. Chain is own summed from the root to the node.`);
-  out.push('');
-
-  // Mermaid: scopes and CLAUDE.md-only nodes; markers are template copies.
-  const shown = graph.nodes.filter((n) => n.kind !== 'marker');
-  const index = new Map(shown.map((n, i) => [n.path, i]));
-  out.push('```mermaid');
-  out.push('graph TD');
-  for (const n of shown) {
-    const name = n.path === '.' ? 'root' : n.path;
-    out.push(`  ${mermaidId(index.get(n.path))}["${name}<br/>own ${k(n.own_tokens)} · chain ${k(n.chain_tokens)}"]`);
-  }
-  for (const n of shown) {
-    let parent = n.parent;
-    while (parent !== null && !index.has(parent)) parent = graph.nodes.find((x) => x.path === parent).parent;
-    if (parent !== null) out.push(`  ${mermaidId(index.get(parent))} --> ${mermaidId(index.get(n.path))}`);
-  }
-  out.push('```');
-  out.push('');
-
-  out.push('| Path | Kind | Own | Chain | Gotchas | Docs (on demand) | Imports |');
-  out.push('|---|---|---:|---:|---:|---:|---|');
-  for (const n of graph.nodes) {
-    const docs = n.docs ? `${k(n.docs.tokens)} (${n.docs.files} files)` : '-';
-    const imports = n.imports.length ? n.imports.map((i) => `\`${i.path}\``).join(', ') : '-';
-    out.push(`| \`${n.path}\` | ${n.kind} | ${k(n.own_tokens)} | ${k(n.chain_tokens)} | ${k(n.gotcha_tokens)} | ${docs} | ${imports} |`);
-  }
-  out.push('');
-
-  const sectionRows = [];
-  for (const n of graph.nodes) {
-    for (const f of n.files) {
-      if (f.marker) continue;
-      for (const s of f.sections) sectionRows.push({ file: f.path, heading: s.heading, tokens: s.tokens });
-    }
-  }
-  sectionRows.sort((a, b) => b.tokens - a.tokens);
-  if (sectionRows.length) {
-    out.push('## Heaviest sections');
-    out.push('');
-    out.push('| File | Section | Tokens |');
-    out.push('|---|---|---:|');
-    for (const r of sectionRows.slice(0, 15)) out.push(`| \`${r.file}\` | ${r.heading} | ${k(r.tokens)} |`);
-    out.push('');
-  }
-
-  if (graph.broken_pointers.length) {
-    out.push('## Broken pointers');
-    out.push('');
-    for (const p of graph.broken_pointers) out.push(`- \`${p.from}\` points to \`${p.ref}\`, which does not exist.`);
-    out.push('');
-  }
-  if (graph.unresolved_imports.length) {
-    out.push('## Unresolved bare imports');
-    out.push('');
-    out.push('A bare `@path` outside backticks is an import. These targets do not exist, so either the path is wrong or the `@` was meant as text and needs backticks.');
-    out.push('');
-    for (const p of graph.unresolved_imports) out.push(`- \`${p.from}\` imports \`${p.ref}\`.`);
-    out.push('');
-  }
-  if (graph.external_imports.length) {
-    out.push('## External imports');
-    out.push('');
-    out.push('These resolve outside the scanned root. They load into context but are not counted here.');
-    out.push('');
-    for (const p of graph.external_imports) out.push(`- \`${p.from}\` imports \`${p.ref}\`.`);
-    out.push('');
-  }
-  return out.join('\n');
-}
-
-// ------------------------------------------------------------------ treemap
-
-// The treegraph: a static SVG treemap of launch weight. Each directory is a box sized by the
-// tokens loaded there, nested in its parent. Inside a box, the instruction
-// files split into their sections and imports, so a heavy Gotchas section is
-// visible as area. Docs folders are left out: they load on demand and would
-// dwarf everything else. Every box carries a <title>, which browsers show on
-// hover.
-
-const SVG = {
-  width: 1200, height: 760, title: 34, legend: 28, header: 16, pad: 3, font: 11,
-  fill: {
-    scope: '#e8eef5', marker: '#f1f1f1', 'claude-only': '#e9f3e9', virtual: '#ffffff',
-    section: '#c9d5e3', gotchas: '#f2b58f', import: '#d8cbea', file: '#dddddd',
-  },
-};
-
-function escapeXml(text) {
-  return String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-}
-
-// Squarified treemap (Bruls, Huizing, van Wijk). Items are laid out in rows
-// along the shorter side; a row closes when adding the next item would make
-// its worst aspect ratio worse.
-function squarify(items, x, y, w, h) {
-  const total = items.reduce((sum, it) => sum + it.area, 0);
-  if (total <= 0 || w <= 0 || h <= 0) return [];
-  const scaled = items
-    .map((it) => ({ item: it, a: (it.area / total) * w * h }))
-    .filter((it) => it.a > 0)
-    .sort((p, q) => q.a - p.a);
-  const worst = (row, sum, side) => {
-    const s2 = sum * sum;
-    const side2 = side * side;
-    let max = 0;
-    let min = Infinity;
-    for (const r of row) { if (r.a > max) max = r.a; if (r.a < min) min = r.a; }
-    return Math.max((side2 * max) / s2, s2 / (side2 * min));
-  };
-  const out = [];
-  let i = 0;
-  while (i < scaled.length && w > 0 && h > 0) {
-    const vertical = w >= h; // the row runs down the left edge
-    const side = vertical ? h : w;
-    let row = [scaled[i]];
-    let sum = scaled[i].a;
-    i++;
-    let ratio = worst(row, sum, side);
-    while (i < scaled.length) {
-      const next = row.concat(scaled[i]);
-      const nextSum = sum + scaled[i].a;
-      const nextRatio = worst(next, nextSum, side);
-      if (nextRatio > ratio) break;
-      row = next; sum = nextSum; ratio = nextRatio; i++;
-    }
-    const thickness = sum / side;
-    let offset = 0;
-    for (const r of row) {
-      const length = r.a / thickness;
-      out.push(vertical
-        ? { item: r.item, x, y: y + offset, w: thickness, h: length }
-        : { item: r.item, x: x + offset, y, w: length, h: thickness });
-      offset += length;
-    }
-    if (vertical) { x += thickness; w -= thickness; } else { y += thickness; h -= thickness; }
-  }
-  return out;
-}
-
-// Builds the box tree from the graph: directories contain their instruction
-// files (split into sections), their imports, and their child directories.
-function treemapTree(graph) {
-  const byPath = new Map();
-  for (const n of graph.nodes) {
-    const children = [];
-    for (const file of n.files) {
-      const name = file.path.split('/').pop();
-      if (file.sections.length > 1) {
-        for (const sec of file.sections) {
-          const gotcha = GOTCHA_HEADING.test(sec.heading);
-          children.push({ label: sec.heading === 'preamble' ? name : `## ${sec.heading}`, area: sec.tokens, kind: gotcha ? 'gotchas' : 'section', title: `${file.path} — ${sec.heading}: ${sec.tokens} tokens` });
-        }
-      } else {
-        children.push({ label: name, area: file.tokens, kind: 'file', title: `${file.path}: ${file.tokens} tokens` });
-      }
-    }
-    for (const imp of n.imports) {
-      children.push({ label: `@${imp.path.split('/').pop()}`, area: imp.tokens, kind: 'import', title: `import ${imp.path} (hop ${imp.hop} from ${imp.from}): ${imp.tokens} tokens` });
-    }
-    byPath.set(n.path, { label: n.path === '.' ? 'root' : n.path.split('/').pop(), kind: n.kind, node: n, children, area: 0 });
-  }
-  const tops = [];
-  for (const n of graph.nodes) {
-    const box = byPath.get(n.path);
-    if (n.parent === null) tops.push(box);
-    else byPath.get(n.parent).children.push(box);
-  }
-  const total = (box) => {
-    if (box.node) {
-      box.area = box.children.reduce((sum, c) => sum + total(c), 0);
-      box.title = `${box.node.path} — own ${k(box.node.own_tokens)}, chain ${k(box.node.chain_tokens)}, gotchas ${k(box.node.gotcha_tokens)}`;
-    }
-    return box.area;
-  };
-  tops.forEach(total);
-  if (tops.length === 1) return tops[0];
-  const virtual = { label: 'root', kind: 'virtual', children: tops, area: tops.reduce((sum, t) => sum + t.area, 0), title: 'scanned root' };
-  return virtual;
-}
-
-function renderTreegraph(graph) {
-  const tree = treemapTree(graph);
-  const parts = [];
-  const { font, pad, header } = SVG;
-  const label = (text, x, y, w, h, bold) => {
-    if (h < font + 2 || w < font) return;
-    const maxChars = Math.floor((w - 4) / (font * 0.58));
-    if (maxChars < 2) return;
-    const shown = text.length > maxChars ? text.slice(0, Math.max(1, maxChars - 1)) + '…' : text;
-    parts.push(`<text x="${(x + 3).toFixed(1)}" y="${(y + font).toFixed(1)}" font-size="${font}"${bold ? ' font-weight="600"' : ''}>${escapeXml(shown)}</text>`);
-  };
-  const draw = (box, x, y, w, h, depth) => {
-    if (w <= 0 || h <= 0) return;
-    const fill = SVG.fill[box.kind] || SVG.fill.file;
-    parts.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${fill}" stroke="#555" stroke-width="${box.node || box.kind === 'virtual' ? 1 : 0.5}"><title>${escapeXml(box.title || box.label)}</title></rect>`);
-    if (!box.children || !box.children.length) {
-      label(`${box.label} ${k(box.area)}`, x, y, w, h, false);
-      return;
-    }
-    const hasHeader = h >= header + 2 * pad + font;
-    if (hasHeader) label(`${box.label} ${k(box.area)}`, x, y, w, header, true);
-    const innerY = y + (hasHeader ? header : pad);
-    const innerH = h - (hasHeader ? header : pad) - pad;
-    const placed = squarify(box.children, x + pad, innerY, w - 2 * pad, innerH);
-    for (const p of placed) draw(p.item, p.x, p.y, p.w, p.h, depth + 1);
-  };
-
-  const t = graph.totals;
-  const width = SVG.width;
-  const height = SVG.height;
-  parts.push(`<text x="8" y="22" font-size="15" font-weight="600">Context weight: ${escapeXml(graph.root)}</text>`);
-  parts.push(`<text x="8" y="${SVG.title + height + 18}" font-size="${font}">Box area is tokens loaded at launch (characters / 4). ${t.nodes} directories, ${k(t.instruction_tokens)} tokens, gotchas ${k(t.gotcha_tokens)}. Docs folders (${k(t.docs_tokens)} tokens, on demand) are not drawn.</text>`);
-  let lx = 8;
-  for (const [name, key] of [['scope', 'scope'], ['docs marker', 'marker'], ['CLAUDE.md only', 'claude-only'], ['section', 'section'], ['Gotchas', 'gotchas'], ['import', 'import']]) {
-    const ly = SVG.title + height + 26;
-    parts.push(`<rect x="${lx}" y="${ly}" width="12" height="12" fill="${SVG.fill[key]}" stroke="#555" stroke-width="0.5"/>`);
-    parts.push(`<text x="${lx + 16}" y="${ly + 10}" font-size="${font}">${escapeXml(name)}</text>`);
-    lx += 16 + name.length * font * 0.6 + 14;
-  }
-  draw(tree, 0.5, SVG.title + 0.5, width - 1, height - 1, 0);
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${SVG.title + height + SVG.legend + 14}" viewBox="0 0 ${width} ${SVG.title + height + SVG.legend + 14}" font-family="system-ui, sans-serif" fill="#111">\n<rect width="100%" height="100%" fill="#fff"/>\n${parts.join('\n')}\n</svg>\n`;
-}
-
 // ---------------------------------------------------------------------- main
-
-// File extension per format, for --save.
-const EXTENSIONS = { json: 'json', tree: 'txt', markdown: 'md', treegraph: 'svg' };
-
-function timestamp(date = new Date()) {
-  const two = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}${two(date.getMonth() + 1)}${two(date.getDate())}-${two(date.getHours())}${two(date.getMinutes())}${two(date.getSeconds())}`;
-}
-
-// <root>/.claude/.trace/context-graph-<timestamp>.<ext>. The state folder is
-// self-gitignored, the same way the hooks leave it.
-function saveFile(root, ext, date) {
-  const dir = path.join(root, '.claude', '.trace');
-  fs.mkdirSync(dir, { recursive: true });
-  const ignore = path.join(dir, '.gitignore');
-  if (!fs.existsSync(ignore)) fs.writeFileSync(ignore, '*\n');
-  return path.join(dir, `context-graph-${timestamp(date)}.${ext}`);
-}
 
 function main() {
   const argv = process.argv.slice(2);
   let format = 'json';
-  let outFile = null;
-  let save = false;
   let all = false;
   const positional = [];
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--format') {
       format = argv[++i];
-      if (!['json', 'tree', 'markdown', 'treegraph'].includes(format)) fail(`--format must be json, tree, markdown, or treegraph, got "${format}"`);
-    } else if (a === '--out') {
-      outFile = argv[++i];
-      if (!outFile) fail('--out requires a file path');
-    } else if (a === '--save') {
-      save = true;
+      if (!['json', 'tree'].includes(format)) fail(`--format must be json or tree, got "${format}"`);
     } else if (a === '--all') {
       all = true;
     } else if (a.startsWith('--')) {
@@ -710,33 +471,15 @@ function main() {
       positional.push(a);
     }
   }
-  if (positional.length > 1) fail('usage: context-graph.js [root] [--format json|tree|markdown|treegraph] [--out <file> | --save] [--all]');
-  if (outFile && save) fail('--out and --save exclude each other');
+  if (positional.length > 1) fail('usage: context-graph.js [root] [--format json|tree] [--all]');
   const root = path.resolve(positional[0] || '.');
   if (!isDir(root)) fail(`root is not a directory: ${root}`);
 
   const graph = scan(root);
-  const text = format === 'json' ? JSON.stringify(graph, null, 2) + '\n'
-    : format === 'tree' ? renderTree(graph, { color: useColor(outFile), markers: all })
-      : format === 'treegraph' ? renderTreegraph(graph)
-        : renderMarkdown(graph);
-
-  if (!outFile && !save) {
-    process.stdout.write(text);
-    return;
-  }
-  let dest;
-  if (outFile) {
-    dest = path.resolve(outFile);
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-  } else {
-    dest = saveFile(root, EXTENSIONS[format]);
-  }
-  fs.writeFileSync(dest, text);
-  process.stdout.write(`${dest}\n`);
+  process.stdout.write(format === 'tree' ? renderTree(graph, { markers: all }) : JSON.stringify(graph, null, 2) + '\n');
 }
 
-module.exports = { scan, renderTree, renderMarkdown, renderTreegraph, squarify, saveFile, timestamp, findPointers, stripHtmlComments, useColor, SCHEMA_VERSION };
+module.exports = { scan, renderTree, findPointers, findImports, stripHtmlComments, SCHEMA_VERSION };
 if (require.main === module) {
   // A reader that stops early (`| head`) closes the pipe; that is not an error.
   process.stdout.on('error', (error) => {
