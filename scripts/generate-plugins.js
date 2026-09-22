@@ -53,11 +53,11 @@ function generate(root = ROOT) {
       function render(text) {
         text = text.replace(/\{\{([\w-]+)\}\}/g, (all, key) => {
           if (key === 'installation') return host === 'claude'
-            ? `Install from the TRACE marketplace:\n\n\`\`\`text\n/plugin marketplace add axakon/TRACE\n/plugin install ${name}@trace\n/reload-plugins\n\`\`\`\n\nClaude installs declared dependencies automatically.`
-            : `Add the TRACE marketplace, then install this package:\n\n\`\`\`sh\ncodex plugin marketplace add axakon/TRACE\n${['trace-plan', 'trace-git'].includes(name) ? 'codex plugin add trace@trace\n' : ''}codex plugin add ${name}@trace\n\`\`\`\n\nStart a new session after installation. In Codex desktop, install from the TRACE marketplace in the Plugins view. Review and trust plugin hooks in the host hook controls. Choose either trace-full or individual packages; enabling both duplicates skill listings.`;
+            ? `Install from the TRACE marketplace:\n\n\`\`\`text\n/plugin marketplace add axakon/TRACE\n/plugin install ${name}@trace\n/reload-plugins\n\`\`\`${name === 'trace' ? '' : '\n\nClaude Code installs the plugins this one depends on.'}`
+            : `Add the TRACE marketplace, then install the package:\n\n\`\`\`sh\ncodex plugin marketplace add axakon/TRACE\n${['trace-plan', 'trace-git'].includes(name) ? 'codex plugin add trace@trace\n' : ''}codex plugin add ${name}@trace\n\`\`\`\n\nStart a new session after you install. In the desktop app, install from the TRACE marketplace in the Plugins view. Then review and trust the plugin's hooks in the app's hook settings. Install either trace-full or the individual packages, not both. With both installed, every skill appears twice.`;
           if (key === 'bundle-description') return host === 'claude'
-            ? 'This package installs trace, trace-plan, and trace-git through Claude’s plugin dependencies. Invoke skills under their original plugin namespaces.'
-            : 'This package contains every TRACE skill, the core hooks, and the viewer. It needs no other TRACE package. Invoke its skills under the trace-full namespace. Individual add-ons require a separate trace core install.';
+            ? 'This package has no skills of its own. It depends on trace, trace-plan, and trace-git, so Claude Code installs all three. Each skill keeps its own plugin name, such as /trace-plan:spec.'
+            : 'This package holds every TRACE skill, the core hooks, and the viewer, so it needs no other TRACE package. All skills use the trace-full name, such as $trace-full:spec. If you install add-ons one by one instead, each one needs trace installed as well.';
           if (!(key in adapter)) throw new Error(`Unknown adapter field: ${key}`);
           return adapter[key];
         });

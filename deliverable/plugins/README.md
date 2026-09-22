@@ -1,13 +1,13 @@
 # TRACE plugins
 
-TRACE ships the same workflows for Claude Code and Codex desktop/CLI on macOS. Both distributions share one source, version, changelog, and release.
+TRACE ships the same skills for Claude Code and for Codex (desktop and CLI). Both builds come from one source and share a version, a changelog, and a release. They are tested on macOS.
 
 | Plugin | Skills |
 |---|---|
 | trace | init, agents-md-setup, scaffold-docs, adr, distil, doctor, context-graph |
 | trace-plan | spec, epic |
 | trace-git | commit-message, pr-description |
-| trace-full | The complete suite |
+| trace-full | all of the above |
 
 ## Claude Code
 
@@ -17,7 +17,7 @@ TRACE ships the same workflows for Claude Code and Codex desktop/CLI on macOS. B
 /reload-plugins
 ```
 
-The full bundle installs all three component plugins. Add-ons install the core automatically. Existing package identities and marketplace paths are preserved.
+`trace-full` installs the other three plugins. Installing `trace-plan` or `trace-git` on its own also installs `trace`. Plugin names and marketplace paths are the same as in earlier versions.
 
 ## Codex desktop and CLI
 
@@ -26,14 +26,14 @@ codex plugin marketplace add axakon/TRACE
 codex plugin add trace-full@trace
 ```
 
-In the desktop app, choose TRACE in the Plugins marketplace view and install the desired package. Start a new session after installation. Review and trust the installed hooks in the host's hook controls.
+In the desktop app, open the Plugins view, choose the TRACE marketplace, and install a package. Start a new session after you install. Then review and trust the plugin's hooks in the app's hook settings.
 
-The native full package contains every TRACE skill. Its skill namespace is `trace-full`, such as `$trace-full:spec`. For a smaller install, install `trace`, then the desired add-ons. Individual add-ons retain namespaces such as `$trace-plan:spec` and require core to be installed separately.
+In Codex, `trace-full` is a single package that holds every skill under the `trace-full` name, such as `$trace-full:spec`. For a smaller install, install `trace` and then the add-ons you want. The add-ons keep their own names, such as `$trace-plan:spec`, and need `trace` installed separately.
 
-Choose the full package or individual packages. Installing both duplicates skills. Configuration and existing user-space epics keep their current paths and formats.
+Install either `trace-full` or the individual packages, not both. With both installed, every skill appears twice. Settings and existing epics keep their current locations and formats.
 
 ## Maintenance
 
-Edit `plugin-src/` and run `node scripts/generate-plugins.js`. Commit source and both generated outputs in the same change. CI verifies them without updating the PR.
+Edit the files in `plugin-src/`, then run `node scripts/generate-plugins.js`. Commit the source and both generated builds in the same change. CI checks that they match, but it does not update the PR for you.
 
-See [contributor instructions](AGENTS.md), [package architecture](../../docs/architecture/plugin-distribution.md), and [release procedure](../../docs/system/releasing.md).
+For more, see the [contributor instructions](AGENTS.md), the [package architecture](../../docs/architecture/plugin-distribution.md), and the [release procedure](../../docs/system/releasing.md).

@@ -1,6 +1,6 @@
 # trace-git
 
-Draft commit messages and PR descriptions using TRACE’s shared authoring rules.
+Drafts commit messages and PR descriptions that follow TRACE's shared writing rules.
 
 Install from the TRACE marketplace:
 
@@ -10,7 +10,7 @@ Install from the TRACE marketplace:
 /reload-plugins
 ```
 
-Claude installs declared dependencies automatically.
+Claude Code installs the plugins this one depends on.
 
 ## Skills
 

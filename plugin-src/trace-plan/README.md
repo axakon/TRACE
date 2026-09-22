@@ -1,6 +1,6 @@
 # trace-plan
 
-Plan substantial changes, review plans and epics in the browser, and verify implementation against explicit acceptance criteria.
+Plans larger changes, shows plans and epics in a browser, and checks the finished work against written acceptance criteria.
 
 {{installation}}
 
@@ -9,13 +9,13 @@ Plan substantial changes, review plans and epics in the browser, and verify impl
 - `{{skill:trace-plan:spec}}`
 - `{{skill:trace-plan:epic}}`
 
-## Review workflow
+## How a review works
 
-Spec interviews establish scope, user stories, acceptance criteria, and verification. The skill opens the plan preview, asks for approval using the harness’s controls, implements the approved work, and reports evidence for each criterion.
+**Specs.** The spec skill asks questions to settle the scope, user stories, acceptance criteria, and how to verify the work. It opens the plan in the browser and asks for your approval with the host's controls. After you approve, it implements the plan and reports evidence for each criterion.
 
-Epic interviews produce a board and tickets under `~/.claude/epics/`. Drafts stay in `.preview/` until approved. Revision marks produce feedback to paste into the conversation. Ticket frontmatter controls board status; ticket seeds start a spec workflow.
+**Epics.** The epic skill writes a board and tickets under `~/.claude/epics/`. Drafts stay in `.preview/` until you approve them. In the browser you can mark text for revision, and the viewer gives you feedback to paste back into the conversation. Each ticket's frontmatter sets its status on the board. Each ticket also has a starting prompt for a spec.
 
-The viewer opens explicitly from the skill. It does not wait for an ExitPlanMode hook. Native planning controls are used when available; conversational approval applies otherwise. The active harness mode and permissions still govern implementation.
+The skills open the viewer themselves. No plan-mode hook is involved. If the host has its own planning controls, the skills use them. Otherwise they ask for approval in chat. The host's current mode and permissions still decide whether implementation can start.
 
 ## Viewer commands
 
@@ -24,8 +24,8 @@ node <installed-plugin>/scripts/viewer-open.js plan <absolute-plan.md>
 node <installed-plugin>/scripts/viewer-open.js epic <absolute-epic-directory>/epic.md
 ```
 
-Commands return JSON containing the URL, artifact path, and browser-open result. Preview failure falls back to showing the draft in chat. `--no-browser` starts and verifies the viewer without opening a tab.
+Each command prints JSON with the URL, the file path, and whether a browser tab opened. If the preview fails, the skill shows the draft in chat instead. `--no-browser` starts the viewer and checks it without opening a tab.
 
-`TRACE_PLAN_VIEWER=0` disables previews. `TRACE_PLAN_VIEWER_PORT` selects the first port in the ten-port discovery range (default 7526). The older `PLAYBOOK_` variable names remain supported. Tabs can be reused within the same harness and served directory.
+Set `TRACE_PLAN_VIEWER=0` to turn previews off. `TRACE_PLAN_VIEWER_PORT` sets the first of ten ports the viewer tries (default 7526). The older `PLAYBOOK_` names still work. A browser tab can be reused for the same host and the same folder.
 
-Plans and epics keep their existing user-space paths. No cross-harness session transfer is required. The plan file renders the approval contract; it is not a separate change-spec document.
+Plans and epics stay in their existing folders in your home directory. A session in one host does not need to move to the other. The plan file is the approved plan itself, not a separate spec document.

@@ -1,6 +1,6 @@
 # trace
 
-Durable project context: configure docs, author AGENTS.md, scaffold useful documents, record ADRs, distil knowledge, validate conventions, and measure context weight.
+The core TRACE plugin. It sets up the docs folder, writes `AGENTS.md`, adds starter docs, records ADRs, distils what you learn into the docs, checks the conventions, and reports how much instruction text an agent loads.
 
 Install from the TRACE marketplace:
 
@@ -9,8 +9,6 @@ Install from the TRACE marketplace:
 /plugin install trace@trace
 /reload-plugins
 ```
-
-Claude installs declared dependencies automatically.
 
 ## Skills
 
@@ -22,14 +20,20 @@ Claude installs declared dependencies automatically.
 - `/trace:doctor`
 - `/trace:context-graph`
 
-## State and hooks
+## Settings and hooks
 
-Configuration remains in `<scope>/.claude/.trace/config.json`, with the existing `.claude/.playbook/config.json` compatibility read. Both harnesses use the same documentation conventions and AGENTS.md forwarders.
+Settings live in `<scope>/.claude/.trace/config.json`. The plugin still reads the older `.claude/.playbook/config.json`. Claude Code and Codex use the same docs conventions and the same `AGENTS.md` pointer files.
 
-SessionStart supplies Context7 guidance when that tool is available. PostToolUse marks code/config edits for distillation. UserPromptSubmit supplies a soft reminder when work wraps up. Documentation-only edits do not set the sentinel. Distillation clears it after a completed run.
+The plugin has three hooks:
 
-To measure context weight without a session, run `node <installed-plugin>/scripts/context-graph.js <scope> --format tree` from a terminal. Add `--all` to show the docs-folder marker rows that the tree hides. Leave out `--format tree` to get JSON for scripts.
+- **SessionStart** adds guidance on Context7 when that tool is available.
+- **PostToolUse** marks the session for distillation after an edit to code or config. Edits to docs alone don't count.
+- **UserPromptSubmit** adds a short reminder when the work seems to be finishing.
 
-To diagnose hooks, run `node <installed-plugin>/scripts/hook-status.js` from the affected scope. The report shows recent script execution, not host trust. Inspect the host’s hook controls for discovery, enablement, and trust. Set `TRACE_DEBUG_HOOKS=1` to print script failures.
+A completed distillation clears the mark. The plugin never runs distillation for you. Run `/trace:distil` when you want to record what you learned.
 
-The core never forces distillation. Invoke `/trace:distil` when you want to capture durable knowledge.
+## Scripts
+
+To see context size outside a session, run `node <installed-plugin>/scripts/context-graph.js <scope> --format tree` in a terminal. Add `--all` to include the docs-folder template rows that the tree hides. Leave out `--format tree` to get JSON.
+
+To check the hooks, run `node <installed-plugin>/scripts/hook-status.js` in the affected scope. The report shows which hook scripts ran recently. It can't tell you whether the host trusts the hooks, so check that in the host's hook settings. Set `TRACE_DEBUG_HOOKS=1` to print hook script errors.
