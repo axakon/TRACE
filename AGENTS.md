@@ -18,12 +18,12 @@ Writing tooling only:
 | Path | What's there |
 |------|-------------|
 | `deliverable/` | What adopters consume — the playbook prose, the plugins, the awesome-list, examples. Each folder inside is a deliverable in its own right |
-| `deliverable/plugins/` | The four generated Claude Code plugins — `trace` (core), `trace-plan`, `trace-git`, and the `trace-full` bundle. Read its `AGENTS.md` before working on any of them |
+| `deliverable/plugins/` | The generated Claude Code plugin, `trace`. Read its `AGENTS.md` before working on it |
 | `docs/` | TRACE applying its own conventions to itself. The READMEs inside describe **conventions**, not TRACE-specific facts, so adopters can copy the structure verbatim |
 | `plugin-src/` | Shared authored plugin content, harness adapters, and the single release version |
-| `plugins/` | Generated native Codex packages |
+| `plugins/` | The generated Codex plugin, `trace` |
 | `scripts/` | Package generation, validation, tests, and release checks |
-| `CHANGELOG.md` | One changelog for all four plugins — they share a version and ship together |
+| `CHANGELOG.md` | The plugin changelog. The Claude and Codex builds share a version and ship together |
 
 ```
 docs/

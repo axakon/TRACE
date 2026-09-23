@@ -8,22 +8,7 @@
     {
       "name": "trace",
       "source": "./deliverable/plugins/trace",
-      "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight."
-    },
-    {
-      "name": "trace-plan",
-      "source": "./deliverable/plugins/trace-plan",
-      "description": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows."
-    },
-    {
-      "name": "trace-git",
-      "source": "./deliverable/plugins/trace-git",
-      "description": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy."
-    },
-    {
-      "name": "trace-full",
-      "source": "./deliverable/plugins/trace-full",
-      "description": "Everything TRACE ships, behind one install: the docs core plus the planning and delivery add-ons. Install this if you don't want to choose."
+      "description": "TRACE: durable context, planning, and delivery for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, measures context weight, plans work as specs and epics with browser review, and drafts commit messages and PR descriptions."
     }
   ]
 }

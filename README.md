@@ -2,17 +2,17 @@
 
 ![TRACE](trace-ascii.png)
 
-TRACE is a small set of documentation conventions for projects that use AI coding agents, plus plugins for Claude Code and Codex that help you follow them.
+TRACE is a small set of documentation conventions for projects that use AI coding agents, plus a plugin for Claude Code and Codex that helps you follow them.
 
-An agent works from what it can read in the repository. If a project has no written context, the agent guesses. If it has a lot, the agent reads more than it needs. TRACE gives you one `AGENTS.md` file and a short docs folder, and the plugins help keep both up to date.
+An agent works from what it can read in the repository. If a project has no written context, the agent guesses. If it has a lot, the agent reads more than it needs. TRACE gives you one `AGENTS.md` file and a short docs folder, and the plugin helps keep both up to date.
 
 ## Quick start
 
-Install the plugins in Claude Code:
+Install the plugin in Claude Code:
 
 ```
 /plugin marketplace add axakon/TRACE
-/plugin install trace-full@trace
+/plugin install trace@trace
 /reload-plugins
 ```
 
@@ -51,18 +51,9 @@ These are plain markdown files in a normal docs folder. People who don't use AI 
 - **Write down only what lasts.** When you finish a piece of work, `/trace:distil` checks whether you learned anything worth keeping. That could be a convention, a security rule, or a gotcha. It proposes an edit to the right file. Usually it finds nothing, and it tells you so.
 - **Plan in proportion to the work.** A one-line fix needs no plan. A change across many files can start with a written plan and acceptance criteria. TRACE leaves that choice to you.
 
-## The plugins
+## The plugin
 
-TRACE ships as four plugins, so you can install only the ones you need.
-
-| Plugin | Contents |
-|---|---|
-| `trace` | The core: docs structure, `AGENTS.md` setup, ADRs, distillation, a checker for the conventions, and a context size report |
-| `trace-plan` | Plans with acceptance criteria, multi-phase epics, and a browser viewer for both |
-| `trace-git` | Commit messages and PR descriptions in a fixed shape |
-| `trace-full` | All three |
-
-`trace-plan` and `trace-git` depend on `trace`, so installing either one installs the core as well. Each installed skill adds its name and description to the agent's context for the whole session, so it can help to install fewer. [How to choose →](deliverable/plugins/README.md)
+TRACE ships as one plugin, `trace`. It holds the docs structure, `AGENTS.md` setup, ADRs, distillation, a checker for the conventions, a context size report, plans with acceptance criteria, multi-phase epics with a browser viewer, and commit messages and PR descriptions in a fixed shape. [Install details →](deliverable/plugins/README.md)
 
 ## Commands
 
@@ -72,17 +63,17 @@ TRACE ships as four plugins, so you can install only the ones you need.
 | `/trace:adr` | You made an architecture decision |
 | `/trace:doctor` | After a merge, before a release, or when the docs look out of order |
 | `/trace:context-graph` | You want to see how much instruction text an agent loads in each folder |
-| `/trace-plan:spec` | You are starting a larger change and want a plan first |
-| `/trace-plan:epic` | The work spans several phases and needs tickets |
-| `/trace-git:commit-message`, `/trace-git:pr-description` | You are writing up a change |
+| `/trace:spec` | You are starting a larger change and want a plan first |
+| `/trace:epic` | The work spans several phases and needs tickets |
+| `/trace:commit-message`, `/trace:pr-description` | You are writing up a change |
 
-The skills run only when you call them. The core plugin's hooks add a reminder to offer `/trace:distil` after code edits, but they never run it.
+The skills run only when you call them. The plugin's hooks add a reminder to offer `/trace:distil` after code edits, but they never run it.
 
 ## More
 
 - [Setup guide](deliverable/README.md)
 - [Migration guide](deliverable/MIGRATING.md) for users of the 0.x `playbook` plugin
-- [The plugins](deliverable/plugins/README.md), [architecture](docs/architecture/overview.md), and [decisions](docs/adr/)
+- [The plugin](deliverable/plugins/README.md), [architecture](docs/architecture/overview.md), and [decisions](docs/adr/)
 - [AGENTS.md](AGENTS.md), for contributors to TRACE itself
 
 TRACE needs [Claude Code](https://code.claude.com) or Codex (desktop or CLI), and Node.js 18 or later. It is built by [byBrick Tech](https://github.com/axakon).

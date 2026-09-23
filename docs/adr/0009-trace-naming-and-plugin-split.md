@@ -1,5 +1,7 @@
 # 0009. Converge on the TRACE name and split the plugin into a core plus opt-in add-ons
 
+> Superseded by 0013.
+
 *2026-08-16*
 
 ## Context

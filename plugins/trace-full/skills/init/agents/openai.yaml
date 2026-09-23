@@ -1,5 +1,0 @@
-interface:
-  display_name: "TRACE init"
-  short_description: "Configure TRACE for this scope — choose where durable project"
-policy:
-  allow_implicit_invocation: false

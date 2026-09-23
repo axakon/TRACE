@@ -34,12 +34,12 @@ test('fresh output detects stale, missing, extra and version-mismatched packages
   assert(changed.some((c) => c.kind === 'changed' && c.file === 'plugins/trace/.codex-plugin/plugin.json'));
 });
 
-test('one source edit propagates to both harnesses and the full Codex bundle', (t) => {
+test('one source edit propagates to both harnesses', (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'trace-source-'));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.cpSync(path.join(ROOT, 'plugin-src'), path.join(root, 'plugin-src'), { recursive: true, filter: (p) => !p.split(path.sep).includes('node_modules') });
   const source = path.join(root, 'plugin-src/trace/skills/init/SKILL.md');
   fs.appendFileSync(source, '\nShared behaviour evidence.\n');
   const { result } = generate(root);
-  for (const base of ['deliverable/plugins/trace', 'plugins/trace', 'plugins/trace-full']) assert(result.get(`${base}/skills/init/SKILL.md`).includes('Shared behaviour evidence.'));
+  for (const base of ['deliverable/plugins/trace', 'plugins/trace']) assert(result.get(`${base}/skills/init/SKILL.md`).includes('Shared behaviour evidence.'));
 });

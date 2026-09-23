@@ -25,6 +25,6 @@ Automated tests cannot establish native skill discovery, interviews, approval co
 | epic-preview-board-seed | Revise a preview, confirm final files remain unchanged, approve, update the board, and inspect the native spec seed |
 | hooks | Observe startup context, code-edit sentinel, docs-only filtering, reminder, and clear in the live host |
 
-Use the fixtures in `plugin-src/trace-plan/viewer/fixtures/` for browser checks. Use copies so board edits do not modify source fixtures. Test a parent directory containing spaces.
+Use the fixtures in `plugin-src/trace/viewer/fixtures/` for browser checks. Use copies so board edits do not modify source fixtures. Test a parent directory containing spaces.
 
 Windows live checks are outside the current support claim.

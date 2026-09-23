@@ -10,7 +10,7 @@ function validate(root = ROOT) {
   const fail = (file, message) => errors.push(`${path.relative(root, file)}: ${message}`);
   for (const host of HOSTS) for (const name of Object.keys(catalog.plugins)) {
     const base = path.join(root, outputRoot(host, name));
-    const expectedSkills = name === 'trace-full' ? (host === 'codex' ? 11 : 0) : name === 'trace' ? 7 : 2;
+    const expectedSkills = 11;
     const packageFiles = files(base);
     if (packageFiles.filter((f) => f.endsWith(`${path.sep}SKILL.md`)).length !== expectedSkills) fail(base, 'Wrong skill inventory');
     const contained = (from, relative) => {
@@ -52,11 +52,8 @@ function validate(root = ROOT) {
         if (hook.type !== 'command') fail(hooksFile, 'Unsupported hook type');
         for (const match of hook.command.matchAll(/\$\{(?:CLAUDE_PLUGIN_ROOT|PLUGIN_ROOT)\}\/([^"\s]+)/g)) contained(path.join(base, '_root'), match[1]);
       }
-      if (!['trace', 'trace-full'].includes(name) && registered.size) fail(hooksFile, 'Only core registers ambient hooks');
     }
-    if (['trace-plan', 'trace-full'].includes(name) && !(host === 'claude' && name === 'trace-full')) {
-      if (!fs.existsSync(path.join(base, 'viewer/dist/viewer.bundle.js'))) fail(base, 'Viewer bundle missing');
-    }
+    if (!fs.existsSync(path.join(base, 'viewer/dist/viewer.bundle.js'))) fail(base, 'Viewer bundle missing');
   }
   return errors;
 }

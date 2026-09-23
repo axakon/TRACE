@@ -7,7 +7,7 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { ROOT } = require('../generate-plugins');
 
-for (const base of ['deliverable/plugins/trace', 'plugins/trace', 'plugins/trace-full']) {
+for (const base of ['deliverable/plugins/trace', 'plugins/trace']) {
   test(`${base}: hook lifecycle handles both payloads`, (t) => {
     const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'trace-hooks-'));
     t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
@@ -25,7 +25,7 @@ for (const base of ['deliverable/plugins/trace', 'plugins/trace', 'plugins/trace
     const reminder = path.join(plugin, 'shared/distillation-pending-reminder.md');
     const result = JSON.parse(run('check-sentinel.js', {}, [reminder]));
     assert.equal(result.hookSpecificOutput.hookEventName, 'UserPromptSubmit');
-    assert(result.hookSpecificOutput.additionalContext.includes(base.endsWith('trace-full') ? '$trace-full:distil' : base.startsWith('plugins') ? '$trace:distil' : '/trace:distil'));
+    assert(result.hookSpecificOutput.additionalContext.includes(base.startsWith('plugins') ? '$trace:distil' : '/trace:distil'));
     run('clear-sentinel.js', {}); assert(!fs.existsSync(sentinel));
     assert.equal(run('check-sentinel.js', {}, [reminder]), '');
     run('set-sentinel.js', { tool_name: 'Edit', tool_input: { file_path: 'src/a.js' } }); assert(fs.existsSync(sentinel));

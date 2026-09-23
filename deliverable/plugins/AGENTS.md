@@ -9,8 +9,8 @@ For maintainers of TRACE. Adopters receive the generated plugin folders, not thi
 | `plugin-src/` | Authored skills, templates, scripts, and viewer source |
 | `plugin-src/catalog.json` | One version and metadata for every package |
 | `plugin-src/adapters/` | Claude and Codex tool, question, and approval instructions |
-| `deliverable/plugins/<name>/` | Generated Claude packages; existing marketplace paths |
-| `plugins/<name>/` | Generated native Codex packages |
+| `deliverable/plugins/trace/` | Generated Claude package |
+| `plugins/trace/` | Generated Codex package |
 | `.claude-plugin/marketplace.json` | Generated Claude catalog |
 | `.agents/plugins/marketplace.json` | Generated Codex catalog |
 | `scripts/generate-plugins.js` | Deterministic package generation and drift check |
@@ -21,9 +21,9 @@ Paths in this table are repository-relative. Read [package architecture](../../d
 ## Working rules
 
 - Edit `plugin-src/`, then generate both harnesses. Never patch generated output directly.
-- Keep skills, scripts, and shared files self-contained after installation. Add-ons invoke core skills through their harness. They never read a sibling plugin cache directory.
+- Keep skills, scripts, and shared files self-contained after installation. Runtime references never leave the installed plugin folder.
 - Keep shared behaviour in one source. Harness differences belong in adapters. The generator rejects unknown or unresolved adapter fields.
-- Keep one version in `catalog.json`. Both distributions and all plugin identities ship together.
+- Keep one version in `catalog.json`. Both distributions ship together.
 - Use Node built-ins for scripts and tests. Consumers need Node.js 18 or later and never install build dependencies. The viewer build uses its existing locked npm toolchain.
 - Validate on macOS. Keep portable Node code; Windows validation is outside the current support claim.
 - Keep AGENTS.md canonical and CLAUDE.md the exact one-line forwarder: `See @AGENTS.md for more information.`
@@ -41,14 +41,14 @@ Paths in this table are repository-relative. Read [package architecture](../../d
 - Prose-authoring skills use their existing examples to establish depth. If an example has a stated word or line count, remeasure after changing it.
 - Preserve real approval points. Preview creation is authorized planning work; implementation and final epic writes wait for the developer's approval.
 - Use each host's available question controls. Codex skills must not assume Claude tools or environment substitutions exist.
-- Core owns SessionStart, edit observation, and UserPromptSubmit. Planning skills explicitly call the viewer; there are no ExitPlanMode viewer hooks.
+- The plugin registers SessionStart, edit observation, and UserPromptSubmit hooks. Planning skills explicitly call the viewer; there are no ExitPlanMode viewer hooks.
 - Hook scripts return quietly for missing or malformed input. Set `TRACE_DEBUG_HOOKS=1` to diagnose failures. Explicit viewer commands report errors and return a working URL only after verifying it.
 - The distillation sentinel is a soft reminder. Do not force a skill invocation from a hook. Normalize both Claude file paths and Codex patch commands before filtering documentation edits.
 - Read current official host documentation before changing plugin, hook, skill, or dependency contracts. The runtime and actual installed-package tests take precedence over assumptions.
 
 ## Viewer invariants
 
-- Keep the browser bundle committed. Rebuild from `plugin-src/trace-plan/viewer/` when its source changes, then regenerate packages.
+- Keep the browser bundle committed. Rebuild from `plugin-src/trace/viewer/` when its source changes, then regenerate packages.
 - Keep service identity consistent between discovery and the server. Match the served directory and skill command before reusing a server.
 - Scan the whole port range before choosing a free port. A free lower port must not hide a running compatible server.
 - Preserve the 90-second focus staleness window; hidden browser tabs are throttled. The server consumes each pending focus target once.

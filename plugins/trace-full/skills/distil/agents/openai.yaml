@@ -1,5 +1,0 @@
-interface:
-  display_name: "TRACE distil"
-  short_description: "Evaluate recent changes and propose updates to the project's"
-policy:
-  allow_implicit_invocation: false
