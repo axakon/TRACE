@@ -162,53 +162,17 @@ Each skill explains what it does when you run it. The skills never run on their 
 
 Up to version 1.2.0, TRACE was four plugins: `trace`, `trace-plan`, `trace-git`, and the `trace-full` bundle. From version 2.0.0, `trace` holds every skill. Your docs, `AGENTS.md`, ADRs, plans, epics, and `.claude/.trace/config.json` stay as they are.
 
-You already have `trace`, because the other three plugins depended on it. The move updates `trace` and removes the other three.
-
-**What you see before you move.** After Claude Code fetches the 2.0.0 catalog, the old plugins stop loading. `claude plugin list` shows them as `failed to load` with `Plugin trace-full not found in marketplace trace`. This is expected, and no command appears twice. Until `trace` itself updates to 2.0.0, though, the planning and git commands are missing. With auto-update on, Claude Code updates `trace` for you. You still need steps 3 to 5 to remove the old plugins.
-
-### 1. Find every scope
-
-TRACE can be installed at user scope and at project scope in several repositories. Run this, and note each scope and project that lists `trace-full`, `trace-plan`, or `trace-git`:
+Claude Code can do the move for you. [`migrations/2.0.0.md`](migrations/2.0.0.md) is a prompt that removes every old TRACE install on your machine, in every scope and repository, installs `trace` again, and turns on auto-update. Start it from a terminal:
 
 ```bash
-claude plugin list
+claude "$(curl -fsSL https://raw.githubusercontent.com/axakon/TRACE/main/deliverable/migrations/2.0.0.md)"
 ```
 
-### 2. Fetch the new catalog
+Claude lists what it found and waits for your OK before it changes anything. It does not commit. At the end it lists each changed `.claude/settings.json`. Commit that change only on the repository's default branch. On other branches, take the default branch's version of the file when you merge.
 
-```bash
-claude plugin marketplace update trace
-```
+Until you move, `claude plugin list` shows the old plugins as `failed to load` with `Plugin trace-full not found in marketplace trace`. This is expected, and no command appears twice.
 
-### 3. Move each scope
-
-Run these commands once for each scope from step 1. For user scope, run them anywhere. For project scope, run them from inside that repository.
-
-```bash
-claude plugin update trace@trace --scope user
-claude plugin install trace@trace --scope user
-claude plugin uninstall trace-full@trace --scope user
-claude plugin uninstall trace-plan@trace --scope user
-claude plugin uninstall trace-git@trace --scope user
-```
-
-For project scope, replace `--scope user` with `--scope project`.
-
-Do not skip the `install` line, even though `trace` is already installed. Claude Code marked `trace` as installed only because another plugin needed it. Once the other plugins are gone, `claude plugin prune` would remove `trace`. The `install` line marks it as installed on purpose.
-
-An `uninstall` line for a plugin you never installed prints `not found in installed plugins`. You can ignore it.
-
-### 4. Commit the project settings
-
-At project scope, the `uninstall` commands also remove the old plugins from the repository's `.claude/settings.json`. Only `"trace@trace": true` stays. Review the change and commit it.
-
-Each teammate must then run step 2 and the project scope commands from step 3 once, after they pull. The committed file does not remove the old plugins from their machines.
-
-### 5. Check the result
-
-Restart Claude Code. `claude plugin list` must show `trace@trace` at version 2.0.0 for each scope, and nothing else from TRACE. Type `/trace:` and check that the list includes `/trace:spec`.
-
-### 6. Update the old command names
+### Update the old command names
 
 Four commands have new names:
 
