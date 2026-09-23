@@ -14,7 +14,7 @@ function run(plugin, script, args, cwd = ROOT) {
   return result;
 }
 
-for (const base of ['deliverable/plugins/trace', 'plugins/trace', 'plugins/trace-full']) {
+for (const base of ['deliverable/plugins/trace', 'plugins/trace']) {
   test(`${base}: context-graph matches the fixture contract`, () => {
     const result = run(base, 'context-graph.js', [FIXTURE]);
     assert.equal(result.status, 0, result.stderr);

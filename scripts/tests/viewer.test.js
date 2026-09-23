@@ -24,12 +24,12 @@ async function freePort() {
   return port;
 }
 
-for (const base of ['deliverable/plugins/trace-plan', 'plugins/trace-plan', 'plugins/trace-full']) {
+for (const base of ['deliverable/plugins/trace', 'plugins/trace']) {
   test(`${base}: actual viewer serves and updates plans and epic previews`, async (t) => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'trace viewer '));
     const pids = new Set();
     t.after(() => { for (const pid of pids) { try { process.kill(pid); } catch {} } fs.rmSync(root, { recursive: true, force: true }); });
-    const fixtures = path.join(ROOT, 'plugin-src/trace-plan/viewer/fixtures');
+    const fixtures = path.join(ROOT, 'plugin-src/trace/viewer/fixtures');
     fs.cpSync(fixtures, root, { recursive: true });
     fs.mkdirSync(path.join(root, 'epics/.preview'), { recursive: true });
     fs.cpSync(path.join(root, 'epics/demo-epic'), path.join(root, 'epics/.preview/demo-epic'), { recursive: true });
@@ -75,11 +75,11 @@ test('discovery reuses a later running server after an earlier port becomes free
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const base = await freePort();
   const http = require('node:http');
-  const server = http.createServer((req, res) => { res.end(JSON.stringify({ service: 'trace-plan-viewer', plansDir: root, specCommand: '$trace-plan:spec' })); });
+  const server = http.createServer((req, res) => { res.end(JSON.stringify({ service: 'trace-plan-viewer', plansDir: root, specCommand: '$trace:spec' })); });
   await new Promise((resolve, reject) => { server.on('error', reject); server.listen(base + 1, '127.0.0.1', resolve); });
   t.after(() => { server.closeAllConnections(); server.close(); });
   const script = path.join(root, 'discover.cjs');
-  fs.writeFileSync(script, `require(${JSON.stringify(path.join(ROOT, 'plugins/trace-plan/scripts/plan-viewer-common.js'))}).findServer(${JSON.stringify(root)}, 'plansDir', '$trace-plan:spec').then(x => console.log(JSON.stringify(x)))`);
+  fs.writeFileSync(script, `require(${JSON.stringify(path.join(ROOT, 'plugins/trace/scripts/plan-viewer-common.js'))}).findServer(${JSON.stringify(root)}, 'plansDir', '$trace:spec').then(x => console.log(JSON.stringify(x)))`);
   const result = await command(script, [], { TRACE_PLAN_VIEWER_PORT: String(base) });
   assert.deepEqual(JSON.parse(result.stdout), { running: true, port: base + 1 });
 });

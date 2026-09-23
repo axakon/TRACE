@@ -18,10 +18,10 @@ jobs:
           node-version: '24'
           package-manager-cache: false
       - name: Install the locked viewer toolchain
-        working-directory: plugin-src/trace-plan/viewer
+        working-directory: plugin-src/trace/viewer
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Rebuild the viewer from source
-        working-directory: plugin-src/trace-plan/viewer
+        working-directory: plugin-src/trace/viewer
         run: npm run build
       - name: Verify committed packages and behaviour
         run: node scripts/verify-plugins.js

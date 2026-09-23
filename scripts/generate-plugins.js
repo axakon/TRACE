@@ -48,16 +48,12 @@ function generate(root = ROOT) {
     const adapter = JSON.parse(fs.readFileSync(path.join(source, 'adapters', `${host}.json`), 'utf8'));
     for (const name of names) {
       const target = outputRoot(host, name);
-      const members = host === 'codex' && name === 'trace-full' ? names.filter((n) => n !== 'trace-full') : [name];
-      const skillName = (owner, skill) => `${host === 'claude' ? '/' : '$'}${name === 'trace-full' && host === 'codex' ? name : owner}:${skill}`;
+      const skillName = (owner, skill) => `${host === 'claude' ? '/' : '$'}${owner}:${skill}`;
       function render(text) {
         text = text.replace(/\{\{([\w-]+)\}\}/g, (all, key) => {
           if (key === 'installation') return host === 'claude'
-            ? `Install from the TRACE marketplace:\n\n\`\`\`text\n/plugin marketplace add axakon/TRACE\n/plugin install ${name}@trace\n/reload-plugins\n\`\`\`${name === 'trace' ? '' : '\n\nClaude Code installs the plugins this one depends on.'}`
-            : `Add the TRACE marketplace, then install the package:\n\n\`\`\`sh\ncodex plugin marketplace add axakon/TRACE\n${['trace-plan', 'trace-git'].includes(name) ? 'codex plugin add trace@trace\n' : ''}codex plugin add ${name}@trace\n\`\`\`\n\nStart a new session after you install. In the desktop app, install from the TRACE marketplace in the Plugins view. Then review and trust the plugin's hooks in the app's hook settings. Install either trace-full or the individual packages, not both. With both installed, every skill appears twice.`;
-          if (key === 'bundle-description') return host === 'claude'
-            ? 'This package has no skills of its own. It depends on trace, trace-plan, and trace-git, so Claude Code installs all three. Each skill keeps its own plugin name, such as /trace-plan:spec.'
-            : 'This package holds every TRACE skill, the core hooks, and the viewer, so it needs no other TRACE package. All skills use the trace-full name, such as $trace-full:spec. If you install add-ons one by one instead, each one needs trace installed as well.';
+            ? `Install from the TRACE marketplace:\n\n\`\`\`text\n/plugin marketplace add axakon/TRACE\n/plugin install ${name}@trace\n/reload-plugins\n\`\`\``
+            : `Add the TRACE marketplace, then install the package:\n\n\`\`\`sh\ncodex plugin marketplace add axakon/TRACE\ncodex plugin add ${name}@trace\n\`\`\`\n\nStart a new session after you install. In the desktop app, install from the TRACE marketplace in the Plugins view. Then review and trust the plugin's hooks in the app's hook settings.`;
           if (!(key in adapter)) throw new Error(`Unknown adapter field: ${key}`);
           return adapter[key];
         });
@@ -65,48 +61,37 @@ function generate(root = ROOT) {
         if (/\{\{/.test(text)) throw new Error(`Unexpanded template in ${name}`);
         return text;
       }
-      for (const member of members) {
-        const base = path.join(source, member);
-        for (const file of files(base, ['node_modules'])) {
-          const rel = path.relative(base, file).split(path.sep).join('/');
-          if (rel.startsWith('viewer/src/') || rel.startsWith('viewer/fixtures/') || /^viewer\/(package.*\.json|\.gitignore)$/.test(rel)) continue;
-          if (name === 'trace-full' && member !== name && rel === 'README.md') continue;
-          if (name === 'trace-full' && rel === 'hooks/hooks.json' && member !== 'trace') continue;
-          if (host === 'codex' && rel === '.mcp.json') continue; // Claude's disabled optional server is not an auto-install request.
-          let content = fs.readFileSync(file);
-          if (rel.endsWith('/SKILL.md')) {
-            const { metadata, body } = parseSkill(content.toString());
-            const fields = host === 'claude'
-              ? Object.entries(metadata).filter(([key]) => key !== 'when_to_use')
-              : Object.entries(metadata).filter(([key]) => ['name', 'description'].includes(key));
-            const frontmatter = fields.map(([key, value]) => `${key}: ${value === 'true' || value === 'false' ? value : JSON.stringify(render(value))}`).join('\n');
-            const trigger = metadata.when_to_use ? `\nWhen to use: ${metadata.when_to_use}\n` : '';
-            content = `---\n${frontmatter}\n---\n${render(body + trigger)}`;
-            if (host === 'codex' && metadata['disable-model-invocation'] === 'true') {
-              const title = `TRACE ${metadata.name}`;
-              const full = render(metadata.description);
-              const description = full.length <= 64 ? full : full.slice(0, 64).replace(/\s+\S*$/, '');
-              put(`${target}/${path.posix.dirname(rel)}/agents/openai.yaml`, `interface:\n  display_name: ${JSON.stringify(title)}\n  short_description: ${JSON.stringify(description)}\npolicy:\n  allow_implicit_invocation: false\n`);
-            }
-          } else if (rel.endsWith('.md') || rel.endsWith('.json')) content = render(content.toString());
-          put(`${target}/${rel}`, content);
-        }
+      const base = path.join(source, name);
+      for (const file of files(base, ['node_modules'])) {
+        const rel = path.relative(base, file).split(path.sep).join('/');
+        if (rel.startsWith('viewer/src/') || rel.startsWith('viewer/fixtures/') || /^viewer\/(package.*\.json|\.gitignore)$/.test(rel)) continue;
+        if (host === 'codex' && rel === '.mcp.json') continue; // Claude's disabled optional server is not an auto-install request.
+        let content = fs.readFileSync(file);
+        if (rel.endsWith('/SKILL.md')) {
+          const { metadata, body } = parseSkill(content.toString());
+          const fields = host === 'claude'
+            ? Object.entries(metadata).filter(([key]) => key !== 'when_to_use')
+            : Object.entries(metadata).filter(([key]) => ['name', 'description'].includes(key));
+          const frontmatter = fields.map(([key, value]) => `${key}: ${value === 'true' || value === 'false' ? value : JSON.stringify(render(value))}`).join('\n');
+          const trigger = metadata.when_to_use ? `\nWhen to use: ${metadata.when_to_use}\n` : '';
+          content = `---\n${frontmatter}\n---\n${render(body + trigger)}`;
+          if (host === 'codex' && metadata['disable-model-invocation'] === 'true') {
+            const title = `TRACE ${metadata.name}`;
+            const full = render(metadata.description);
+            const description = full.length <= 64 ? full : full.slice(0, 64).replace(/\s+\S*$/, '');
+            put(`${target}/${path.posix.dirname(rel)}/agents/openai.yaml`, `interface:\n  display_name: ${JSON.stringify(title)}\n  short_description: ${JSON.stringify(description)}\npolicy:\n  allow_implicit_invocation: false\n`);
+          }
+        } else if (rel.endsWith('.md') || rel.endsWith('.json')) content = render(content.toString());
+        put(`${target}/${rel}`, content);
       }
-      if (host === 'codex' && name === 'trace-full') {
-        put(`${target}/README.md`, render(fs.readFileSync(path.join(source, 'trace-full', 'README.md'), 'utf8')));
-      }
-      if (['trace-plan', 'trace-git'].includes(name)) {
-        put(`${target}/shared/authoring-rules.md`, fs.readFileSync(path.join(source, 'trace/shared/authoring-rules.md')));
-      }
-      if (members.includes('trace-plan')) put(`${target}/runtime.json`, json({ specCommand: skillName('trace-plan', 'spec') }));
+      put(`${target}/runtime.json`, json({ specCommand: skillName(name, 'spec') }));
       put(`${target}/GENERATED.md`, `Generated by scripts/generate-plugins.js from plugin-src/. Edit the source and regenerate both harnesses.\n`);
       const { description, defaultPrompt, ...rest } = catalog.plugins[name];
       const metadata = { name, description, ...catalog.shared, ...rest, version: catalog.version };
       if (host === 'codex') {
-        delete metadata.dependencies;
         metadata.skills = './skills/';
         metadata.interface = {
-          displayName: name === 'trace-full' ? 'TRACE — complete suite' : name,
+          displayName: name,
           shortDescription: metadata.description.split('.')[0],
           longDescription: metadata.description,
           developerName: catalog.shared.author.name, category: 'Productivity', capabilities: ['Read', 'Write'],

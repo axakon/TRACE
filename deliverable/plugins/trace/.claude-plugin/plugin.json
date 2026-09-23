@@ -1,6 +1,6 @@
 {
   "name": "trace",
-  "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight.",
+  "description": "TRACE: durable context, planning, and delivery for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, measures context weight, plans work as specs and epics with browser review, and drafts commit messages and PR descriptions.",
   "author": {
     "name": "byBrick Tech"
   },
@@ -11,6 +11,12 @@
     "agents-md",
     "adr",
     "context",
+    "planning",
+    "spec",
+    "epic",
+    "git",
+    "commit",
+    "pull-request",
     "trace"
   ],
   "version": "1.2.0"

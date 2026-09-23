@@ -1,6 +1,6 @@
 ---
 name: "adr"
-description: "Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace-plan:spec at handoff."
+description: "Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace:spec at handoff."
 argument-hint: "[short decision title]"
 allowed-tools: "Glob Read Write AskUserQuestion"
 ---
@@ -16,7 +16,7 @@ Before doing anything, read [adr-criteria.md](../../shared/adr-criteria.md) (the
 
 Find the decision you are recording.
 
-- **Invoked by /trace-plan:spec, or mid-conversation:** the decision is in the conversation — the approved plan and the discussion. Use that. Do not re-interview from scratch.
+- **Invoked by /trace:spec, or mid-conversation:** the decision is in the conversation — the approved plan and the discussion. Use that. Do not re-interview from scratch.
 - **Invoked directly with an argument** (`/trace:adr "use Redis for sessions"`): use `$ARGUMENTS` as the working title.
 - **Invoked bare:** ask one open question — "What decision do you want to record?" — and wait for the answer.
 

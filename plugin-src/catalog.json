@@ -9,59 +9,19 @@
   },
   "plugins": {
     "trace": {
-      "description": "TRACE core: durable context for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, and measures context weight.",
+      "description": "TRACE: durable context, planning, and delivery for AI-assisted development. Sets up the docs structure and AGENTS.md, records architecture decisions, distils durable knowledge as you work, validates the conventions, measures context weight, plans work as specs and epics with browser review, and drafts commit messages and PR descriptions.",
       "keywords": [
         "documentation",
         "agents-md",
         "adr",
         "context",
-        "trace"
-      ],
-      "defaultPrompt": "Use TRACE to set up durable project context."
-    },
-    "trace-plan": {
-      "description": "TRACE planning: specs with acceptance criteria, local epics, and browser review for both workflows.",
-      "keywords": [
         "planning",
         "spec",
         "epic",
-        "kanban",
-        "trace"
-      ],
-      "dependencies": [
-        {
-          "name": "trace",
-          "version": "^1.0.0"
-        }
-      ],
-      "defaultPrompt": "Use TRACE to plan this change."
-    },
-    "trace-git": {
-      "description": "TRACE delivery add-on: commit messages and PR descriptions in a predictable What / Approach / Updated context shape. No Conventional-Commits taxonomy.",
-      "keywords": [
         "git",
         "commit",
         "pull-request",
         "trace"
-      ],
-      "dependencies": [
-        {
-          "name": "trace",
-          "version": "^1.0.0"
-        }
-      ],
-      "defaultPrompt": "Use TRACE to draft a commit message."
-    },
-    "trace-full": {
-      "description": "Everything TRACE ships, behind one install: the docs core plus the planning and delivery add-ons. Install this if you don't want to choose.",
-      "keywords": [
-        "trace",
-        "bundle"
-      ],
-      "dependencies": [
-        "trace",
-        "trace-plan",
-        "trace-git"
       ],
       "defaultPrompt": "Use TRACE to set up durable project context."
     }

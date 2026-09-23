@@ -1,13 +1,16 @@
 # Changelog
 
-All notable changes to the TRACE plugins are recorded here — `trace`, `trace-plan`, `trace-git`, and the `trace-full` bundle share one version line and ship together. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Set `version` in `plugin-src/catalog.json` and add an entry here with every release. The generator writes it into every Claude and Codex manifest. Claude Code caches installs by version string, so an unbumped release reaches no one.
+All notable changes to the TRACE plugin are recorded here. The Claude Code and Codex builds share one version line and ship together. From 1.0.0 to 1.2.0, TRACE shipped as four plugins — `trace`, `trace-plan`, `trace-git`, and the `trace-full` bundle — and those entries name them. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [semantic versioning](https://semver.org). Set `version` in `plugin-src/catalog.json` and add an entry here with every release. The generator writes it into every Claude and Codex manifest. Claude Code caches installs by version string, so an unbumped release reaches no one.
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
 ## [Unreleased]
 
+This release must be 2.0.0. It renames four commands.
+
 ### Changed
 
+- **TRACE is one plugin again.** `trace` now holds every skill, script, hook, and the plan viewer. `trace-plan`, `trace-git`, and `trace-full` are gone from both marketplaces. `/trace-plan:spec`, `/trace-plan:epic`, `/trace-git:commit-message`, and `/trace-git:pr-description` are now `/trace:spec`, `/trace:epic`, `/trace:commit-message`, and `/trace:pr-description`. In Codex, `$trace-full:` becomes `$trace:`. `claude plugin update trace@trace` now updates everything. Before, updating `trace-full` left the skills on the old version. To move from the old plugins, follow "Moving to the single plugin" in `deliverable/README.md`. Settings, plans, and epics stay where they are (ADR 0013).
 - **The writing rules are about 40% shorter.** `authoring-rules.md`, `change-summary-style.md`, and the `commit-message` and `pr-description` skills and examples went from about 5,860 words to about 3,550. The cuts remove rules stated in more than one file, worked examples of each test, and process steps the model now follows without them. Every rule about words, sentences, templates, and the delete test stays. Drafts for two PRs and four commits in this repo came out the same length and quality with the old and new rules. The new rules missed two things more often: sentences whose subject was an "-ing" verb, and bold bullet openings past 15 words. `change-summary-style.md` now names both as a last check.
 
 ## [1.2.0] - 2026-09-22
