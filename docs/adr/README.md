@@ -27,10 +27,10 @@ ADRs are the project's structural memory. When a future contributor asks "why is
 
 ADRs become **immutable once shipped**. Two phases:
 
-- **Draft (local, unpushed, no one has acted on it).** Edit freely. Reshape the framing, fix mistakes, sharpen the wording. The ADR is not yet a record anyone else relies on, and a tidy revised version is more useful than a `0001 + 0002 (supersedes 0001)` pair where both are one day old.
-- **Shipped (committed, pushed, or already acted on by other work).** Immutable. A future reader needs to see the decision as it stood when it was made; downstream commits, ADRs, and implementations may quote or rely on its exact wording. From here on, course corrections are a *new* ADR that supersedes the old one.
+- **Draft (not yet on the default branch, usually `main` or `master`).** Edit freely, on your machine and in the ADR's own pull request. Reshape the framing, fix mistakes, sharpen the wording, renumber it to avoid a collision. The ADR is not yet part of the project's record, and a tidy revised version is more useful than a `0001 + 0002 (supersedes 0001)` pair where both are one day old.
+- **Shipped (merged to the default branch).** Immutable. A future reader needs to see the decision as it stood when it was made; downstream commits, ADRs, and implementations may quote or rely on its exact wording. From here on, course corrections are a *new* ADR that supersedes the old one. A formatter run that changes only whitespace or emphasis markers is not an edit.
 
-The rule of thumb: if anyone else has had reason to read this ADR, treat it as shipped.
+The rule of thumb: an ADR stays a draft until it merges, even when reviewers or other branches have read it.
 
 When superseding a shipped ADR:
 

@@ -37,7 +37,7 @@ Otherwise, list the findings in one short block (errors first, plain language, f
 
 Two files sharing a number is almost always a branch merge: each branch minted the same next number for a different decision. The files are fixed mechanically; the *references* to that number are not — a comment written before the merge means one specific decision, and only reading it tells which. Never bulk-rewrite references.
 
-1. **Decide which file keeps the number.** The file that shipped first keeps it (check with `git log --diff-filter=A --format="%aI %H" -- <each-file>`); its number has been citable for longer. A clear date order decides it — announce the choice and proceed. Ask only when the signal is genuinely absent (no git, same commit, identical dates).
+1. **Decide which file keeps the number.** The file that shipped first keeps it: the one that reached the default branch first (the report's `summary.adr_base`). Check with `git log <adr_base> --first-parent -m --diff-filter=A --format="%cI %H" -- <each-file>`; its number has been citable for longer. A clear date order decides it — announce the choice and proceed. Ask only when the signal is genuinely absent (no git, same commit, identical dates).
 
 2. **Renumber the other file** to the report's `suggested_free` number:
 
@@ -71,7 +71,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 **Report only (never auto-fix):**
 
 - **Root AGENTS.md out of spec** → recommend `{{skill:trace:agents-md-setup}}` (review mode); piecemeal patching fights that skill's interview.
-- **Shipped ADR edited beyond a supersession banner** → show what changed (`git diff` against the adding commit) and recommend reverting or a superseding ADR via `{{skill:trace:adr}}`. Rewriting records is not doctor's call.
+- **Shipped ADR edited beyond a supersession banner** → show what changed (`git diff <shipped_in> -- <file>`, where `shipped_in` is the commit that first brought the ADR to the default branch) and recommend reverting or a superseding ADR via `{{skill:trace:adr}}`. Rewriting records is not doctor's call.
 - **ADR numbering gaps** → a gap is history, not damage; renumbering shipped ADRs breaks references.
 
 ## Phase 5: Confirm clean and summarise

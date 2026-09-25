@@ -172,22 +172,42 @@ function checkAgentsMd(scope, report) {
   });
 }
 
-function stripSupersessionBanners(content) {
-  // Any blockquote line that starts "Superseded by" is a supersession banner
-  // — humans write variants of the canonical "> Superseded by NNNN." form,
-  // and flagging those as post-ship edits is a false positive.
+// The ADR text a reader sees, for the immutability comparison. Drops
+// supersession banners: any blockquote line that starts "Superseded by",
+// since humans write variants of the canonical "> Superseded by NNNN." form.
+// Also ignores what a formatter such as Prettier changes without changing
+// the words: whitespace and line breaks, _ versus * emphasis, and * or +
+// versus - bullets.
+function normalizeAdr(content) {
   return content
     .split('\n')
     .filter((line) => !/^>\s*superseded by\b/i.test(line.trim()))
-    .map((line) => line.replace(/\s+$/, ''))
+    .map((line) => line.replace(/^(\s*)[*+](\s)/, '$1-$2'))
     .join('\n')
-    .replace(/\n+$/, '');
+    .replace(/_/g, '*')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function git(scope, args) {
   const res = spawnSync('git', args, { cwd: scope, encoding: 'utf8' });
   if (res.error || res.status !== 0) return null;
   return res.stdout;
+}
+
+// The branch an ADR ships to: the remote's default branch, then main or
+// master, then the current branch when none of those exist.
+function baseRef(scope) {
+  const originHead = git(scope, ['symbolic-ref', '--quiet', 'refs/remotes/origin/HEAD']);
+  const candidates = [
+    originHead && originHead.trim(),
+    'refs/remotes/origin/main', 'refs/remotes/origin/master',
+    'refs/heads/main', 'refs/heads/master',
+  ];
+  for (const ref of candidates) {
+    if (ref && git(scope, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]) !== null) return ref;
+  }
+  return 'HEAD';
 }
 
 function checkAdrs(scope, docs, report) {
@@ -261,16 +281,24 @@ function checkAdrs(scope, docs, report) {
     }
   }
 
-  // Immutability: a shipped (committed) ADR may only gain supersession banners.
+  // Immutability: a shipped ADR may only gain supersession banners. An ADR
+  // ships when it first reaches the base branch. Edits made before that, such
+  // as review fixes or a renumber inside the ADR's own branch, are drafting.
   if (git(scope, ['rev-parse', '--is-inside-work-tree']) === null) {
     report.skipped.push({ check: 'adr-immutability', reason: 'git unavailable or not a repository' });
     return;
   }
+  const base = baseRef(scope);
+  const baseName = base.replace(/^refs\/(heads|remotes)\//, '');
+  report.summary.adr_base = baseName;
   for (const file of files) {
     if (!ADR_FILENAME.test(file)) continue;
     const relPath = rel(scope, path.join(adrDir, file));
-    const log = git(scope, ['log', '--diff-filter=A', '--format=%H', '--', relPath]);
-    if (!log || !log.trim()) continue; // never committed — still a draft, free to edit
+    // --first-parent walks only the base branch's own commits, so a merge or
+    // squash commit is where a branch's ADR lands. -m makes git diff merge
+    // commits, which --diff-filter needs before Git 2.31.
+    const log = git(scope, ['log', base, '--first-parent', '-m', '--diff-filter=A', '--format=%H', '--', relPath]);
+    if (!log || !log.trim()) continue; // not on the base branch yet — still a draft, free to edit
     const addCommit = log.trim().split('\n').pop();
     // The ./ prefix makes the pathspec cwd-relative; without it git resolves
     // the path against the repo root, which silently breaks for a scope that
@@ -279,16 +307,16 @@ function checkAdrs(scope, docs, report) {
     if (original === null) {
       report.skipped.push({
         check: 'adr-immutability',
-        reason: `could not read the first committed version of ${relPath}`,
+        reason: `could not read the version of ${relPath} that shipped to ${baseName}`,
       });
       continue;
     }
     const current = readText(path.join(adrDir, file));
     if (current === null) continue;
-    if (stripSupersessionBanners(original) !== stripSupersessionBanners(current)) {
+    if (normalizeAdr(original) !== normalizeAdr(current)) {
       report.warnings.push({
-        check: 'adr-immutability', path: relPath,
-        message: 'Shipped ADR differs from the version first committed beyond supersession banners — shipped ADRs are immutable; course corrections are a new superseding ADR.',
+        check: 'adr-immutability', path: relPath, shipped_in: addCommit,
+        message: `Shipped ADR differs from the version that first reached ${baseName} (${addCommit.slice(0, 7)}) beyond supersession banners and formatting — shipped ADRs are immutable; course corrections are a new superseding ADR.`,
       });
     }
   }
@@ -459,6 +487,8 @@ function migrate(scope, docs, fileArg, toNumber) {
   const dest = path.join(adrDir, `${toNumber}-${base.slice(5)}`);
   const content = readText(src);
   if (content === null) fail(`cannot read ${src}`);
+  // readText hands back LF; write the file back with the endings it had.
+  const eol = fs.readFileSync(src, 'utf8').includes('\r\n') ? '\r\n' : '\n';
 
   // Rewrite the file's own heading number; nothing else inside it changes.
   const lines = content.split('\n');
@@ -471,7 +501,7 @@ function migrate(scope, docs, fileArg, toNumber) {
     break;
   }
 
-  fs.writeFileSync(dest, lines.join('\n'));
+  fs.writeFileSync(dest, lines.join(eol));
   fs.unlinkSync(src);
 
   // Inventory every reference to the OLD number: after a collision, each one

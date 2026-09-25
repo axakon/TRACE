@@ -19,9 +19,11 @@ const SKIP_DIRS = new Set([
 
 // ---------------------------------------------------------------- file utils
 
+// Line endings come back as LF. A Windows checkout with core.autocrlf=true
+// has CRLF files, and a trailing \r breaks every line-anchored pattern.
 function readText(file) {
   try {
-    return fs.readFileSync(file, 'utf8');
+    return fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
   } catch {
     return null;
   }
