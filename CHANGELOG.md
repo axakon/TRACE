@@ -4,6 +4,17 @@ All notable changes to the TRACE plugin are recorded here. The Claude Code and C
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Changed
+
+- **An ADR now ships when it reaches the default branch.** Before, an ADR shipped when it was first committed. Review fixes and a renumber inside the ADR's own pull request are now drafting, not edits to a shipped ADR. The ADR README, the `adr` skill, and the ADR template now say so (ADR 0014).
+
+### Fixed
+
+- **`/trace:doctor` reads files with Windows line endings.** With `core.autocrlf=true`, Git for Windows checks files out with CRLF endings. Each line then ended in `\r`, so doctor found no `AGENTS.md` section headings and warned that all four required sections were missing. `readText` in `trace-lib.js` now turns CRLF into LF. This also fixes the same heading split in `context-graph.js`. `migrate` keeps the line endings a renamed ADR had.
+- **The ADR immutability check no longer flags edits made before the merge.** It compared each ADR with the first commit that added it, so review fixes and renumbers inside the ADR's pull request counted as edits to a shipped ADR. It now compares with the first commit on the default branch that contains the ADR. It ignores changes to whitespace, emphasis markers, and bullet markers. Each warning names that commit in `shipped_in`, and `summary.adr_base` names the branch.
+
 ## [2.0.0] - 2026-09-23
 
 This release renames four commands. See "Moving to the single plugin" in `deliverable/README.md` before you update.
