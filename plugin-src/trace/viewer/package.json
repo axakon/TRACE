@@ -8,6 +8,9 @@
   "devDependencies": {
     "esbuild": "0.28.1",
     "marked": "18.0.5",
-    "mermaid": "11.16.0"
+    "mermaid": "12.2.0"
+  },
+  "overrides": {
+    "dompurify@>=3.0.0 <3.4.16": "3.4.16"
   }
 }
