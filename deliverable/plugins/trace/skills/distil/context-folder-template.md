@@ -1,6 +1,6 @@
 # AGENTS.md (template for a scope's durable-context folder)
 
-This template is written verbatim into `<scope>/<docs-folder>/AGENTS.md` the first time the distil, init, or scaffold-docs skill writes a file into that folder. Those skills also write a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the single line `See @AGENTS.md for more information.` — the forwarder ensures Claude Code's native CLAUDE.md discovery still finds the marker, while AGENTS.md holds the actual content.
+This template is written verbatim into `<scope>/<docs-folder>/AGENTS.md` the first time the distil, init, or scaffold-docs skill writes a file into that folder. They write no sibling `CLAUDE.md`: Claude Code reads the AGENTS.md directly.
 
 The default `<docs-folder>` is `docs/` at the scope root; future versions of TRACE will let the developer pick a different folder per scope, and this template applies wherever the folder ends up.
 

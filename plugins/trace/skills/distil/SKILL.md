@@ -83,7 +83,7 @@ Work through the candidates one at a time — present, get one approval, write, 
 
 2. **Ask once** using the question control: **Confirm & write** / **Change location** / **Edit content** / **Skip**. Nothing is written until the developer confirms.
 
-3. **On confirm:** if the target durable-context folder isn't TRACE-marked yet (missing, or no `AGENTS.md` with TRACE heading), write the marker first: `<scope>/<docs-folder>/AGENTS.md` from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs), plus a sibling `<scope>/<docs-folder>/CLAUDE.md` containing the one-line forwarder `See @AGENTS.md for more information.`. If the folder already holds hand-written docs, tell the developer the marker pair lands alongside them. Then write the candidate's addition.
+3. **On confirm:** if the target durable-context folder isn't TRACE-marked yet (missing, or no `AGENTS.md` with TRACE heading), write the marker first: `<scope>/<docs-folder>/AGENTS.md` from [context-folder-template.md](./context-folder-template.md) (start at `# Durable project context`; Write creates parent dirs). Write no `CLAUDE.md`. If the folder already holds hand-written docs, tell the developer the marker lands alongside them. Then write the candidate's addition.
 
 ## Phase 6: Verify and clear the distillation-pending sentinel
 

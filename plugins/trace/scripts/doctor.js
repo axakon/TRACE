@@ -27,6 +27,7 @@
 // solely for the ADR-immutability check and is skipped gracefully when absent.
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawnSync } = require('child_process');
 const {
@@ -56,6 +57,8 @@ function fail(msg) {
 // ------------------------------------------------------------------- checks
 
 function checkStructure(scope, docs, report) {
+  checkClaudeFiles(scope, docs, report);
+
   if (!isDir(docs)) {
     report.errors.push({
       check: 'structure', path: rel(scope, docs),
@@ -87,21 +90,6 @@ function checkStructure(scope, docs, report) {
     });
   }
 
-  for (const dir of [docs, scope]) {
-    const claudeMd = readText(path.join(dir, 'CLAUDE.md'));
-    const label = rel(scope, path.join(dir, 'CLAUDE.md')) || 'CLAUDE.md';
-    if (claudeMd === null) {
-      report.warnings.push({
-        check: 'structure', path: label,
-        message: `CLAUDE.md forwarder missing (should contain exactly: ${FORWARDER}).`,
-      });
-    } else if (claudeMd.trim().replace(/`/g, '') !== FORWARDER) {
-      report.warnings.push({
-        check: 'structure', path: label,
-        message: 'CLAUDE.md is not the one-line forwarder — per TRACE convention AGENTS.md holds the content.',
-      });
-    }
-  }
 
   if (!isFile(path.join(scope, 'AGENTS.md'))) {
     report.errors.push({
@@ -110,6 +98,92 @@ function checkStructure(scope, docs, report) {
     });
   }
   return true;
+}
+
+// Claude Code 2.1.277 and later reads AGENTS.md itself, but only where no
+// CLAUDE.md, CLAUDE.local.md, or .claude/CLAUDE.md sits in that folder or a
+// folder above it. Such a file hides every AGENTS.md at and below it, unless
+// the folder's own CLAUDE file imports @AGENTS.md. The user's own CLAUDE.md in
+// the Claude config folder does not count. With CLAUDE_CONFIG_DIR set
+// elsewhere, ~/.claude/CLAUDE.md is no longer that file and hides AGENTS.md in
+// every project under the home folder.
+//
+// TRACE 2.0.0 and earlier wrote a one-line CLAUDE.md forwarder next to each
+// AGENTS.md; it still works, but is no longer needed. A forwarder stays where
+// another CLAUDE file sits beside it: the forwarder is then what keeps
+// AGENTS.md loaded.
+const IMPORTS_AGENTS_MD = /(^|\s)@(\.\.?\/)?AGENTS\.md\b/m;
+const CLAUDE_FILES = ['CLAUDE.md', 'CLAUDE.local.md', path.join('.claude', 'CLAUDE.md')];
+
+function userClaudeMd() {
+  const configDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+  return path.resolve(configDir, 'CLAUDE.md');
+}
+
+// The CLAUDE files in one folder that Claude Code reads as project
+// instructions, as absolute paths.
+function claudeFilesIn(dir) {
+  const user = userClaudeMd();
+  return CLAUDE_FILES.map((name) => path.join(dir, name))
+    .filter((file) => isFile(file) && path.resolve(file) !== user);
+}
+
+// CLAUDE files in the folders above dir, nearest first.
+function claudeFilesAbove(dir) {
+  const found = [];
+  for (let d = path.dirname(dir); ; d = path.dirname(d)) {
+    found.push(...claudeFilesIn(d));
+    if (path.dirname(d) === d) return found;
+  }
+}
+
+function hiddenMessage(file, text) {
+  const name = path.basename(path.dirname(file)) === '.claude' ? '.claude/CLAUDE.md' : path.basename(file);
+  const backticks = /`@(\.\.?\/)?AGENTS\.md`/.test(text)
+    ? ' The @AGENTS.md here is inside backticks, and Claude Code does not follow an import written that way.'
+    : '';
+  return `${name} does not import @AGENTS.md, so Claude Code reads it instead of the AGENTS.md here and below.${backticks} Move its content into AGENTS.md and delete it, or add an @AGENTS.md import.`;
+}
+
+function checkClaudeFiles(scope, docs, report) {
+  const outside = claudeFilesAbove(scope);
+  const userFile = userClaudeMd();
+  const defaultUserFile = path.join(os.homedir(), '.claude', 'CLAUDE.md');
+
+  for (const dir of [scope, docs]) {
+    if (!isFile(path.join(dir, 'AGENTS.md'))) continue;
+    const own = claudeFilesIn(dir).map((file) => ({ file, text: readText(file) || '' }));
+    const label = (file) => rel(scope, file) || path.basename(file);
+    const importer = own.find((f) => IMPORTS_AGENTS_MD.test(f.text));
+
+    for (const f of own) {
+      const forwarder = path.basename(f.file) === 'CLAUDE.md' && f.text.trim() === FORWARDER
+        && path.basename(path.dirname(f.file)) !== '.claude';
+      if (forwarder) {
+        if (own.length > 1) continue; // it keeps AGENTS.md loaded next to the other file
+        const finding = {
+          check: 'legacy-forwarder', path: label(f.file),
+          message: 'Old TRACE forwarder. Claude Code 2.1.277 and later reads AGENTS.md itself, so this file can be deleted. Delete every forwarder in the scope together: a CLAUDE.md left in a parent folder stops Claude Code reading the AGENTS.md files below it.',
+        };
+        if (outside.length) {
+          finding.kept_by = outside;
+          finding.message = 'Old TRACE forwarder, but keep it for now: the CLAUDE files in kept_by sit above this scope and stop Claude Code reading AGENTS.md here. Delete it once they are gone.';
+        }
+        report.warnings.push(finding);
+      } else if (!importer) {
+        report.warnings.push({ check: 'agents-md-hidden', path: label(f.file), message: hiddenMessage(f.file, f.text) });
+      }
+    }
+
+    if (own.length) continue;
+    const above = claudeFilesAbove(dir);
+    if (!above.length) continue;
+    let message = 'A CLAUDE file in a folder above stops Claude Code reading this AGENTS.md. hidden_by lists them, nearest first. Delete them or move their content into an AGENTS.md.';
+    if (above.includes(defaultUserFile) && defaultUserFile !== userFile) {
+      message += ` CLAUDE_CONFIG_DIR points to ${path.dirname(userFile)}, so ${defaultUserFile} is not your user CLAUDE.md here: move it to ${userFile}.`;
+    }
+    report.warnings.push({ check: 'agents-md-hidden', path: label(path.join(dir, 'AGENTS.md')), hidden_by: above, message });
+  }
 }
 
 const AGENTS_SECTIONS = [

@@ -33,8 +33,7 @@ If you use the older `playbook` plugin, read the [migration guide](deliverable/M
 
 ```
 your-repo/
-├── AGENTS.md          ← project context for agents (Claude Code, Cursor, Codex)
-├── CLAUDE.md          ← one line that points Claude Code to AGENTS.md
+├── AGENTS.md          ← project context for agents (Claude Code, Codex, Cursor, Copilot)
 └── docs/
     ├── system/        ← what the code does today
     ├── architecture/  ← what the code must do

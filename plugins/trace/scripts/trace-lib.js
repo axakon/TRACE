@@ -3,13 +3,15 @@
 // context-graph.js. Everything here is deterministic, uses Node built-ins
 // only, and never writes to disk.
 //
-// The conventions encoded here (marker heading, forwarder line, docs-folder
+// The conventions encoded here (marker heading, old forwarder line, docs-folder
 // precedence, scope discovery) mirror shared/docs-folder-resolution.md. Change
 // them there and here together.
 
 const fs = require('node:fs');
 const path = require('node:path');
 
+// The CLAUDE.md forwarder TRACE 2.0.0 and earlier wrote. Doctor finds it so it
+// can be deleted.
 const FORWARDER = 'See @AGENTS.md for more information.';
 const MARKER_HEADING = '# Durable project context';
 const SKIP_DIRS = new Set([

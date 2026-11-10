@@ -11,7 +11,7 @@ allowed-tools: Glob Read Edit Write AskUserQuestion
 
 You are helping a developer set up or update their project's `AGENTS.md` file. This file gives an agent persistent context about the project — what it is, how it's built, where things live, how to run it, and what's non-obvious.
 
-The convention: **`AGENTS.md` is canonical** (full content lives here, readable by every coding agent that follows the AGENTS.md standard). A sibling **`CLAUDE.md` is a one-line forwarder** containing `See @AGENTS.md for more information.`, so Claude Code's native discovery still finds the file. This skill writes both.
+The convention: **`AGENTS.md` is canonical** (full content lives here, readable by every coding agent that follows the AGENTS.md standard). This skill writes no `CLAUDE.md`. Claude Code reads `AGENTS.md` itself, but only when no `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` sits in that folder or a folder above it, so a `CLAUDE.md` at the root hides `AGENTS.md` from Claude.
 
 Before you write anything, read these supporting files:
 - [scope-resolution.md](../../shared/scope-resolution.md) — how the optional `[path]` argument resolves into a scope root
@@ -22,7 +22,7 @@ Before you write anything, read these supporting files:
 
 Parse `{{arguments}}` first: a `--yes` (or `-y`) token anywhere turns on **non-interactive mode** (below); the remaining token, if any, is the `[path]`. Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) from that remaining token if given, otherwise cwd. Everywhere this skill says "the repo root" or "the root", read it as the resolved scope root: Phase 1 reconnaissance, the `AGENTS.md`/`CLAUDE.md` reads, and the Phase 5 writes all operate inside it.
 
-Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or a file read). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per TRACE's convention, only `AGENTS.md` counts as canonical. Treat any pre-existing `CLAUDE.md` as not-yet-set-up state; it will be overwritten with the forwarder in Phase 5.
+Determine whether `AGENTS.md` already exists at the scope root (Glob pattern `AGENTS.md` or a file read). If it exists, follow **Review and update**. If not, follow **Create from scratch** — even if a `CLAUDE.md` exists at the root with content; per TRACE's convention, only `AGENTS.md` counts as canonical. Read any pre-existing `CLAUDE.md` as input for the interview; Phase 5 decides what happens to it.
 
 ## Interview mechanics (both paths)
 
@@ -154,13 +154,10 @@ Show the complete assembled draft (all sections in order). Call the question con
 
 ### Phase 5: Write to disk
 
-Write the approved content to `AGENTS.md` at the repo root. Then write a one-line `CLAUDE.md` at the repo root containing exactly:
+Write the approved content to `AGENTS.md` at the repo root. Then handle a root `CLAUDE.md`, if there is one:
 
-```
-See @AGENTS.md for more information.
-```
-
-The forwarder ensures Claude Code's native CLAUDE.md discovery still finds the project context. If a `CLAUDE.md` already exists at the root, overwrite it — per TRACE's convention only AGENTS.md is canonical, so the old CLAUDE.md content (if any) is treated as not-yet-set-up state.
+- **Old TRACE forwarder** (`See @AGENTS.md for more information.`): leave it. `{{skill:trace:doctor}}` removes the scope's forwarders together.
+- **Anything else:** it hides `AGENTS.md` from Claude Code. Use the question control: **Delete CLAUDE.md** (its content is now in `AGENTS.md`) / **Keep it and add an `@AGENTS.md` import**. In non-interactive mode, add the import and say so; never delete prose without asking.
 
 ---
 
@@ -170,7 +167,7 @@ The forwarder ensures Claude Code's native CLAUDE.md discovery still finds the p
 
 Read the current `AGENTS.md` and assess it against [agents-md-rules.md](./agents-md-rules.md): does it follow the five-section structure, is anything outdated against the repo (dependency changes, new directories, removed scripts), is anything violating the quality rules (too long, padded, decorative)?
 
-Also check whether a sibling `CLAUDE.md` forwarder exists at the root. If it doesn't, note it — Phase 5 will create one alongside the updated AGENTS.md.
+Also check for a root `CLAUDE.md`. Phase 5 handles it.
 
 ### Phase 2: Walk through each section
 
@@ -198,4 +195,4 @@ Show what changed — a before/after diff or a clean updated version, whichever 
 
 ### Phase 5: Apply changes
 
-Write the approved updates to `AGENTS.md`. If the root `CLAUDE.md` forwarder was missing in Phase 1, write it now (one line: `See @AGENTS.md for more information.`).
+Write the approved updates to `AGENTS.md`. Handle a root `CLAUDE.md` as in the create flow's Phase 5.

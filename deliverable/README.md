@@ -117,10 +117,7 @@ TRACE saves your choice in `.claude/.trace/config.json`. Run the command once pe
 /trace:agents-md-setup
 ```
 
-The skill reads the repository first. Then it asks about what it could not work out, across five sections: what the project is, the stack, where things are, the commands, and the gotchas. It writes two files:
-
-- **`AGENTS.md`**: the project context, which Claude Code, Cursor, and Codex all read.
-- **`CLAUDE.md`**: a single line that points to `AGENTS.md`, so Claude Code finds it.
+The skill reads the repository first. Then it asks about what it could not work out, across five sections: what the project is, the stack, where things are, the commands, and the gotchas. It writes `AGENTS.md`, the project context that Claude Code, Codex, Cursor, and Copilot all read. Claude Code needs version 2.1.277 or later to read it, and reads it only where there is no `CLAUDE.md`. If you used TRACE 2.0.0 or earlier, run `/trace:doctor`: it offers to delete the one-line `CLAUDE.md` files those versions wrote.
 
 To skip the questions, run `/trace:agents-md-setup --yes`. The skill then writes only what it can infer. Review the result and add the gotchas yourself.
 
@@ -153,7 +150,6 @@ Each skill explains what it does when you run it. The skills never run on their 
 | Path | Contents |
 |---|---|
 | `AGENTS.md` | Your project's context for AI agents |
-| `CLAUDE.md` | One line that points to `AGENTS.md` |
 | `docs/` | The docs structure, with six READMEs that explain what goes where |
 | `.claude/.trace/config.json` | The docs folder you chose |
 | `.claude/settings.json` | The marketplace and enabled plugins (project scope only) |

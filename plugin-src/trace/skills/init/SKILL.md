@@ -13,7 +13,7 @@ You are configuring TRACE for the current scope. Init does four things, in order
 
 1. Choose where this scope's durable context lives (the folder `{{skill:trace:distil}}` writes into).
 2. Lay down the canonical three-category doc structure inside it (`system/`, `architecture/`, `adr/`, `reference/`, `working-notes/`, each with a README copied verbatim from the plugin).
-3. Mark the folder with `AGENTS.md` + `CLAUDE.md` forwarder so the rest of TRACE recognises it.
+3. Mark the folder with an `AGENTS.md` so the rest of TRACE recognises it.
 4. Persist the choice to `<scope>/.claude/.trace/config.json`.
 
 Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) — `{{arguments}}` if given, otherwise cwd. A root `AGENTS.md` is not required — the recommended order is `{{skill:trace:init}}` then `{{skill:trace:agents-md-setup}}`. Init does **not** touch any `AGENTS.md` outside the chosen folder; the directory index is `{{skill:trace:agents-md-setup}}`'s job.
@@ -70,18 +70,12 @@ Author nothing beyond these six READMEs. In particular, do not create `architect
 
 Write `<chosen-folder>/AGENTS.md` using the body of [context-folder-template.md](../distil/context-folder-template.md), dropping the leading "# AGENTS.md (template for...)" preamble — start from the `# Durable project context` heading.
 
-Write `<chosen-folder>/CLAUDE.md` as the one-line forwarder:
-
-```
-See @AGENTS.md for more information.
-```
-
 If `<chosen-folder>/AGENTS.md` already exists:
 
 - If it is already TRACE-marked, leave it alone.
 - If it differs, show the existing content briefly and use the question control: **Overwrite with template** / **Leave existing** / **Cancel init**.
 
-If `<chosen-folder>/CLAUDE.md` exists with content other than the one-line forwarder, overwrite it — per the plugin's convention CLAUDE.md is always just a forwarder.
+Write no `CLAUDE.md`. Claude Code reads `AGENTS.md` itself, but only when no `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` sits in that folder or a folder above it. Leave an existing `<chosen-folder>/CLAUDE.md` alone. If it is the old TRACE forwarder (`See @AGENTS.md for more information.`), `{{skill:trace:doctor}}` removes it together with the scope's other forwarders; removing one alone can hide an `AGENTS.md` below a forwarder that stays. If it has other content, tell the developer it hides the marker from Claude Code.
 
 ## Phase 5: Persist the choice
 
@@ -101,7 +95,7 @@ One short message listing only the bullets that apply:
 
 - The chosen folder (created or pre-existing).
 - Which of the six canonical README files were written, already present, or overwritten.
-- Whether the marker pair (`AGENTS.md` + `CLAUDE.md` forwarder) was written, already present, or overwritten.
+- Whether the marker `AGENTS.md` was written, already present, or overwritten, and any `CLAUDE.md` deleted or left in place.
 - The config path `.claude/.trace/config.json`.
 - If no `AGENTS.md` exists at the scope root, one line suggesting `{{skill:trace:agents-md-setup}}` next (pass the same path argument when the scope isn't cwd) — that skill owns the scope's AGENTS.md, and without it `{{skill:trace:distil}}` won't recognise this folder as its own scope.
 
