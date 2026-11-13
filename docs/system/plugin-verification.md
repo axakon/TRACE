@@ -12,7 +12,7 @@ Automated tests cannot establish native skill discovery, interviews, approval co
 |---|---|
 | install | Fresh individual and full-suite installs expose the expected skills and required resources |
 | init | Select a docs folder; confirm canonical files and persisted config |
-| agents-md-setup | Review and approve AGENTS.md; confirm its CLAUDE.md forwarder |
+| agents-md-setup | Review and approve AGENTS.md; confirm no CLAUDE.md is written |
 | scaffold-docs | Select useful docs; confirm only approved files are written |
 | adr | Review and approve a qualifying decision; confirm numbering and template |
 | distil | Review a real change; approve a candidate; confirm the sentinel clears |

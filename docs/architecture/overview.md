@@ -52,7 +52,7 @@ The lifecycle is visible on disk:
 ## Conventions that override defaults
 
 - **Don't pre-author.** Empty folders are intentional. Files emerge from real work, not speculation. This applies recursively — to the playbook (don't draft phase 4 before phase 1 has content), to skills (don't author one before the friction has been felt twice), to reference docs (don't write rationale until the underlying opinion stops moving).
-- **AGENTS.md is canonical.** `CLAUDE.md` is a one-line forwarder (`@AGENTS.md`). Same convention TRACE recommends to adopting teams.
+- **AGENTS.md is the only instruction file.** No `CLAUDE.md`: Claude Code reads AGENTS.md itself (ADR 0015). Same convention TRACE recommends to adopting teams.
 - **The playbook is Markdown.** Plugin source generates committed packages for Claude Code and Codex. See [plugin distribution](plugin-distribution.md) for the build and release contract.
 - **Mermaid for diagrams.** Inline in the doc that uses them. Shared diagrams (used by 2+ docs) graduate to `docs/architecture/diagrams/` if and when that bar is met.
 

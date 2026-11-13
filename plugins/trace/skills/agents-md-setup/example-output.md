@@ -2,13 +2,7 @@
 
 This is a fictional example showing the target quality and structure. Use it as a reference, not a template to copy.
 
-The skill writes two files at the repo root: `AGENTS.md` (canonical, shown below) and a one-line `CLAUDE.md` forwarder:
-
-```
-See @AGENTS.md for more information.
-```
-
-The forwarder ensures Claude Code's native CLAUDE.md discovery picks up the project context. Other agents read `AGENTS.md` directly.
+The skill writes one file at the repo root, `AGENTS.md`, shown below. Claude Code, Codex, and the other agents that follow the AGENTS.md standard read it directly.
 
 ---
 

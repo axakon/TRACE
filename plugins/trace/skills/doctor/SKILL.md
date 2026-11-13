@@ -1,6 +1,6 @@
 ---
 name: "doctor"
-description: "Validate a TRACE-adopted scope against TRACE's own conventions — doc structure, marker pairs, AGENTS.md spec, ADR numbering and immutability, working-note banners, relative links — then guide the fixes. Owns the resolution flow for ADR number collisions left by merged branches. Useful after merges, before releases, or whenever the structure feels off."
+description: "Validate a TRACE-adopted scope against TRACE's own conventions — doc structure, markers, CLAUDE files that hide AGENTS.md, AGENTS.md spec, ADR numbering and immutability, working-note banners, relative links — then guide the fixes. Owns the resolution flow for ADR number collisions left by merged branches. Useful after merges, before releases, or whenever the structure feels off."
 ---
 
 Use the available file and shell tools. Resolve <absolute-skill-directory> from the installed SKILL.md path before running a script, and quote the resolved absolute path. Use an available question control for closed choices, or ask in chat if it is unavailable. Wait for the developer’s answer. Load a referenced skill from the installed skills catalog; do not assume a Skill tool exists. Respect the active collaboration mode and permissions.
@@ -20,7 +20,7 @@ Resolve the scope per [scope-resolution.md](../../shared/scope-resolution.md) �
 node "<absolute-skill-directory>/../../scripts/doctor.js" check <scope-root>
 ```
 
-The JSON report covers: canonical doc structure and marker pairs, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
+The JSON report covers: canonical doc structure and markers, CLAUDE files beside AGENTS.md, the root AGENTS.md against its spec, ADR filenames / sequential numbering / collisions / post-ship edits, working-note banners and `Status:` headers, and relative-link resolution across the docs tree and root AGENTS.md. If the resolved `docs_folder` in the report is wrong, re-run with `--docs <folder>`.
 
 **Monorepos:** when the scope contains nested scopes (project-level `AGENTS.md` files under the root), add `--all` — the script discovers every scope and returns one report per TRACE-adopted scope (`scope_rel` names each). Triage and fix per scope; the phases below apply to each in turn. Two things `--all` deliberately does not validate: an `AGENTS.md` inside another scope's docs folder is docs content (a folder guide), never a scope; and a scope with a bare `AGENTS.md` but no TRACE config or marked docs folder comes back under `context_only` — mention those as information ("run `$trace:init <scope>` if it should carry the tree"), since adopting a scope is a decision, not a repair.
 
@@ -54,7 +54,6 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 
 **Auto-fix (apply, then report):**
 
-- **Missing or non-forwarder `CLAUDE.md`** → write the forwarder (`See @AGENTS.md for more information.`). Overwriting is safe only when the existing content is a forwarder variant; anything with real content goes to the ask bucket.
 - **Missing docs-folder marker `AGENTS.md`** → write it from [context-folder-template.md](../distil/context-folder-template.md) — only when no `AGENTS.md` exists there at all.
 - **Working-note banner / `Status:` missing** → insert the banner line right under the title and `Status: Research note`.
 - **Broken relative links where the target clearly moved** (the file exists elsewhere in the scope under the same name) → fix the path.
@@ -62,7 +61,10 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 
 **Needs input (batch into one question):**
 
-- **An existing `AGENTS.md` or `CLAUDE.md` with real, non-template content** in the way of a marker or forwarder — never overwrite prose you didn't write.
+- **An existing `AGENTS.md` with real, non-template content** in the way of a marker — never overwrite prose you didn't write.
+- **`legacy-forwarder`** → the one-line `CLAUDE.md` forwarders TRACE 2.0.0 and earlier wrote. Claude Code 2.1.277 and later reads `AGENTS.md` without them. Offer one choice for the whole scope: **Delete all forwarders** / **Keep them**. Delete them together, never one at a time: a `CLAUDE.md` left in a parent folder stops Claude Code reading every `AGENTS.md` below it. A finding with `kept_by` is report-only: the CLAUDE files it names sit above the scope, so the forwarder stays until they go.
+- **`agents-md-hidden`** → a `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` stops Claude Code reading the `AGENTS.md` beside and below it. A finding on a CLAUDE file means the file has no `@AGENTS.md` import; an import inside backticks doesn't count. Offer **Move its content into AGENTS.md and delete it** / **Add an `@AGENTS.md` import**. For `CLAUDE.local.md`, which is usually gitignored, say that `git diff` won't show the change.
+- **`agents-md-hidden` on an `AGENTS.md` with `hidden_by`** → report only. The CLAUDE files it names sit in folders above, often outside the repo, so they aren't doctor's to change. Pass on the message: it names the fix, including moving `~/.claude/CLAUDE.md` into the folder `CLAUDE_CONFIG_DIR` points to.
 - **Broken links whose target never existed or is ambiguous** (several same-named candidates, or none).
 
 **Report only (never auto-fix):**

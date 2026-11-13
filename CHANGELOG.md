@@ -8,7 +8,13 @@ Entries before 1.0.0 describe the single `playbook` plugin this suite was split 
 
 ### Changed
 
+- **TRACE writes `AGENTS.md` only.** `/trace:init`, `/trace:agents-md-setup`, and `/trace:distil` no longer write a one-line `CLAUDE.md` forwarder. Claude Code 2.1.277 and later reads `AGENTS.md` itself, but only where no `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` sits in that folder or above it. Claude Code users need 2.1.277 or later (ADR 0015).
+- **`/trace:doctor` offers to delete old forwarders.** The new `legacy-forwarder` finding marks each forwarder TRACE 2.0.0 and earlier wrote. Doctor offers to delete them all at once, because a `CLAUDE.md` left in a parent folder hides every `AGENTS.md` below it. It keeps a forwarder next to another CLAUDE file, and below a CLAUDE file above the scope (`kept_by`). Doctor no longer warns when a forwarder is missing.
 - **An ADR now ships when it reaches the default branch.** Before, an ADR shipped when it was first committed. Review fixes and a renumber inside the ADR's own pull request are now drafting, not edits to a shipped ADR. The ADR README, the `adr` skill, and the ADR template now say so (ADR 0014).
+
+### Added
+
+- **`/trace:doctor` reports CLAUDE files that hide `AGENTS.md`.** The `agents-md-hidden` finding marks a `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` without an `@AGENTS.md` import, since Claude Code reads that file instead of `AGENTS.md`. An import inside backticks, as in ``See `@AGENTS.md` ``, loads nothing and is flagged too. The finding also covers CLAUDE files in parent folders, listed in `hidden_by`. With `CLAUDE_CONFIG_DIR` set to another folder, `~/.claude/CLAUDE.md` is one of those, and doctor says to move it into the config folder.
 
 ### Fixed
 

@@ -62,6 +62,7 @@ The context graph measures how much instruction context an agent carries at each
 
 ## Known simplifications
 
-- Hops are counted from every own file at hop 0. Claude Code starts at `CLAUDE.md` and reaches `AGENTS.md` through the forwarder at hop 1, so a file exactly four hops from `AGENTS.md` is counted here and not loaded there.
+- Hops are counted from every own file at hop 0. Where a `CLAUDE.md` forwarder remains, Claude Code starts at `CLAUDE.md` and reaches `AGENTS.md` at hop 1, so a file exactly four hops from `AGENTS.md` is counted here and not loaded there.
+- A `CLAUDE.md` or `CLAUDE.local.md` that does not import `@AGENTS.md` stops Claude Code reading the `AGENTS.md` beside and below it. The graph still counts that `AGENTS.md`.
 - `.claude/rules/` files are not counted.
 - Counting is per node. Claude Code may deduplicate a file imported at two levels of the chain.
