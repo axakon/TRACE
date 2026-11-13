@@ -2,7 +2,7 @@
 name: spec
 description: Plan substantial work through an interview, review explicit acceptance criteria, then implement and verify the approved change
 when_to_use: When the developer is starting substantial work — adding a feature, building or implementing something new, refactoring across multiple files, or anything with acceptance criteria they can't hold in their head. Trigger on phrases like "let's add", "I want to build", "we need to implement", "help me refactor", or any request describing scope that sounds like more than a single-file change. Not for one-line fixes, typos, config tweaks, or contained edits — those go through the direct path. Phase 1 establishes the scope (asking the developer if the invocation didn't include one) and confirms it warrants the spec path, so it is safe to trigger on borderline or bare invocations; the developer can redirect to the direct path.
-allowed-tools: Glob Read Edit Write Skill AskUserQuestion EnterPlanMode ExitPlanMode Bash(node *)
+allowed-tools: Glob Grep Read Edit Write Skill AskUserQuestion EnterPlanMode ExitPlanMode Bash(node *)
 ---
 
 {{host-instructions}}
@@ -25,6 +25,14 @@ If the work is genuinely substantial, proceed.
 
 {{plan-start}}
 
+**Look for house rules first.** Before the first question, take a short look for rules that already cover this work:
+
+- `AGENTS.md` files in the scope and in the folders the change touches
+- the docs folder (architecture, ADRs, system docs) for this subject. [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) says how to find it.
+- one or two places in the code that already solve a similar problem
+
+Tell the developer in a few lines what you found, with paths. Follow it in the plan. If the plan breaks a rule or a pattern, say so and ask. If you found nothing, say so in one line. A short search is enough. This is not an audit.
+
 Interview the developer until you understand:
 
 - What outcome the developer wants (not just what code to write)
@@ -39,6 +47,7 @@ The plan **is the contract** the work is verified against, so it must state the 
 Run the interview like this:
 - **Answer from the codebase first** — only ask what the repo can't settle.
 - **One question at a time, each with your recommended answer** — let the developer confirm or redirect rather than start cold. Still wait for a real answer; don't take a quick yes as settled.
+- **Give context before each question** — read [question-context.md](../../shared/question-context.md) before the first question and follow it for every question.
 - **Resolve the plan as a decision tree** — settle the choices that constrain others first.
 - **Probe once more** when an answer is thin. Don't produce a plan until the whole checklist above is answered.
 
