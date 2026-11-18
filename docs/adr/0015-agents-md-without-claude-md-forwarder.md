@@ -1,5 +1,7 @@
 # 0015. Write AGENTS.md only, without a CLAUDE.md forwarder
 
+> Superseded by 0017.
+
 *2026-11-10*
 
 ## Context
