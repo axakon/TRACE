@@ -4,7 +4,7 @@ All notable changes to the TRACE plugin are recorded here. The Claude Code and C
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
-## [Unreleased]
+## [2.1.1] - 2026-11-18
 
 ### Changed
 
