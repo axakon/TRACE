@@ -14,6 +14,8 @@ Entries before 1.0.0 describe the single `playbook` plugin this suite was split 
 
 ### Added
 
+- **`/trace:spec` gives context before each question.** A new shared file, `question-context.md`, sets the order: the subject, how it works now, what the answer decides, a recommendation, then the question. The options and their costs go in the question control, not in the context text.
+- **`/trace:spec` looks for house rules before the interview.** It takes a short look at `AGENTS.md` files, the docs folder, and similar code, and tells the developer what it found. The skill can now use `Grep` to search the code.
 - **`/trace:doctor` reports CLAUDE files that hide `AGENTS.md`.** The `agents-md-hidden` finding marks a `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` without an `@AGENTS.md` import, since Claude Code reads that file instead of `AGENTS.md`. An import inside backticks, as in ``See `@AGENTS.md` ``, loads nothing and is flagged too. The finding also covers CLAUDE files in parent folders, listed in `hidden_by`. With `CLAUDE_CONFIG_DIR` set to another folder, `~/.claude/CLAUDE.md` is one of those, and doctor says to move it into the config folder.
 
 ### Fixed

@@ -23,6 +23,14 @@ If the work is genuinely substantial, proceed.
 
 Use the active Codex collaboration mode. If Plan mode is active, work within it. Otherwise conduct the interview in chat. Do not call EnterPlanMode or attempt to change the collaboration mode. Wait for explicit approval before implementation.
 
+**Look for house rules first.** Before the first question, take a short look for rules that already cover this work:
+
+- `AGENTS.md` files in the scope and in the folders the change touches
+- the docs folder (architecture, ADRs, system docs) for this subject. [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) says how to find it.
+- one or two places in the code that already solve a similar problem
+
+Tell the developer in a few lines what you found, with paths. Follow it in the plan. If the plan breaks a rule or a pattern, say so and ask. If you found nothing, say so in one line. A short search is enough. This is not an audit.
+
 Interview the developer until you understand:
 
 - What outcome the developer wants (not just what code to write)
@@ -37,6 +45,7 @@ The plan **is the contract** the work is verified against, so it must state the 
 Run the interview like this:
 - **Answer from the codebase first** — only ask what the repo can't settle.
 - **One question at a time, each with your recommended answer** — let the developer confirm or redirect rather than start cold. Still wait for a real answer; don't take a quick yes as settled.
+- **Give context before each question** — read [question-context.md](../../shared/question-context.md) before the first question and follow it for every question.
 - **Resolve the plan as a decision tree** — settle the choices that constrain others first.
 - **Probe once more** when an answer is thin. Don't produce a plan until the whole checklist above is answered.
 
