@@ -6,7 +6,7 @@ description: "Record an architecture decision as a lightweight, immutable ADR in
 Use the available file and shell tools. Resolve <absolute-skill-directory> from the installed SKILL.md path before running a script, and quote the resolved absolute path. Use an available question control for closed choices, or ask in chat if it is unavailable. Wait for the developer’s answer. Load a referenced skill from the installed skills catalog; do not assume a Skill tool exists. Respect the active collaboration mode and permissions.
 
 
-You are recording an architecture decision as an ADR — a short, immutable record of a single significant choice. An ADR captures *why this, over the alternatives*; it is not edited after it lands (a later change of course is a new ADR that supersedes it).
+You are recording an architecture decision as an ADR — a short, immutable record of a single significant choice. An ADR captures *why this, over the alternatives*; it is not edited after it lands (a later change of course is a new ADR that supersedes or amends it).
 
 Before doing anything, read [adr-criteria.md](../../shared/adr-criteria.md) (the bar, for Phase 2) and [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) (folder lookup, for Phase 3). You'll read [adr-template.md](./adr-template.md) and [authoring-rules.md](../../shared/authoring-rules.md) in Phase 4, only if the decision clears the bar.
 
@@ -22,7 +22,7 @@ Find the decision you are recording.
 
 Apply [adr-criteria.md](../../shared/adr-criteria.md), hard gate first. If the decision doesn't clear it, say so and point the developer to `$trace:distil` — don't write a low-value ADR.
 
-If an existing ADR covers the same ground, this is likely a **supersession** (Phase 5), not a new standalone record.
+If an existing ADR covers the same ground, the new ADR supersedes or amends it (Phase 5); adr-criteria.md says which.
 
 ## Phase 3: Resolve the target folder and next number
 
@@ -38,17 +38,17 @@ Choose a kebab-case `<short-title>` slug. The filename is `<NNNN>-<short-title>.
 
 Show the developer the drafted ADR and its target path. Wait for explicit approval. Apply edits if requested.
 
-## Phase 5: Write (and supersede, if applicable)
+## Phase 5: Write (and supersede or amend, if applicable)
 
 Write the approved ADR to `<docs-folder>/adr/<NNNN>-<short-title>.md`. Create the ADR directory if it does not exist.
 
-If this ADR supersedes an earlier one:
-- In the new ADR's Context, name the one it supersedes (e.g. "Supersedes 0003.").
-- Add a `> Superseded by {NNNN}.` line under the **old** ADR's title — the only permitted edit to an existing ADR. Show the developer this edit and confirm before applying it.
+If this ADR supersedes or amends an earlier one:
+- In the new ADR's Context, name it: "Supersedes 0003." or "Amends 0003." When it amends, say which part still stands.
+- Add `> Superseded by {NNNN}.` or `> Amended by {NNNN}.` under the **old** ADR's title — the only permitted edit to an existing ADR. Show the developer this edit and confirm before applying it.
 
 ## Notes
 
-- ADRs become immutable **once shipped** (merged to the default branch, usually `main` or `master`). The skill writes ADRs at end-of-work, so treat the body as final once written. Change it before the merge only when the developer or a reviewer asks. Course corrections are a *new* ADR that supersedes the old one.
+- ADRs become immutable **once shipped** (merged to the default branch, usually `main` or `master`). The skill writes ADRs at end-of-work, so treat the body as final once written. Change it before the merge only when the developer or a reviewer asks. Course corrections are a *new* ADR that supersedes or amends the old one.
 - This skill does not mark the docs folder as the durable-context folder and does not touch the directory index — those are `init`/`distil`/`agents-md-setup` concerns. ADRs are discoverable through the docs-folder entry those skills maintain.
 - One ADR per decision. If the work settled several distinct decisions, record them as separate ADRs.
 

@@ -49,7 +49,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 
 3. **Resolve each reference by reading it.** Every scope numbers its own ADRs, so first check each entry's `nearest_scope`: a reference whose nearest scope differs from the collided ADR's scope refers to *that* scope's own sequence — leave it unchanged; it isn't part of this collision. For the rest, open enough surrounding context to judge which decision the reference means, then split by confidence:
    - **Confident** — the line names the slug or filename, or the surrounding context plainly matches one decision's subject and not the other's. Apply directly: leave it (means the keeper) or rewrite to the new number/filename (means the renumbered one).
-   - **Uncertain** — the context fits both decisions, or there's no context to read. Collect these and ask once, quoting each line with your best guess. A `> Superseded by <old-number>.` banner is always in this bucket unless the superseding ADR's own text names its target — pointing it at the wrong decision silently corrupts the record.
+   - **Uncertain** — the context fits both decisions, or there's no context to read. Collect these and ask once, quoting each line with your best guess. A `> Superseded by <old-number>.` or `> Amended by <old-number>.` banner is always in this bucket unless the newer ADR's own text names its target — pointing it at the wrong decision silently corrupts the record.
 
 4. Re-run `refs <old-number>` afterwards; every remaining hit should be one you deliberately left. Include the full resolution list (reference → kept / rewritten → why) in the Phase 5 summary.
 
@@ -73,7 +73,7 @@ Two files sharing a number is almost always a branch merge: each branch minted t
 **Report only (never auto-fix):**
 
 - **Root AGENTS.md out of spec** → recommend `/trace:agents-md-setup` (review mode); piecemeal patching fights that skill's interview.
-- **Shipped ADR edited beyond a supersession banner** → show what changed (`git diff <shipped_in> -- <file>`, where `shipped_in` is the commit that first brought the ADR to the default branch) and recommend reverting or a superseding ADR via `/trace:adr`. Rewriting records is not doctor's call.
+- **Shipped ADR edited beyond a supersede or amend banner** → show what changed (`git diff <shipped_in> -- <file>`, where `shipped_in` is the commit that first brought the ADR to the default branch) and recommend reverting or a new ADR that supersedes or amends it via `/trace:adr`. Rewriting records is not doctor's call.
 - **ADR numbering gaps** → a gap is history, not damage; renumbering shipped ADRs breaks references.
 
 ## Phase 5: Confirm clean and summarise

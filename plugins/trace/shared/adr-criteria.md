@@ -1,6 +1,6 @@
 # When a decision warrants an ADR
 
-An ADR records one *architecturally significant* decision (Nygard's term): the choice, its context, and its consequences. It is immutable — a later change of course is a new ADR that supersedes it. The bar is high; most durable knowledge is distil-tier, not an ADR. Significant is not the same as architectural, and costly-to-reverse is not the same as architectural — gate on the dimensions below, not on how consequential or hard-to-undo the choice feels.
+An ADR records one *architecturally significant* decision (Nygard's term): the choice, its context, and its consequences. It is immutable — a later change of course is a new ADR that supersedes or amends it. The bar is high; most durable knowledge is distil-tier, not an ADR. Significant is not the same as architectural, and costly-to-reverse is not the same as architectural — gate on the dimensions below, not on how consequential or hard-to-undo the choice feels.
 
 ## Hard gate — architectural significance
 
@@ -23,6 +23,6 @@ A choice localized to one feature or module touches none of these → distil-tie
 
 - A **gotcha or constraint** a future dev must respect (a footgun, an ordering requirement) → distilled gotcha.
 - A **localized feature decision**, or the **conventional solution** to a problem → distil.
-- **Already covered by an ADR** → write a superseding ADR that references the original.
+- **Already covered by an ADR** → a new ADR that names the original. It *supersedes* it when the old decision no longer holds, and *amends* it when part changes and the rest still stands.
 
 Below the gate but still durable → distilled context (see [distillation-criteria.md](distillation-criteria.md)).

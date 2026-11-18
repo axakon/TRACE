@@ -83,6 +83,10 @@ for (const base of ['deliverable/plugins/trace', 'plugins/trace']) {
     commitAll(scope, 'Run Prettier');
     assert.deepEqual(doctor(scope).warnings, []);
 
+    // Supersede and amend banners are the edits a shipped ADR allows.
+    write('docs/adr/0001-use-postgres.md', ADR.replace('\n\n*2026', '\n\n> Amended by 0002.\n\n> Superseded by 0003.\n\n*2026'));
+    assert.deepEqual(doctor(scope).warnings, []);
+
     // Changing the decision after shipping is flagged against the merge.
     write('docs/adr/0001-use-postgres.md', ADR.replace('We use Postgres.', 'We use SQLite.'));
     const report = doctor(scope);
@@ -90,6 +94,16 @@ for (const base of ['deliverable/plugins/trace', 'plugins/trace']) {
     assert.equal(report.warnings.length, 1);
     assert.equal(report.warnings[0].check, 'adr-immutability');
     assert.equal(report.warnings[0].shipped_in, merge);
+  });
+
+  test(`${base}: refs finds supersede and amend banners`, (t) => {
+    const { scope, write } = makeScope(t, AGENTS_MD);
+    write('docs/adr/0001-use-postgres.md', ADR.replace('\n\n*2026', '\n\n> Amended by 0002.\n\n*2026'));
+    write('docs/adr/0003-use-mysql.md', '# 0003. Use MySQL\n\n> Superseded by 0002.\n');
+    const result = spawnSync(process.execPath, [path.join(ROOT, base, 'scripts/doctor.js'), 'refs', '0002', scope], { encoding: 'utf8' });
+    assert.equal(result.status, 0, result.stderr);
+    const texts = JSON.parse(result.stdout).references.map((r) => r.text);
+    assert.deepEqual(texts.sort(), ['> Amended by 0002.', '> Superseded by 0002.']);
   });
 
   test(`${base}: doctor suggests deleting old CLAUDE.md forwarders`, (t) => {

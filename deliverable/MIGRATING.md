@@ -212,7 +212,7 @@ Remove the old `ai-playbook` marketplace entry and the `playbook@ai-playbook` ke
 
 Two exceptions — leave these alone:
 
-- **Immutable ADRs** (`<docs-folder>/adr/NNNN-*.md`). They are historical records of what was true when written. If one is now materially misleading, tell the user; a new superseding ADR is the correct fix, never an edit.
+- **Immutable ADRs** (`<docs-folder>/adr/NNNN-*.md`). They are historical records of what was true when written. If one is now materially misleading, tell the user; a new ADR that supersedes or amends it is the correct fix, never an edit.
 - **Anything that reads as a historical note** — changelogs, frozen working notes, meeting records.
 
 **Env vars.** If Phase 0 found `PLAYBOOK_PLAN_VIEWER` or `PLAYBOOK_PLAN_VIEWER_PORT` in repo files (`.env`, `launch.json`, CI config), update them to the `TRACE_` names. Report any in shell profiles rather than editing them.
