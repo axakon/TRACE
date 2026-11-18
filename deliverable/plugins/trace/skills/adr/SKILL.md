@@ -2,7 +2,7 @@
 name: "adr"
 description: "Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by /trace:spec at handoff."
 argument-hint: "[short decision title]"
-allowed-tools: "Glob Read Write AskUserQuestion"
+allowed-tools: "Glob Read Edit Write AskUserQuestion"
 ---
 
 Use Claude Code’s Read, Glob, Write, and Edit tools for file operations. Use AskUserQuestion for closed choices and normal chat for open questions. Invoke referenced skills with the Skill tool. Resolve script paths from this installed skill; respect the session’s permissions.

@@ -3,7 +3,7 @@ name: adr
 description: Record an architecture decision as a lightweight, immutable ADR in the scope's docs folder. Owns the ADR template, numbering, and write. Invokable directly for a direct-path decision, or by {{skill:trace:spec}} at handoff.
 when_to_use: When an *architecturally significant* decision has been made — one affecting the system's structure, non-functional characteristics, a foundational dependency, a public interface, or a reused construction technique, with a real choice between alternatives. Spec-workflow invokes this at handoff when a planning decision qualifies; a developer can invoke it directly too. Not for a choice localized to one feature or module, a conventional default, or a routine/cheap-to-reverse implementation choice — route those to {{skill:trace:distil}}.
 argument-hint: [short decision title]
-allowed-tools: Glob Read Write AskUserQuestion
+allowed-tools: Glob Read Edit Write AskUserQuestion
 ---
 
 {{host-instructions}}
