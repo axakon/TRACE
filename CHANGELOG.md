@@ -4,6 +4,17 @@ All notable changes to the TRACE plugin are recorded here. The Claude Code and C
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Changed
+
+- **TRACE writes the `CLAUDE.md` forwarder again.** `/trace:init`, `/trace:agents-md-setup`, and `/trace:distil` write `See @AGENTS.md for more information.` beside every `AGENTS.md`, as in 2.0.0. Under Claude Code's default **Project instructions** setting, any `CLAUDE.md`, `CLAUDE.local.md`, or `.claude/CLAUDE.md` in a folder or above it stops Claude Code reading `AGENTS.md` there. The forwarder is the one layout that loads `AGENTS.md` under every setting and on every version (ADR 0017).
+- **`/trace:doctor` warns about a missing forwarder again.** It reports a missing or non-forwarder `CLAUDE.md` beside the root and docs-folder `AGENTS.md`, as in 2.0.0. The `legacy-forwarder` and `agents-md-hidden` findings are gone.
+
+### Fixed
+
+- **`/trace:doctor` flags a forwarder whose import is in backticks.** ``See `@AGENTS.md` `` loads nothing, because Claude Code does not follow an import inside backticks. 2.0.0's doctor accepted it.
+
 ## [2.1.0] - 2026-11-18
 
 ### Changed
