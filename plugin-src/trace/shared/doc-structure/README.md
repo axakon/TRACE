@@ -27,7 +27,7 @@ docs/
 |---|---|---|---|
 | [`system/`](system/) | Descriptive | Living docs about the codebase — auth, data model, conventions. Binding context for agents working in those areas. | Updated as code changes. |
 | [`architecture/`](architecture/) | Prescriptive | Operational rules in MUST voice + the structural `overview.md`. Integration specs, contracts, sequences. | Updated as rules change. |
-| [`adr/`](adr/) | Historical | Discrete decisions with consequences (Nygard-lite). | Immutable once shipped; supersede, never edit. |
+| [`adr/`](adr/) | Historical | Discrete decisions with consequences (Nygard-lite). | Immutable once shipped; supersede or amend, never edit. |
 | [`reference/`](reference/) | Historical | Long-form rationale promoted from stabilized working notes. | Append-only; revised deliberately. |
 | [`working-notes/`](working-notes/) | Historical | Raw research, half-formed opinions, things still moving. | In motion until promoted. |
 

@@ -50,7 +50,7 @@ The READMEs are intended to be copied without edits. They are written as convent
 | [`docs/`](docs/) | — | The three-category index. | — |
 | [`docs/system/`](docs/system/) | Descriptive | Living docs about the codebase. Binding context for agents working in an area. | Updated as code changes. |
 | [`docs/architecture/`](docs/architecture/) | Prescriptive | Operational rules in MUST voice + the structural overview. | Updated as rules change. |
-| [`docs/adr/`](docs/adr/) | Historical | Immutable decisions with consequences. | Append-only; supersede once shipped. |
+| [`docs/adr/`](docs/adr/) | Historical | Immutable decisions with consequences. | Append-only; supersede or amend once shipped. |
 | [`docs/reference/`](docs/reference/) | Historical | Long-form rationale promoted from stabilized working notes. | Append-only; revised deliberately. |
 | [`docs/working-notes/`](docs/working-notes/) | Historical | Raw research substrate; not authoritative until promoted. | In motion until promoted. |
 

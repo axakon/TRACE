@@ -13,7 +13,7 @@ ADRs are the project's structural memory. When a future contributor asks "why is
 - Numbered files: `0001-<short-kebab-name>.md`, `0002-<...>.md`, etc., strictly sequential.
 - One decision per file.
 - Three sections, in order: **Context** (the forces in tension, alternatives considered), **Decision** (what we will do, in active voice), **Consequences** (what becomes easier, what becomes harder).
-- No `Status` field. A shipped ADR is accepted by definition; an unshipped one is still being edited. Supersession adds a `> Superseded by <NNNN>.` line under the title — the only edit allowed on a shipped ADR.
+- No `Status` field. A shipped ADR is accepted by definition; an unshipped one is still being edited. Supersession or amendment adds one line under the title, `> Superseded by <NNNN>.` or `> Amended by <NNNN>.` — the only edits allowed on a shipped ADR.
 - The foundational record `0000-record-architecture-decisions.md` declares that this project uses ADRs and how. Created once at project setup.
 
 ## What does NOT go here
@@ -28,14 +28,15 @@ ADRs are the project's structural memory. When a future contributor asks "why is
 ADRs become **immutable once shipped**. Two phases:
 
 - **Draft (not yet on the default branch, usually `main` or `master`).** Edit freely, on your machine and in the ADR's own pull request. Reshape the framing, fix mistakes, sharpen the wording, renumber it to avoid a collision. The ADR is not yet part of the project's record, and a tidy revised version is more useful than a `0001 + 0002 (supersedes 0001)` pair where both are one day old.
-- **Shipped (merged to the default branch).** Immutable. A future reader needs to see the decision as it stood when it was made; downstream commits, ADRs, and implementations may quote or rely on its exact wording. From here on, course corrections are a *new* ADR that supersedes the old one. A formatter run that changes only whitespace or emphasis markers is not an edit.
+- **Shipped (merged to the default branch).** Immutable. A future reader needs to see the decision as it stood when it was made; downstream commits, ADRs, and implementations may quote or rely on its exact wording. From here on, course corrections are a *new* ADR that supersedes or amends the old one. A formatter run that changes only whitespace or emphasis markers is not an edit.
 
 The rule of thumb: an ADR stays a draft until it merges, even when reviewers or other branches have read it.
 
-When superseding a shipped ADR:
+When a new ADR changes a shipped one:
 
-- Add a `> Superseded by <NNNN>.` line under the **old** ADR's title — the only permitted edit to a shipped ADR. The body stays untouched.
-- The new ADR's body explains what changed and why, and references the superseded one by number in its Context.
+- **Supersede** when the old decision no longer holds: add `> Superseded by <NNNN>.` under the old ADR's title.
+- **Amend** when part of it changes and the rest still stands: add `> Amended by <NNNN>.` under the old ADR's title. A reader needs both ADRs.
+- The banner is the only edit; the old ADR's body stays untouched. The new ADR's Context names the old one by number ("Supersedes 0003." or "Amends 0003."), explains what changed and why, and, for an amendment, says what still stands.
 - Numbers are strictly sequential. Never renumber, never reuse a number for a different decision.
 
 ## When to write one

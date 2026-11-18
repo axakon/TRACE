@@ -1,8 +1,8 @@
 # ADR template (slimmed Nygard)
 
-Written into `<docs-folder>/adr/<NNNN>-<short-title>.md`. `<NNNN>` is a zero-padded four-digit sequence number; `<short-title>` is a kebab-case slug. Once shipped, an ADR is immutable — supersede, never edit.
+Written into `<docs-folder>/adr/<NNNN>-<short-title>.md`. `<NNNN>` is a zero-padded four-digit sequence number; `<short-title>` is a kebab-case slug. Once shipped, an ADR is immutable — supersede or amend, never edit.
 
-No `Status` field: this skill writes ADRs at end-of-work, so on landing they're accepted; an unshipped draft (not yet merged to the default branch) can still be edited freely until it merges. If a later ADR reverses this one, add a single `> Superseded by {MMMM}.` line under the title — the only permitted edit to a shipped ADR.
+No `Status` field: this skill writes ADRs at end-of-work, so on landing they're accepted; an unshipped draft (not yet merged to the default branch) can still be edited freely until it merges. A later ADR that replaces this one adds `> Superseded by {MMMM}.` under the title, and one that changes part of it adds `> Amended by {MMMM}.` — the only permitted edits to a shipped ADR.
 
 Drop this preamble when writing the file; start from the `# {NNNN}.` heading.
 

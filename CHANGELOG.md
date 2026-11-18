@@ -4,6 +4,16 @@ All notable changes to the TRACE plugin are recorded here. The Claude Code and C
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Added
+
+- **An ADR can amend an earlier one.** When a new ADR changes part of a shipped ADR and the rest still stands, `/trace:adr` adds `> Amended by NNNN.` under the old ADR's title. When the old decision no longer holds, it adds `> Superseded by NNNN.` as before. The new ADR's Context names the old one ("Amends 0003.") and says what still stands. `/trace:doctor` accepts both lines on a shipped ADR, and `doctor.js refs` finds both. The ADR README, the ADR template, and `adr-criteria.md` explain the difference (ADR 0016).
+
+### Fixed
+
+- **`/trace:adr` edits the old ADR without a permission prompt in Claude Code.** The skill's `allowed-tools` now lists `Edit`, which it needs to add a `Superseded by` or `Amended by` line under an earlier ADR's title.
+
 ## [2.1.0] - 2026-11-18
 
 ### Changed

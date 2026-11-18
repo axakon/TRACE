@@ -247,15 +247,16 @@ function checkAgentsMd(scope, report) {
 }
 
 // The ADR text a reader sees, for the immutability comparison. Drops
-// supersession banners: any blockquote line that starts "Superseded by",
-// since humans write variants of the canonical "> Superseded by NNNN." form.
+// supersede and amend banners: any blockquote line that starts "Superseded
+// by" or "Amended by", since humans write variants of the canonical
+// "> Superseded by NNNN." and "> Amended by NNNN." forms.
 // Also ignores what a formatter such as Prettier changes without changing
 // the words: whitespace and line breaks, _ versus * emphasis, and * or +
 // versus - bullets.
 function normalizeAdr(content) {
   return content
     .split('\n')
-    .filter((line) => !/^>\s*superseded by\b/i.test(line.trim()))
+    .filter((line) => !/^>\s*(?:superseded|amended) by\b/i.test(line.trim()))
     .map((line) => line.replace(/^(\s*)[*+](\s)/, '$1-$2'))
     .join('\n')
     .replace(/_/g, '*')
@@ -390,7 +391,7 @@ function checkAdrs(scope, docs, report) {
     if (normalizeAdr(original) !== normalizeAdr(current)) {
       report.warnings.push({
         check: 'adr-immutability', path: relPath, shipped_in: addCommit,
-        message: `Shipped ADR differs from the version that first reached ${baseName} (${addCommit.slice(0, 7)}) beyond supersession banners and formatting — shipped ADRs are immutable; course corrections are a new superseding ADR.`,
+        message: `Shipped ADR differs from the version that first reached ${baseName} (${addCommit.slice(0, 7)}) beyond supersede and amend banners and formatting — shipped ADRs are immutable; course corrections are a new ADR that supersedes or amends it.`,
       });
     }
   }
@@ -497,7 +498,7 @@ function findAdrReferences(scope, number, docs) {
   const n = parseInt(number, 10);
   const prose = /\badr[\s\-_#:]{0,3}(\d{1,4})\b/gi;
   const filename = /\b(\d{4})-[a-z0-9][a-z0-9-]*\.md\b/g;
-  const superseded = /\bSuperseded by (\d{4})\b/gi;
+  const banner = /\b(?:Superseded|Amended) by (\d{4})\b/gi;
 
   const files = [];
   collectAllFiles(scope, files);
@@ -513,7 +514,7 @@ function findAdrReferences(scope, number, docs) {
 
     const lines = content.split('\n');
     lines.forEach((line, i) => {
-      for (const pattern of [prose, filename, superseded]) {
+      for (const pattern of [prose, filename, banner]) {
         pattern.lastIndex = 0;
         let m;
         while ((m = pattern.exec(line)) !== null) {
