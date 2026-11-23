@@ -30,7 +30,7 @@ Use EnterPlanMode when available. If the session cannot enter plan mode, conduct
 - the docs folder (architecture, ADRs, system docs) for this subject. [docs-folder-resolution.md](../../shared/docs-folder-resolution.md) says how to find it.
 - one or two places in the code that already solve a similar problem
 
-Tell the developer in a few lines what you found, with paths. Follow it in the plan. If the plan breaks a rule or a pattern, say so and ask. If you found nothing, say so in one line. A short search is enough. This is not an audit.
+Tell the developer in a few lines what you found, with paths. When your next step is a question control, put these lines at the start of the first question's text instead, so the developer sees them. Follow it in the plan. If the plan breaks a rule or a pattern, say so and ask. If you found nothing, say so in one line. A short search is enough. This is not an audit.
 
 Interview the developer until you understand:
 

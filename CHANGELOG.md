@@ -4,6 +4,12 @@ All notable changes to the TRACE plugin are recorded here. The Claude Code and C
 
 Entries before 1.0.0 describe the single `playbook` plugin this suite was split out of; the skill names they mention are the pre-1.0 ones.
 
+## [Unreleased]
+
+### Fixed
+
+- **`/trace:spec` shows its context in the question itself.** The agent wrote the context only in its thinking and sent the question control with no text before it, so the developer saw none. Claude Code tells the agent that text before the question control may not be on screen. `question-context.md` now puts the context in the control's question text, and the house rules report goes at the start of the first question. In chat, the context still comes before the question.
+
 ## [2.1.1] - 2026-11-18
 
 ### Changed
